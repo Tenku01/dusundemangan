@@ -42,12 +42,24 @@ if (! defined('LARAVEL_START')) {
     define('LARAVEL_START', microtime(true));
 }
 
+// Pastikan package & service cache diarahkan ke direktori /tmp yang writable
+putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
+putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
+putenv('VIEW_COMPILED_PATH=/tmp/views');
+$_ENV['APP_PACKAGES_CACHE'] = '/tmp/bootstrap/cache/packages.php';
+$_ENV['APP_SERVICES_CACHE'] = '/tmp/bootstrap/cache/services.php';
+$_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
+$_SERVER['APP_PACKAGES_CACHE'] = '/tmp/bootstrap/cache/packages.php';
+$_SERVER['APP_SERVICES_CACHE'] = '/tmp/bootstrap/cache/services.php';
+$_SERVER['VIEW_COMPILED_PATH'] = '/tmp/views';
+
 // Register Composer autoloader
 require __DIR__.'/../vendor/autoload.php';
 
 // Bootstrap Laravel
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
+$app->useStoragePath('/tmp/storage');
 
 try {
     $app->handleRequest(Request::capture());
