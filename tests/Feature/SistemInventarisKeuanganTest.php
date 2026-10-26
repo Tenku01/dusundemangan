@@ -12,7 +12,6 @@ class SistemInventarisKeuanganTest extends TestCase
 {
     // Jangan gunakan RefreshDatabase pada MySQL lokal pengguna
 
-
     public function test_halaman_beranda_publik_dapat_diakses_dan_menampilkan_katalog(): void
     {
         $response = $this->get(route('beranda'));

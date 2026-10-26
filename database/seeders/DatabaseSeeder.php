@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Barang;
 use App\Models\Keuangan;
-use App\Models\TagihanListrik;
 use App\Models\User;
 use App\Models\Warga;
 use Illuminate\Database\Seeder;
