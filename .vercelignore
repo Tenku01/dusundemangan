@@ -3,3 +3,5 @@
 .git
 .github
 tests
+bootstrap/cache/*.php
+.env*
