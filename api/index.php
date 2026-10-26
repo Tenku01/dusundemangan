@@ -1,5 +1,8 @@
 <?php
 
+// Suppress deprecations so they do not leak into HTTP response stream
+error_reporting(E_ALL & ~E_DEPRECATED);
+
 // Pastikan direktori storage sementara di /tmp tersedia untuk Vercel Serverless
 $storagePaths = [
     '/tmp/views',
