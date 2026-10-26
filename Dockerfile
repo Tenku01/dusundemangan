@@ -11,6 +11,7 @@ FROM php:8.3-fpm-alpine
 
 # Install System Dependencies & Required Extensions
 RUN apk add --no-cache \
+    ca-certificates \
     nginx \
     supervisor \
     curl \
