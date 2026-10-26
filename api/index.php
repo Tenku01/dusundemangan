@@ -35,4 +35,11 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-$app->handleRequest(Request::capture());
+try {
+    $app->handleRequest(Request::capture());
+} catch (Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: text/html; charset=UTF-8');
+    echo '<h1>Laravel Vercel Error</h1>';
+    echo '<pre>'.htmlspecialchars($e->getMessage()."\n".$e->getFile().':'.$e->getLine()."\n\n".$e->getTraceAsString()).'</pre>';
+}
