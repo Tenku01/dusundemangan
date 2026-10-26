@@ -20,5 +20,9 @@ echo "==> Running Database Migrations & Seeds..."
 php artisan migrate --force || echo "Warning: Database migration failed. Check DB credentials."
 php artisan db:seed --force || echo "Notice: Database seed skipped."
 
+echo "==> Configuring Nginx port..."
+export PORT="${PORT:-8000}"
+sed -i "s/listen [0-9]*;/listen ${PORT};/g" /etc/nginx/http.d/default.conf
+
 echo "==> Starting Web Server (Nginx & PHP-FPM)..."
 exec /usr/bin/supervisord -c /etc/supervisord.conf
