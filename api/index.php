@@ -2,6 +2,7 @@
 
 // Pastikan direktori storage sementara di /tmp tersedia untuk Vercel Serverless
 $storagePaths = [
+    '/tmp/views',
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
     '/tmp/storage/framework/sessions',
