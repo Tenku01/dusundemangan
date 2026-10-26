@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Motion Graphic - Website Karang Taruna Demangan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #07090e;
+      color: #f8fafc;
+      overflow-x: hidden;
+      user-select: none;
+    }
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .gold-gradient {
+      background: linear-gradient(135deg, #FFE082 0%, #CEA042 50%, #996515 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-bg-gradient {
+      background: linear-gradient(135deg, #DFC168 0%, #CEA042 60%, #A3721E 100%);
+    }
+    .gold-glow {
+      box-shadow: 0 0 50px -10px rgba(206, 160, 66, 0.45);
+    }
+    .gold-border {
+      border-color: rgba(206, 160, 66, 0.35);
+    }
+    .video-viewport {
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      max-width: 1100px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 30%, #172033 0%, #0a0d14 70%, #05070a 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(206, 160, 66, 0.3);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 80px -20px rgba(206, 160, 66, 0.25);
+    }
+    /* Grid Background Effect */
+    .grid-lines {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+    /* Particles & Orbs */
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      opacity: 0.5;
+      transition: all 1.2s ease-out;
+    }
+    /* Scene Container Transitions */
+    .motion-scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      opacity: 0;
+      transform: scale(0.96) translateY(20px);
+      pointer-events: none;
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .motion-scene.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+    .motion-scene.exit {
+      opacity: 0;
+      transform: scale(1.04) translateY(-20px);
+      pointer-events: none;
+    }
+    /* Dynamic Animations */
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.15); opacity: 0.7; }
+    }
+    .animate-pulse-glow {
+      animation: pulseGlow 4s infinite ease-in-out;
+    }
+    @keyframes floatPhone {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(-1deg); }
+    }
+    .animate-float-phone {
+      animation: floatPhone 3.5s infinite ease-in-out;
+    }
+    @keyframes scanBeam {
+      0% { top: 0%; opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    .animate-scan-beam {
+      animation: scanBeam 2s infinite ease-in-out;
+    }
+    /* Range input styling */
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #CEA042;
+      cursor: pointer;
+      box-shadow: 0 0 10px #CEA042;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-4 md:p-8 bg-[#07090e]">
+
+  <!-- Header & Bar Navigasi -->
+  <header class="w-full max-w-5xl flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+      <img src="logo-kartar-dmg-circle.png" onerror="this.src='logo-kartar-dmg.jpeg'" class="w-10 h-10 object-contain drop-shadow" alt="Logo">
+      <div>
+        <h1 class="text-sm md:text-base font-bold text-white tracking-wide">WEBSITE KARANG TARUNA DEMANGAN</h1>
+        <p class="text-xs text-amber-300/80 font-medium">Teaser & Motion Graphic Promo Resmi</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        Durasi 60 Detik
+      </span>
+      <button onclick="toggleAudio()" id="audioBtn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-volume-high text-amber-400" id="audioIcon"></i>
+        <span id="audioLabel">Audio SFX: ON</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Video Viewport (16:9 Canvas) -->
+  <div class="video-viewport grid-lines" id="videoCanvas">
+    
+    <!-- Ambient Background Glows -->
+    <div class="ambient-orb w-[450px] h-[450px] bg-amber-500/20 -top-24 -left-24 animate-pulse-glow" id="orb1"></div>
+    <div class="ambient-orb w-[450px] h-[450px] bg-blue-600/15 -bottom-24 -right-24" id="orb2"></div>
+    <div class="ambient-orb w-[300px] h-[300px] bg-emerald-500/10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" id="orb3"></div>
+
+    <!-- Watermark Brand -->
+    <div class="absolute top-6 left-8 flex items-center gap-2 z-30 opacity-70">
+      <div class="w-2 h-2 rounded-full bg-[#CEA042]"></div>
+      <span class="text-xs font-bold tracking-widest text-slate-400 uppercase">Website Karang Taruna Demangan</span>
+    </div>
+
+    <!-- Timecode & Scene Indicator -->
+    <div class="absolute top-6 right-8 flex items-center gap-3 z-30">
+      <div class="px-2.5 py-1 rounded bg-black/40 backdrop-blur border border-white/10 text-[11px] font-mono text-amber-300" id="sceneBadge">
+        SCENE 1/6
+      </div>
+      <div class="px-2.5 py-1 rounded bg-black/40 backdrop-blur border border-white/10 text-[11px] font-mono text-slate-300" id="timerBadge">
+        00:00 / 01:00
+      </div>
+    </div>
+
+    <!-- ==================== SCENE 1: THE PROBLEM (00:00 - 00:09) ==================== -->
+    <div class="motion-scene active" id="scene-1">
+      <div class="max-w-2xl text-center space-y-5">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Tantangan Pengelolaan Dusun Masa Lalu
+        </div>
+        <h2 class="text-3xl md:text-5xl font-extrabold text-white leading-tight font-display">
+          Tumpukan Rekap Manual,<br>
+          <span class="text-slate-400">Rentan Selisih & Makan Waktu.</span>
+        </h2>
+        <p class="text-slate-300 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+          Pencatatan pembayaran listrik warga di buku kertas sering tercecer, rekapitulasi memakan waktu berhari-hari, dan akuntabilitas sulit diverifikasi.
+        </p>
+
+        <!-- Visual Mini-Cards Problems -->
+        <div class="grid grid-cols-3 gap-3 pt-3">
+          <div class="bg-slate-900/80 backdrop-blur p-3 rounded-xl border border-rose-500/20 text-center">
+            <i class="fa-solid fa-file-invoice text-rose-400 text-xl mb-1.5"></i>
+            <p class="text-xs font-semibold text-slate-200">Struk Bertumpuk</p>
+            <p class="text-[10px] text-slate-400">Mudah hilang & robek</p>
+          </div>
+          <div class="bg-slate-900/80 backdrop-blur p-3 rounded-xl border border-rose-500/20 text-center">
+            <i class="fa-solid fa-calculator text-rose-400 text-xl mb-1.5"></i>
+            <p class="text-xs font-semibold text-slate-200">Hitungan Manual</p>
+            <p class="text-[10px] text-slate-400">Potensi salah nominal</p>
+          </div>
+          <div class="bg-slate-900/80 backdrop-blur p-3 rounded-xl border border-rose-500/20 text-center">
+            <i class="fa-solid fa-hourglass-half text-rose-400 text-xl mb-1.5"></i>
+            <p class="text-xs font-semibold text-slate-200">Rekap Lambat</p>
+            <p class="text-[10px] text-slate-400">Laporan tertunda</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCENE 2: GRAND REVEAL (00:09 - 00:20) ==================== -->
+    <div class="motion-scene" id="scene-2">
+      <div class="text-center space-y-6 max-w-3xl">
+        <!-- Floating Glowing Logo -->
+        <div class="relative inline-block">
+          <div class="absolute inset-0 bg-[#CEA042] rounded-full blur-2xl opacity-40 animate-pulse"></div>
+          <img src="logo-kartar-dmg-circle.png" onerror="this.src='logo-kartar-dmg.jpeg'" class="relative w-24 h-24 md:w-28 md:h-28 mx-auto object-contain drop-shadow-2xl" alt="Logo Karang Taruna Demangan">
+        </div>
+
+        <div class="space-y-2">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold tracking-wider uppercase">
+            <i class="fa-solid fa-sparkles text-amber-400"></i>
+            Era Baru Digitalisasi Dusun
+          </div>
+          <h2 class="text-4xl md:text-6xl font-black font-display tracking-tight text-white">
+            WEBSITE <span class="gold-gradient">KARANG TARUNA</span>
+          </h2>
+          <p class="text-lg md:text-xl font-medium text-amber-200/90 font-display">
+            Dusun Demangan — RT 01, RT 02, RT 03
+          </p>
+        </div>
+
+        <p class="text-slate-300 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+          Satu portal digital terpadu untuk pelayanan warga yang cepat, transparan, rapi, dan terpercaya.
+        </p>
+
+        <!-- 3 Pilar Keunggulan -->
+        <div class="flex items-center justify-center gap-4 text-xs font-semibold text-slate-300 pt-2">
+          <span class="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">
+            <i class="fa-solid fa-bolt text-amber-400"></i> Serba Cepat
+          </span>
+          <span class="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">
+            <i class="fa-solid fa-shield-halved text-emerald-400"></i> Transparan 100%
+          </span>
+          <span class="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">
+            <i class="fa-solid fa-users text-blue-400"></i> Gotong Royong
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCENE 3: FITUR SCAN & REKAP CERDAS (00:20 - 00:34) ==================== -->
+    <div class="motion-scene" id="scene-3">
+      <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <!-- Text Column -->
+        <div class="space-y-4 text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
+            <i class="fa-solid fa-camera text-amber-400"></i>
+            Fitur Cerdas 01
+          </div>
+          <h2 class="text-3xl md:text-4xl font-extrabold text-white font-display leading-tight">
+            Pencatatan Rekap Struk,<br>
+            <span class="gold-gradient">Cukup Satu Kali Foto!</span>
+          </h2>
+          <p class="text-slate-300 text-sm leading-relaxed">
+            Tidak perlu lagi mengetik satu per satu. Sistem cerdas membaca foto lembar rekap fisik atau file dokumen Excel, membaca banyak warga sekaligus secara otomatis.
+          </p>
+          <ul class="space-y-2 text-xs font-medium text-slate-300">
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
+              Membaca banyak nama warga & nominal PLN dalam 1 detik
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
+              Layar verifikasi interaktif sebelum data disimpan
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
+              Bisa langsung lewat kamera HP di pos warga
+            </li>
+          </ul>
+        </div>
+
+        <!-- Phone Mockup with Scan Animation -->
+        <div class="flex justify-center">
+          <div class="relative w-64 md:w-72 bg-slate-950 rounded-[32px] p-3 border-2 border-slate-700 shadow-2xl animate-float-phone">
+            <!-- Screen -->
+            <div class="bg-slate-900 rounded-[24px] p-3 border border-slate-800 space-y-3 relative overflow-hidden">
+              <!-- Scan Beam Effect -->
+              <div class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_15px_#CEA042] animate-scan-beam z-20"></div>
+
+              <!-- App Header in Mockup -->
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="text-[10px] font-bold text-amber-300">REKAP LISTRIK WARGA</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">OCT 2026</span>
+              </div>
+
+              <!-- Mock Document Item -->
+              <div class="bg-slate-800/80 rounded-lg p-2 border border-amber-500/20 space-y-1.5">
+                <div class="flex justify-between items-center text-[10px]">
+                  <span class="font-bold text-white">Bpk. Slamet Riyadi</span>
+                  <span class="text-amber-400 font-mono font-bold">Rp 148.500</span>
+                </div>
+                <div class="flex justify-between items-center text-[9px] text-slate-400">
+                  <span>RT 01 / ID: 5382910</span>
+                  <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check"></i> Terbaca</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-800/80 rounded-lg p-2 border border-amber-500/20 space-y-1.5">
+                <div class="flex justify-between items-center text-[10px]">
+                  <span class="font-bold text-white">Ibu Siti Rohmah</span>
+                  <span class="text-amber-400 font-mono font-bold">Rp 92.000</span>
+                </div>
+                <div class="flex justify-between items-center text-[9px] text-slate-400">
+                  <span>RT 02 / ID: 5382944</span>
+                  <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check"></i> Terbaca</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-800/80 rounded-lg p-2 border border-amber-500/20 space-y-1.5">
+                <div class="flex justify-between items-center text-[10px]">
+                  <span class="font-bold text-white">Bpk. Bambang Sujarwo</span>
+                  <span class="text-amber-400 font-mono font-bold">Rp 215.000</span>
+                </div>
+                <div class="flex justify-between items-center text-[9px] text-slate-400">
+                  <span>RT 03 / ID: 5382987</span>
+                  <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check"></i> Terbaca</span>
+                </div>
+              </div>
+
+              <div class="w-full py-2 bg-[#CEA042] text-slate-950 font-bold text-[11px] rounded-lg text-center shadow-lg">
+                <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Simpan Seluruh Rekap
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCENE 4: LAYANAN PEMBAYARAN TRANSPARAN (00:34 - 00:46) ==================== -->
+    <div class="motion-scene" id="scene-4">
+      <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <!-- Interactive Mockup for Payment -->
+        <div class="flex justify-center order-2 md:order-1">
+          <div class="w-64 md:w-72 bg-slate-950 rounded-[32px] p-3 border-2 border-amber-500/40 shadow-2xl">
+            <div class="bg-slate-900 rounded-[24px] p-3.5 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-bold text-white">Pembayaran Listrik</h4>
+                  <p class="text-[9px] text-slate-400">Bpk. Haryono (RT 02)</p>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300">DEMANGAN</span>
+              </div>
+
+              <!-- Bill Breakdown -->
+              <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 space-y-1 text-[10px]">
+                <div class="flex justify-between text-slate-300">
+                  <span>Tagihan Listrik PLN</span>
+                  <span class="font-mono text-white">Rp 142.500</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span>Iuran Kas Karang Taruna</span>
+                  <span class="font-mono text-amber-400">+ Rp 5.000</span>
+                </div>
+                <div class="border-t border-slate-800 my-1 pt-1 flex justify-between font-bold text-[11px]">
+                  <span class="text-white">Total Wajib Bayar</span>
+                  <span class="text-amber-300 font-mono">Rp 147.500</span>
+                </div>
+              </div>
+
+              <!-- Received Money -->
+              <div class="space-y-1">
+                <span class="text-[9px] text-slate-400 font-medium">Uang Diterima dari Warga:</span>
+                <div class="w-full bg-slate-950 border border-amber-500/50 rounded-lg px-2.5 py-1.5 flex justify-between items-center text-xs font-bold text-white font-mono">
+                  <span>Rp</span>
+                  <span class="text-amber-300 text-sm">150.000</span>
+                </div>
+              </div>
+
+              <!-- Result Status -->
+              <div class="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-[10px]">
+                <div class="flex items-center gap-1.5 text-emerald-400 font-bold">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>KEMBALIAN</span>
+                </div>
+                <span class="font-mono font-bold text-emerald-300 text-xs">Rp 2.500</span>
+              </div>
+
+              <div class="text-[9px] text-center text-slate-400">
+                <i class="fa-solid fa-lock text-amber-400 mr-1"></i> Data langsung tersimpan & tercatat di sistem
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Column -->
+        <div class="space-y-4 text-left order-1 md:order-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
+            <i class="fa-solid fa-scale-balanced text-amber-400"></i>
+            Fitur Cerdas 02
+          </div>
+          <h2 class="text-3xl md:text-4xl font-extrabold text-white font-display leading-tight">
+            Layanan Transparan,<br>
+            <span class="gold-gradient">Pasti Pas & Tanpa Ragu!</span>
+          </h2>
+          <p class="text-slate-300 text-sm leading-relaxed">
+            Perhitungan otomatis real-time. Jika ada kembalian langsung dihitung jelas. Jika warga menitipkan kelebihan bayar, tercatat rapi untuk potongan bulan berikutnya.
+          </p>
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-white/10">
+              <p class="text-[11px] font-bold text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i> Kembalian Jelas
+              </p>
+              <p class="text-[10px] text-slate-400 mt-1">Uang kembalian terhitung instan dan transparan.</p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-white/10">
+              <p class="text-[11px] font-bold text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-piggy-bank text-amber-400"></i> Saldo Titipan
+              </p>
+              <p class="text-[10px] text-slate-400 mt-1">Sisa uang tersimpan otomatis jadi saldo bulan depan.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCENE 5: REKONSILIASI & KAS DUSUN (00:46 - 00:54) ==================== -->
+    <div class="motion-scene" id="scene-5">
+      <div class="text-center space-y-6 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+          <i class="fa-solid fa-chart-line"></i>
+          Akuntabilitas & Keterbukaan Dana
+        </div>
+        
+        <h2 class="text-3xl md:text-5xl font-black text-white font-display leading-tight">
+          Rekonsiliasi <span class="text-emerald-400">100% Klop!</span><br>
+          <span class="gold-gradient">Iuran Kas Dusun Akuntabel</span>
+        </h2>
+
+        <p class="text-slate-300 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+          Setiap rupiah yang dihimpun pengurus pemuda langsung terhubung ke buku kas dusun. Perangkat desa dan warga dapat mengawasi dengan tenang.
+        </p>
+
+        <!-- Metric Cards Grid -->
+        <div class="grid grid-cols-3 gap-3 md:gap-4 pt-2">
+          <div class="bg-slate-900/90 backdrop-blur p-4 rounded-2xl border border-slate-800 text-center">
+            <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Tagihan Warga</span>
+            <p class="text-lg md:text-2xl font-black font-mono text-white mt-1">47 Warga</p>
+            <span class="text-[10px] text-emerald-400 font-semibold"><i class="fa-solid fa-check-double"></i> Terdata Lengkap</span>
+          </div>
+
+          <div class="bg-slate-900/90 backdrop-blur p-4 rounded-2xl border border-amber-500/30 text-center gold-glow">
+            <span class="text-[10px] font-bold tracking-wider text-amber-300 uppercase">Kas Karang Taruna</span>
+            <p class="text-lg md:text-2xl font-black font-mono text-amber-300 mt-1" id="counterKas">Rp 235.000</p>
+            <span class="text-[10px] text-slate-300 font-semibold">Tersalur ke Kas Dusun</span>
+          </div>
+
+          <div class="bg-slate-900/90 backdrop-blur p-4 rounded-2xl border border-emerald-500/30 text-center">
+            <span class="text-[10px] font-bold tracking-wider text-emerald-300 uppercase">Status Klop</span>
+            <p class="text-lg md:text-2xl font-black font-mono text-emerald-400 mt-1">KLOP 100%</p>
+            <span class="text-[10px] text-slate-300 font-semibold">Selisih Rp 0 (Nihil)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCENE 6: CALL TO ACTION / CLOSING (00:54 - 01:00) ==================== -->
+    <div class="motion-scene" id="scene-6">
+      <div class="text-center space-y-6 max-w-2xl">
+        <div class="relative inline-block">
+          <div class="absolute inset-0 bg-[#CEA042] rounded-full blur-2xl opacity-50"></div>
+          <img src="logo-kartar-dmg-circle.png" onerror="this.src='logo-kartar-dmg.jpeg'" class="relative w-20 h-20 md:w-24 md:h-24 mx-auto object-contain drop-shadow" alt="Logo">
+        </div>
+
+        <div class="space-y-3">
+          <h2 class="text-3xl md:text-5xl font-black font-display text-white tracking-tight">
+            WEBSITE <span class="gold-gradient">KARANG TARUNA</span>
+          </h2>
+          <p class="text-amber-300 font-bold text-base md:text-lg tracking-wider">
+            DUSUN DEMANGAN
+          </p>
+          <div class="h-0.5 w-24 mx-auto bg-gradient-to-r from-transparent via-[#CEA042] to-transparent"></div>
+          <p class="text-slate-300 text-sm md:text-base font-medium max-w-lg mx-auto">
+            "Modern, Transparan, Guyub Rukun.<br>
+            Dari Pemuda, Mengabdi untuk Kemajuan Dusun."
+          </p>
+        </div>
+
+        <div class="pt-2">
+          <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full gold-bg-gradient text-slate-950 font-extrabold text-xs md:text-sm shadow-xl tracking-wide">
+            <i class="fa-solid fa-globe"></i> Kunjungi Portal Resmi Dusun Demangan
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voiceover Subtitle Caption Bar -->
+    <div class="absolute bottom-6 inset-x-8 z-30 flex justify-center">
+      <div class="bg-black/75 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 max-w-xl text-center shadow-lg transition-all duration-300" id="captionBox">
+        <p class="text-xs md:text-sm text-slate-200 font-medium" id="captionText">
+          Dulu... pencatatan manual bertumpuk, hitungan rentan selisih, dan waktu terbuang.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Player Controls Bar -->
+  <footer class="w-full max-w-5xl mt-5 bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
+    
+    <!-- Timeline Scrubber -->
+    <div class="flex items-center gap-3">
+      <span class="text-xs font-mono text-slate-400 w-12 text-right" id="currentTimeDisplay">00:00</span>
+      <input type="range" id="timeScrubber" min="0" max="60" step="0.1" value="0" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#CEA042]">
+      <span class="text-xs font-mono text-slate-400 w-12">01:00</span>
+    </div>
+
+    <!-- Buttons & Actions -->
+    <div class="flex items-center justify-between">
+      <!-- Play / Pause / Restart -->
+      <div class="flex items-center gap-2">
+        <button onclick="togglePlay()" id="playBtn" class="px-4 py-2 rounded-xl gold-bg-gradient text-slate-950 font-bold text-xs flex items-center gap-2 hover:opacity-90 transition">
+          <i class="fa-solid fa-play" id="playIcon"></i>
+          <span id="playLabel">Putar Video</span>
+        </button>
+        <button onclick="restartVideo()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700 transition" title="Mulai dari awal">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <div class="h-4 w-px bg-slate-800 mx-1"></div>
+        <!-- Jump to Scene buttons -->
+        <div class="hidden sm:flex items-center gap-1 text-xs">
+          <button onclick="seekTo(0)" class="px-2 py-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px]">S1: Masalah</button>
+          <button onclick="seekTo(9)" class="px-2 py-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px]">S2: Reveal</button>
+          <button onclick="seekTo(20)" class="px-2 py-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px]">S3: Rekap Cerdas</button>
+          <button onclick="seekTo(34)" class="px-2 py-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px]">S4: Transparan</button>
+          <button onclick="seekTo(46)" class="px-2 py-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px]">S5: Klop 100%</button>
+          <button onclick="seekTo(54)" class="px-2 py-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px]">S6: Penutup</button>
+        </div>
+      </div>
+
+      <!-- Export & Fullscreen options -->
+      <div class="flex items-center gap-2">
+        <button onclick="recordVideo()" id="recordBtn" class="px-3.5 py-2 rounded-xl bg-rose-600/20 text-rose-300 border border-rose-500/30 hover:bg-rose-600/30 font-semibold text-xs flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-video" id="recordIcon"></i>
+          <span id="recordLabel">Rekam & Download MP4</span>
+        </button>
+        <button onclick="toggleFullscreen()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700 transition" title="Layar Penuh">
+          <i class="fa-solid fa-expand"></i>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIKA MOTION GRAPHIC ENGINE -->
+  <script>
+    let isPlaying = false;
+    let currentTime = 0;
+    const totalDuration = 60; // 60 detik
+    let lastTimestamp = null;
+    let animFrame = null;
+    let audioEnabled = true;
+    let audioCtx = null;
+    let recorder = null;
+    let recordedChunks = [];
+
+    // Definisi Scene & Timeline
+    const scenes = [
+      {
+        id: 1,
+        start: 0,
+        end: 9,
+        badge: "SCENE 1/6 • TANTANGAN",
+        caption: "Dulu... pencatatan manual bertumpuk, hitungan rentan selisih, dan waktu terbuang.",
+        orbColor: "rgba(225, 29, 72, 0.2)"
+      },
+      {
+        id: 2,
+        start: 9,
+        end: 20,
+        badge: "SCENE 2/6 • MEMPERKENALKAN",
+        caption: "Kini Dusun Demangan melangkah maju! Mempersembahkan: Website Karang Taruna.",
+        orbColor: "rgba(206, 160, 66, 0.35)"
+      },
+      {
+        id: 3,
+        start: 20,
+        end: 34,
+        badge: "SCENE 3/6 • REKAP PINTAR",
+        caption: "Pencatatan rekap struk cukup sekali foto. Data puluhan warga langsung terbaca otomatis.",
+        orbColor: "rgba(59, 130, 246, 0.3)"
+      },
+      {
+        id: 4,
+        start: 34,
+        end: 46,
+        badge: "SCENE 4/6 • TRANSPARANSI",
+        caption: "Layanan pembayaran listrik yang transparan. Hitungan akurat, kembalian pasti, bebas keraguan.",
+        orbColor: "rgba(16, 185, 129, 0.25)"
+      },
+      {
+        id: 5,
+        start: 46,
+        end: 54,
+        badge: "SCENE 5/6 • AKUNTABILITAS",
+        caption: "Rekonsiliasi 100% klop! Iuran kas karang taruna langsung tercatat rapi ke buku kas dusun.",
+        orbColor: "rgba(206, 160, 66, 0.3)"
+      },
+      {
+        id: 6,
+        start: 54,
+        end: 60,
+        badge: "SCENE 6/6 • PENUTUP",
+        caption: "Modern, Transparan, Guyub Rukun. Website Karang Taruna Demangan — Dari Pemuda Untuk Dusun.",
+        orbColor: "rgba(206, 160, 66, 0.4)"
+      }
+    ];
+
+    let currentSceneId = 1;
+
+    // Inisialisasi Audio Synthesizer (SFX Web Audio API)
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSound(type) {
+      if (!audioEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'whoosh') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(440, now + 0.3);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'chime') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.setValueAtTime(880, now + 0.1); // A5
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        osc.start(now);
+        osc.stop(now + 0.6);
+      } else if (type === 'beep') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, now); // B5
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.start(now);
+        osc.stop(now + 0.12);
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      document.getElementById('audioLabel').textContent = audioEnabled ? 'Audio SFX: ON' : 'Audio SFX: OFF';
+      document.getElementById('audioIcon').className = audioEnabled ? 'fa-solid fa-volume-high text-amber-400' : 'fa-solid fa-volume-xmark text-slate-500';
+    }
+
+    // Toggle Play/Pause
+    function togglePlay() {
+      initAudio();
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        if (currentTime >= totalDuration) {
+          currentTime = 0;
+        }
+        lastTimestamp = performance.now();
+        animFrame = requestAnimationFrame(updateTimeline);
+        document.getElementById('playIcon').className = 'fa-solid fa-pause';
+        document.getElementById('playLabel').textContent = 'Jeda';
+      } else {
+        cancelAnimationFrame(animFrame);
+        document.getElementById('playIcon').className = 'fa-solid fa-play';
+        document.getElementById('playLabel').textContent = 'Putar Video';
+      }
+    }
+
+    function restartVideo() {
+      currentTime = 0;
+      updateUI();
+      if (!isPlaying) togglePlay();
+    }
+
+    function seekTo(seconds) {
+      currentTime = Math.max(0, Math.min(seconds, totalDuration));
+      playSound('beep');
+      updateUI();
+    }
+
+    // Update Loop
+    function updateTimeline(now) {
+      if (!isPlaying) return;
+      const delta = (now - lastTimestamp) / 1000;
+      lastTimestamp = now;
+      currentTime += delta;
+
+      if (currentTime >= totalDuration) {
+        currentTime = totalDuration;
+        isPlaying = false;
+        document.getElementById('playIcon').className = 'fa-solid fa-rotate-left';
+        document.getElementById('playLabel').textContent = 'Putar Lagi';
+        updateUI();
+        return;
+      }
+
+      updateUI();
+      animFrame = requestAnimationFrame(updateTimeline);
+    }
+
+    // UI Updates based on Current Time
+    function updateUI() {
+      // Scrubber & Display
+      document.getElementById('timeScrubber').value = currentTime;
+      const mins = Math.floor(currentTime / 60).toString().padStart(2, '0');
+      const secs = Math.floor(currentTime % 60).toString().padStart(2, '0');
+      document.getElementById('currentTimeDisplay').textContent = `${mins}:${secs}`;
+      document.getElementById('timerBadge').textContent = `${mins}:${secs} / 01:00`;
+
+      // Active Scene Detection
+      const activeScene = scenes.find(s => currentTime >= s.start && currentTime < s.end) || scenes[scenes.length - 1];
+
+      if (activeScene.id !== currentSceneId) {
+        currentSceneId = activeScene.id;
+        playSound(currentSceneId === 2 ? 'chime' : 'whoosh');
+
+        // Update Scene DOM
+        scenes.forEach(s => {
+          const el = document.getElementById(`scene-${s.id}`);
+          if (s.id === currentSceneId) {
+            el.className = 'motion-scene active';
+          } else if (s.id < currentSceneId) {
+            el.className = 'motion-scene exit';
+          } else {
+            el.className = 'motion-scene';
+          }
+        });
+
+        // Update Badges & Captions
+        document.getElementById('sceneBadge').textContent = activeScene.badge;
+        document.getElementById('captionText').textContent = activeScene.caption;
+        document.getElementById('orb1').style.backgroundColor = activeScene.orbColor;
+      }
+    }
+
+    // Input scrubber listener
+    document.getElementById('timeScrubber').addEventListener('input', (e) => {
+      currentTime = parseFloat(e.target.value);
+      updateUI();
+    });
+
+    // Fullscreen Toggle
+    function toggleFullscreen() {
+      const container = document.getElementById('videoCanvas');
+      if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => alert("Fullscreen error: " + err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Direct Web Recorder
+    async function recordVideo() {
+      alert("Mode Rekam Aktif!\nVideo akan diputar dari detik 00:00 hingga selesai (60 detik), kemudian file video .webm langsung otomatis terunduh.");
+      
+      restartVideo();
+      // Rekam layar canvas
+      const canvasEl = document.getElementById('videoCanvas');
+      try {
+        const stream = canvasEl.captureStream ? canvasEl.captureStream(30) : null;
+        if (!stream) {
+          alert("Browser Anda mendukung perekaman manual dengan tombol 'Windows + G' atau OBS untuk kualitas Full HD 60fps!");
+          return;
+        }
+
+        recordedChunks = [];
+        recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        recorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+        recorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'Website-Karang-Taruna-Demangan-Promo.webm';
+          a.click();
+        };
+
+        recorder.start();
+        document.getElementById('recordLabel').textContent = 'Merekam...';
+
+        const checkEnd = setInterval(() => {
+          if (!isPlaying && currentTime >= totalDuration) {
+            clearInterval(checkEnd);
+            recorder.stop();
+            document.getElementById('recordLabel').textContent = 'Rekam & Download MP4';
+          }
+        }, 1000);
+
+      } catch (e) {
+        alert("Gunakan Windows Game Bar (Tekan tombol Windows + G) atau OBS untuk merekam layar player ini secara langsung dalam resolusi 1080p kristal!");
+      }
+    }
+
+    // Inisialisasi awal
+    updateUI();
+  </script>
+</body>
+</html>
