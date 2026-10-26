@@ -5,6 +5,20 @@ error_reporting(E_ALL & ~E_DEPRECATED);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
+// Clean any hidden UTF-8 BOM from environment variables
+foreach ($_ENV as $k => $v) {
+    if (is_string($v) && str_starts_with($v, "\xEF\xBB\xBF")) {
+        $_ENV[$k] = substr($v, 3);
+        putenv("{$k}={$_ENV[$k]}");
+    }
+}
+foreach ($_SERVER as $k => $v) {
+    if (is_string($v) && str_starts_with($v, "\xEF\xBB\xBF")) {
+        $_SERVER[$k] = substr($v, 3);
+        putenv("{$k}={$_SERVER[$k]}");
+    }
+}
+
 // Pastikan direktori storage sementara di /tmp tersedia untuk Vercel Serverless
 $storagePaths = [
     '/tmp/views',
