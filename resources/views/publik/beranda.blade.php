@@ -12,6 +12,8 @@
                 <div class="flex items-center gap-3.5 mb-5">
                     <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
                          alt="Logo Karang Taruna Demangan"
+                         width="56" height="56"
+                         fetchpriority="high"
                          class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover shadow-xs border-2 border-amber-300 bg-white shrink-0">
                     <div>
                         <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-[#CEA042] border border-amber-200/80">

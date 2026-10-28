@@ -39,6 +39,8 @@
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 focus:outline-none">
                         <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
                              alt="Logo Karang Taruna Demangan"
+                             width="36" height="36"
+                             fetchpriority="high"
                              class="w-9 h-9 rounded-full object-cover shadow-xs border border-amber-200/90 shrink-0 bg-white">
                         <div>
                             <span class="font-bold text-gray-900 text-sm leading-tight block">Panel Pengurus</span>

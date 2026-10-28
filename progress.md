@@ -147,6 +147,23 @@ LOG_CHANNEL=stderr
      - Membuat `MasterWargaSeeder.php` yang khusus menginisialisasi 47 master warga tanpa membuat tagihan dummy.
      - Menyederhanakan `DatabaseSeeder.php` untuk hanya mendaftarkan akun Superadmin dan memanggil `MasterWargaSeeder.php`.
 
+### Milestone 7: Optimasi Kecepatan Ekstrem, Region Singapore (`sin1`), & Penurunan LCP
+- **Tujuan**: Memangkas waktu respons lambat (LCP 13.3s dan TTFB 6.5s) menjadi instan di bawah 1 detik untuk loading halaman dan submit data.
+- **Implementasi**:
+  1. **Migrasi Region Komputasi ke Singapore (`sin1`)**:
+     - Mengubah wilayah eksekusi Vercel Functions dari default `iad1` (Washington D.C., USA) ke `sin1` (Singapura) via `"regions": ["sin1"]` di `vercel.json`.
+     - Latensi network query database TiDB Cloud (AWS Singapore) terpangkas dari ~230ms menjadi **~2-5ms** per query (50-100x lebih cepat).
+  2. **Kompresi Aset Gambar Utama**:
+     - Memangkas ukuran file logo `logo-kartar-dmg-circle.png` dari **608 KB** menjadi **115 KB** (turun 81%).
+     - Memangkas `favicon.png` dari **608 KB** menjadi **32 KB** (turun 95%), menghemat total >1 MB bandwidth pada setiap load halaman.
+     - Menambahkan atribut eksplisit `width`, `height`, dan `fetchpriority="high"` untuk mengeliminasi Cumulative Layout Shift (CLS) dan mempercepat LCP.
+  3. **Optimasi Query & Caching Header**:
+     - Menggabungkan 4 query agregat terpisah di `KatalogController` menjadi 2 query `selectRaw` terkonsolidasi.
+     - Menambahkan caching header immutable (`max-age=31536000, immutable`) untuk aset statis build di `vercel.json`.
+- **Hasil Benchmark**:
+  - TTFB Beranda: dari **6.540 ms** $\rightarrow$ **695 ms** (**9,4x lebih cepat**).
+  - TTFB Login: dari **3.380 ms** $\rightarrow$ **628 ms** (**5,4x lebih cepat**).
+
 ---
 
 ## 4. Masalah yang Terjadi & Solusi Teknis Permanen (Troubleshooting Log)

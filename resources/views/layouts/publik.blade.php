@@ -48,6 +48,8 @@
                 <a href="{{ route('beranda') }}" class="flex items-center gap-2.5 sm:gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CEA042] rounded-lg p-1">
                     <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
                          alt="Logo Karang Taruna Demangan"
+                         width="44" height="44"
+                         fetchpriority="high"
                          class="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shadow-xs border border-amber-200/90 group-hover:scale-105 transition shrink-0 bg-white">
                     <div>
                         <div class="text-sm sm:text-lg font-bold tracking-tight text-gray-900 group-hover:text-[#CEA042] transition leading-tight">

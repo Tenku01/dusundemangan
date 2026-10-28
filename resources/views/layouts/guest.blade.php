@@ -26,6 +26,8 @@
             <a href="{{ route('beranda') }}" class="inline-flex items-center gap-3.5 group focus:outline-none">
                 <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
                      alt="Logo Karang Taruna Demangan"
+                     width="56" height="56"
+                     fetchpriority="high"
                      class="w-14 h-14 rounded-full object-cover shadow-xs border border-amber-200/90 group-hover:scale-105 transition bg-white shrink-0">
                 <div class="text-left">
                     <div class="text-lg font-bold text-gray-900 leading-tight">Inventaris & Kas Dusun</div>
