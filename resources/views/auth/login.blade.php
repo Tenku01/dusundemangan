@@ -45,13 +45,4 @@
             Masuk ke Panel Pengurus
         </button>
     </form>
-
-    <!-- Info Akun Bawaan (Memudahkan Pengujian & Pengurus Baru) -->
-    <div class="mt-6 pt-5 border-t border-gray-100 text-xs text-gray-500 space-y-2">
-        <div class="font-semibold text-gray-700">Akun Bawaan Sistem:</div>
-        <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-200 text-[11px] space-y-1">
-            <div><strong>Superadmin:</strong> <code class="text-purple-700">superadmin@demangan.id</code> / <code class="text-gray-800">password</code></div>
-            <div><strong>Admin Pengurus:</strong> <code class="text-amber-800">admin@demangan.id</code> / <code class="text-gray-800">password</code></div>
-        </div>
-    </div>
 </x-guest-layout>

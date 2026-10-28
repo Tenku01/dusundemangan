@@ -13,9 +13,8 @@ Dokumen ini adalah ringkasan konteks teknis, status sistem, arsitektur, dan riwa
   - Host: `gateway01.ap-southeast-1.prod.aws.tidbcloud.com` (Port 4000)
   - Database: `demangan` (SSL wajib aktif via `MYSQL_ATTR_SSL_CA`)
 - **Database Lokal**: MySQL Laragon (`monitoring_dusun`)
-- **Akun Bawaan Sistem (Lokal & Produksi)**:
-  - **Admin Pengurus**: `admin@demangan.id` | Kata Sandi: `password`
-  - **Superadmin**: `superadmin@demangan.id` | Kata Sandi: `password`
+- **Akun Utama Sistem (Produksi & Lokal)**:
+  - **Superadmin**: `superadmin@demangan.id` | Kata Sandi: `password` (Akun admin pengurus dapat ditambahkan langsung oleh superadmin melalui dashboard)
 
 ---
 

@@ -21,9 +21,9 @@ Dokumen ini mencatat seluruh riwayat pengembangan, arsitektur serverless, konfig
 
 ## 2. Kredensial & Konfigurasi Lingkungan
 
-### A. Akun Login Sistem (Lokal & Produksi)
-- **Admin Pengurus**: `admin@demangan.id` | Kata Sandi: `password`
+### A. Akun Login Sistem (Produksi & Lokal)
 - **Superadmin**: `superadmin@demangan.id` | Kata Sandi: `password`
+*(Akun admin pengurus tambahan dapat dibuat secara dinamis oleh Superadmin melalui menu Kelola Pengguna).*
 
 ### B. Database Cloud TiDB Serverless
 - **Host**: `gateway01.ap-southeast-1.prod.aws.tidbcloud.com`
@@ -134,6 +134,18 @@ LOG_CHANNEL=stderr
      - CSP tag `<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">` pada layout Blade.
   4. **Pencegahan Kontaminasi Cache Lokal**:
      - Menambahkan `bootstrap/cache/*.php` ke `.vercelignore` agar cache local development (`laravel/boost`, `laravel/pail`) tidak terbawa ke server produksi.
+
+### Milestone 6: Sanitasi Produksi (Production Ready) & Pembersihan Data Dummy
+- **Tujuan**: Menyiapkan sistem untuk penggunaan riil, mengamankan antarmuka publik, dan membersihkan data pengujian.
+- **Implementasi**:
+  1. **Sanitasi Halaman Login**: Menghapus kotak petunjuk demo kredensial (*Akun Bawaan Sistem*) dari `resources/views/auth/login.blade.php` agar kredensial tidak terekspos ke publik.
+  2. **Pembersihan Database Cloud TiDB**:
+     - Mengosongkan data transaksi dummy: `tagihan_listrik` (0), `barang` (0), `keuangan` (0), `peminjaman` (0), dan `sessions` (0).
+     - Menghapus akun admin demo (`admin@demangan.id`), menyisakan hanya **1 akun Superadmin** (`superadmin@demangan.id`).
+     - **Mempertahankan utuh 47 Master Data Warga** (RT 01 & RT 02).
+  3. **Penyempurnaan Seeder**:
+     - Membuat `MasterWargaSeeder.php` yang khusus menginisialisasi 47 master warga tanpa membuat tagihan dummy.
+     - Menyederhanakan `DatabaseSeeder.php` untuk hanya mendaftarkan akun Superadmin dan memanggil `MasterWargaSeeder.php`.
 
 ---
 
