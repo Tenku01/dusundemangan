@@ -19,6 +19,17 @@ foreach ($_SERVER as $k => $v) {
     }
 }
 
+// Sanitasi trailing dot jika user mengakses URL yang berakhir titik (misal /logout.)
+if (isset($_SERVER['REQUEST_URI'])) {
+    $parts = explode('?', $_SERVER['REQUEST_URI'], 2);
+    $path = $parts[0];
+    if (str_ends_with($path, '.') && ! preg_match('/\.[a-zA-Z0-9]+$/', $path)) {
+        $cleanPath = rtrim($path, '.');
+        $query = isset($parts[1]) ? '?'.$parts[1] : '';
+        $_SERVER['REQUEST_URI'] = $cleanPath.$query;
+    }
+}
+
 // Pastikan direktori storage sementara di /tmp tersedia untuk Vercel Serverless
 $storagePaths = [
     '/tmp/views',
