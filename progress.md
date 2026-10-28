@@ -163,6 +163,7 @@ LOG_CHANNEL=stderr
 | **`The /var/task/user/bootstrap/cache directory must be present and writable`** | Vercel filesystem `/var/task` bersifat read-only sehingga Laravel gagal menulis package manifest cache. | Mengarahkan `APP_PACKAGES_CACHE` dan `APP_SERVICES_CACHE` ke `/tmp/bootstrap/cache/` di `api/index.php`. |
 | **`Class "Laravel\Boost\BoostServiceProvider" not found`** | File `bootstrap/cache/packages.php` lokal berisi package `require-dev` terunggah ke Vercel. | Menambahkan `bootstrap/cache/*.php` ke `.vercelignore` dan menghapus cache lokal sebelum deployment. |
 | **Domain Vercel memiliki suffix random (`-rho`)** | Vercel menghasilkan default deployment domain otomatis dengan suffix branch. | Mengatur canonical domain alias langsung ke `https://dusundemangan.vercel.app`. |
+| **404 NOT_FOUND saat akses `/logout`** | Pattern `logo.*` pada `routes` di `vercel.json` secara tidak sengaja mencocokkan kata `logout` sehingga Vercel menganggapnya file statis lokal alih-alih me-route ke Laravel. | Membatasi pattern file logo ke `logo-kartar.*\\.(png\|jpeg\|jpg)` di `vercel.json` dan menambahkan dukungan method `GET` pada rute `logout` di `routes/auth.php`. |
 
 ---
 

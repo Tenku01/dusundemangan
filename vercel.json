@@ -14,7 +14,7 @@
       "dest": "/build/$1"
     },
     {
-      "src": "/(favicon.*|logo.*|robots\\.txt|promo-video\\.html)",
+      "src": "/(favicon.*\\.(ico|png)|logo-kartar.*\\.(png|jpeg|jpg)|robots\\.txt|promo-video\\.html)",
       "dest": "/$1"
     },
     {
