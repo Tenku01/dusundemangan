@@ -36,9 +36,13 @@ class KatalogController extends Controller
         $daftarBarang = $queryBarang->orderBy('nama_barang')->paginate(12)->withQueryString();
         $kategoriList = Barang::select('kategori')->distinct()->pluck('kategori');
 
-        // Ringkasan Keuangan Publik
-        $totalMasuk = Keuangan::where('jenis', 'masuk')->sum('nominal');
-        $totalKeluar = Keuangan::where('jenis', 'keluar')->sum('nominal');
+        // Ringkasan Keuangan Publik (Konsolidasi 1 Query)
+        $keuanganStats = Keuangan::selectRaw("
+            COALESCE(SUM(CASE WHEN jenis = 'masuk' THEN nominal ELSE 0 END), 0) as total_masuk,
+            COALESCE(SUM(CASE WHEN jenis = 'keluar' THEN nominal ELSE 0 END), 0) as total_keluar
+        ")->first();
+        $totalMasuk = (int) ($keuanganStats->total_masuk ?? 0);
+        $totalKeluar = (int) ($keuanganStats->total_keluar ?? 0);
         $saldoKasSaatIni = $totalMasuk - $totalKeluar;
 
         // Riwayat Mutasi Kas Publik Terakhir (10 data)
@@ -47,9 +51,13 @@ class KatalogController extends Controller
             ->take(10)
             ->get();
 
-        // Statistik Cepat Inventaris
-        $totalJenisBarang = Barang::count();
-        $totalUnitTersedia = Barang::sum('jumlah_tersedia');
+        // Statistik Cepat Inventaris (Konsolidasi 1 Query)
+        $barangStats = Barang::selectRaw('
+            COUNT(*) as total_jenis,
+            COALESCE(SUM(jumlah_tersedia), 0) as total_unit
+        ')->first();
+        $totalJenisBarang = (int) ($barangStats->total_jenis ?? 0);
+        $totalUnitTersedia = (int) ($barangStats->total_unit ?? 0);
 
         return view('publik.beranda', compact(
             'daftarBarang',

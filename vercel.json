@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "regions": ["sin1"],
   "framework": null,
   "outputDirectory": "public",
   "buildCommand": "npm run build",
@@ -11,14 +12,23 @@
   "routes": [
     {
       "src": "/build/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
       "dest": "/build/$1"
     },
     {
       "src": "/(favicon.*\\.(ico|png)|logo-kartar.*\\.(png|jpeg|jpg)|robots\\.txt|promo-video\\.html)",
+      "headers": {
+        "cache-control": "public, max-age=86400, stale-while-revalidate=604800"
+      },
       "dest": "/$1"
     },
     {
       "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|mp4|webm))",
+      "headers": {
+        "cache-control": "public, max-age=86400, stale-while-revalidate=604800"
+      },
       "dest": "/$1"
     },
     {
