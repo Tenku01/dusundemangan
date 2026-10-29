@@ -16,6 +16,8 @@ class TagihanListrikTest extends TestCase
 
     protected array $createdWargaIds = [];
 
+    protected array $createdPeriodes = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,6 +35,10 @@ class TagihanListrikTest extends TestCase
 
     protected function tearDown(): void
     {
+        if (! empty($this->createdPeriodes)) {
+            TagihanListrik::whereIn('periode', $this->createdPeriodes)->delete();
+        }
+
         if (! empty($this->createdTagihanIds)) {
             TagihanListrik::whereIn('id', $this->createdTagihanIds)->delete();
         }
@@ -164,6 +170,7 @@ class TagihanListrikTest extends TestCase
                 'uang_dibayar' => '55.000',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $tagihanFresh = $tagihan->fresh();
@@ -196,6 +203,7 @@ class TagihanListrikTest extends TestCase
                 'jadikan_titipan' => 1,
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $tagihanFresh = $tagihan->fresh();
@@ -229,6 +237,7 @@ class TagihanListrikTest extends TestCase
                 'uang_kembalian' => '5.000',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $fresh = $tagihan->fresh();
@@ -262,6 +271,7 @@ class TagihanListrikTest extends TestCase
                 'uang_kembalian' => 0,
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $fresh = $tagihan->fresh();
@@ -294,6 +304,7 @@ class TagihanListrikTest extends TestCase
                 'uang_kembalian' => 7000,
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $fresh = $tagihan->fresh();
@@ -328,6 +339,7 @@ class TagihanListrikTest extends TestCase
                 'uang_kembalian' => '10.000',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $fresh = $tagihan->fresh();
@@ -375,6 +387,7 @@ class TagihanListrikTest extends TestCase
                 'kode_gabungan' => 'GAB-TEST-123',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $t1 = $tagihan1->fresh();
@@ -427,6 +440,7 @@ class TagihanListrikTest extends TestCase
                 'kode_gabungan' => 'GAB-PARSIAL-456',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $t1 = $tagihan1->fresh();
@@ -458,6 +472,7 @@ class TagihanListrikTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->patch(route('admin.pembayaran-listrik.batal', $tagihan));
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $tagihanFresh = $tagihan->fresh();
@@ -478,6 +493,7 @@ class TagihanListrikTest extends TestCase
                 'alamat' => 'Samping pos RT 02',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $warga = Warga::where('nama', 'Warga Baru Demangan Uji')->first();
@@ -525,6 +541,7 @@ class TagihanListrikTest extends TestCase
                 'rt' => '1',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $tagihanOktober = TagihanListrik::where('periode', 'Oktober 2026 (Uji)')
@@ -565,6 +582,7 @@ class TagihanListrikTest extends TestCase
                 'nominal' => 63000,
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $trx = Keuangan::where('keterangan', 'like', '%September 2026 (Uji)%')->first();
@@ -598,6 +616,7 @@ class TagihanListrikTest extends TestCase
                 ],
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $t1 = TagihanListrik::where('nomor_struk', 'STR-BATCH-1')->first();
@@ -654,6 +673,7 @@ class TagihanListrikTest extends TestCase
                 'kode_gabungan' => 'GAB-REKAP-999',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $t1Fresh = $t1->fresh();
@@ -705,6 +725,7 @@ class TagihanListrikTest extends TestCase
                 'tagihan_id' => $t1->id,
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $t1Fresh = $t1->fresh();
@@ -760,6 +781,7 @@ class TagihanListrikTest extends TestCase
                 'nama_pembayar' => 'Pak Joko',
             ]);
 
+        $response->assertSessionHasNoErrors();
         $response->assertSessionHas('sukses');
 
         $t1Fresh = $t1->fresh();
@@ -770,5 +792,146 @@ class TagihanListrikTest extends TestCase
         $this->assertEquals('GAB-KASIR-TEST', $t1Fresh->kode_gabungan);
         $this->assertEquals('GAB-KASIR-TEST', $t2Fresh->kode_gabungan);
         $this->assertEquals(0, $t1Fresh->selisih_bayar); // Tanpa titipan, kembalian 4rb diserahkan ke warga
+    }
+
+    public function test_admin_dapat_mengubah_nama_siklus_periode(): void
+    {
+        $this->createdPeriodes[] = 'November 2026';
+        $this->createdPeriodes[] = 'Desember 2026';
+
+        $tagihan = TagihanListrik::create([
+            'periode' => 'November 2026',
+            'rt' => 1,
+            'nama_warga' => 'Warga Rename Uji',
+            'nama_pelanggan' => 'PLN RENAME',
+            'nomor_struk' => 'STR-RNM-1',
+            'tagihan_awal' => 40000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 43000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $tagihan->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.rekap-listrik.siklus.rename'), [
+                'periode_lama' => 'November 2026',
+                'periode_baru' => 'Desember 2026',
+            ]);
+
+        $response->assertRedirect(route('admin.rekap-listrik.index', ['periode' => 'Desember 2026', 'rt' => 1]));
+        $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('sukses');
+
+        $this->assertDatabaseHas('tagihan_listrik', [
+            'id' => $tagihan->id,
+            'periode' => 'Desember 2026',
+        ]);
+    }
+
+    public function test_admin_tidak_bisa_mengubah_nama_siklus_ke_nama_yang_sudah_ada(): void
+    {
+        $this->createdPeriodes[] = 'November 2026';
+        $this->createdPeriodes[] = 'Desember 2026';
+
+        $t1 = TagihanListrik::create([
+            'periode' => 'November 2026',
+            'rt' => 1,
+            'nama_warga' => 'Warga Siklus 1',
+            'nama_pelanggan' => 'PLN S1',
+            'nomor_struk' => 'STR-S1',
+            'tagihan_awal' => 20000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 23000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $t1->id;
+
+        $t2 = TagihanListrik::create([
+            'periode' => 'Desember 2026',
+            'rt' => 1,
+            'nama_warga' => 'Warga Siklus 2',
+            'nama_pelanggan' => 'PLN S2',
+            'nomor_struk' => 'STR-S2',
+            'tagihan_awal' => 20000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 23000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $t2->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.rekap-listrik.siklus.rename'), [
+                'periode_lama' => 'November 2026',
+                'periode_baru' => 'Desember 2026',
+            ]);
+
+        $response->assertSessionHas('error');
+    }
+
+    public function test_admin_dapat_menghapus_siklus_periode_beserta_tagihannya(): void
+    {
+        $this->createdPeriodes[] = 'Januari 2028';
+
+        $tagihan = TagihanListrik::create([
+            'periode' => 'Januari 2028',
+            'rt' => 1,
+            'nama_warga' => 'Warga Hapus Siklus',
+            'nama_pelanggan' => 'PLN HAPUS',
+            'nomor_struk' => 'STR-DEL-1',
+            'tagihan_awal' => 30000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 33000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $tagihan->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.rekap-listrik.siklus.hapus'), [
+                'periode' => 'Januari 2028',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('sukses');
+        $this->assertDatabaseMissing('tagihan_listrik', [
+            'id' => $tagihan->id,
+            'periode' => 'Januari 2028',
+        ]);
+    }
+
+    public function test_admin_dapat_membuka_siklus_baru_mode_kosong(): void
+    {
+        $this->createdPeriodes[] = 'Februari 2028';
+
+        $warga = Warga::create([
+            'nama' => 'Warga Baru Siklus Kosong',
+            'nama_pelanggan_pln' => 'PLN KOSONG',
+            'rt' => 2,
+            'nomor_meter' => '5299900888',
+            'is_aktif' => true,
+        ]);
+        $this->createdWargaIds[] = $warga->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.rekap-listrik.duplikasi-siklus'), [
+                'periode_baru' => 'Februari 2028',
+                'rt' => '2',
+                'mode' => 'kosong',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('sukses');
+
+        $tagihanBaru = TagihanListrik::where('periode', 'Februari 2028')
+            ->where('warga_id', $warga->id)
+            ->first();
+
+        $this->assertNotNull($tagihanBaru);
+        $this->createdTagihanIds[] = $tagihanBaru->id;
+        $this->assertEquals(0, $tagihanBaru->saldo_periode_lalu);
+        $this->assertEquals(0, $tagihanBaru->tagihan_awal);
     }
 }

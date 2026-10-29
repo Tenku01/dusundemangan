@@ -134,9 +134,34 @@ class RekapListrikController extends Controller
         $saranTahun = (int) ($partsNext[1] ?? date('Y'));
         $daftarBulan = TagihanListrik::DAFTAR_BULAN;
 
+        // Statistik ringkas per siklus periode untuk fitur Kelola Siklus (CRUD)
+        $periodeStats = TagihanListrik::selectRaw('
+            periode,
+            COUNT(*) as total_tagihan,
+            COUNT(CASE WHEN is_lunas = 1 THEN 1 END) as total_lunas,
+            COUNT(CASE WHEN is_lunas = 0 THEN 1 END) as total_belum_lunas,
+            COALESCE(SUM(total_tagihan), 0) as total_nominal
+        ')
+            ->groupBy('periode')
+            ->get()
+            ->keyBy('periode');
+
+        $daftarPeriodeWithStats = $daftarPeriode->map(function ($p) use ($periodeStats) {
+            $stat = $periodeStats->get($p);
+
+            return [
+                'nama' => $p,
+                'total_tagihan' => (int) ($stat->total_tagihan ?? 0),
+                'total_lunas' => (int) ($stat->total_lunas ?? 0),
+                'total_belum_lunas' => (int) ($stat->total_belum_lunas ?? 0),
+                'total_nominal' => (int) ($stat->total_nominal ?? 0),
+            ];
+        })->values()->all();
+
         return view('admin.rekap-listrik.index', compact(
             'daftarRekap',
             'daftarPeriode',
+            'daftarPeriodeWithStats',
             'periodeAktif',
             'rtAktif',
             'cari',
@@ -306,59 +331,186 @@ class RekapListrikController extends Controller
     public function duplikasiSiklus(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'periode_asal' => ['required', 'string'],
+            'periode_asal' => ['nullable', 'string'],
             'periode_baru' => ['required', 'string', 'max:50'],
             'rt' => ['required', 'string'],
+            'mode' => ['nullable', 'string'], // 'salin_saldo' atau 'kosong'
         ]);
 
-        $query = TagihanListrik::where('periode', $validated['periode_asal']);
-        if ($validated['rt'] !== 'semua' && in_array((int) $validated['rt'], [1, 2, 3], true)) {
-            $query->where('rt', (int) $validated['rt']);
+        $periodeBaru = trim($validated['periode_baru']);
+        $periodeAsal = trim($validated['periode_asal'] ?? '');
+        $mode = $validated['mode'] ?? 'salin_saldo';
+        $rtPilihan = $validated['rt'];
+
+        // Cek jika periode baru sudah ada
+        if (TagihanListrik::where('periode', $periodeBaru)->exists()) {
+            return redirect()->route('admin.rekap-listrik.index', [
+                'periode' => $periodeBaru,
+                'rt' => $rtPilihan === 'semua' ? 1 : (int) $rtPilihan,
+            ])->with('info', "Siklus {$periodeBaru} sudah ada di sistem dan langsung dibuka.");
         }
 
-        $daftarAsal = $query->get();
         $disalin = 0;
 
-        foreach ($daftarAsal as $asal) {
-            $ada = TagihanListrik::where('periode', $validated['periode_baru'])
-                ->where('rt', $asal->rt)
-                ->where(function ($q) use ($asal) {
-                    if ($asal->warga_id) {
-                        $q->where('warga_id', $asal->warga_id);
-                    } else {
-                        $q->where('nama_warga', $asal->nama_warga);
-                    }
-                })
-                ->exists();
+        if ($mode === 'kosong') {
+            // Inisialisasi dari Master Warga Aktif tanpa membawa saldo periode lalu
+            $wargaQuery = Warga::where('is_aktif', true);
+            if ($rtPilihan !== 'semua' && in_array((int) $rtPilihan, [1, 2, 3], true)) {
+                $wargaQuery->where('rt', (int) $rtPilihan);
+            }
+            $daftarWarga = $wargaQuery->orderByRaw('CAST(nomor_meter AS UNSIGNED) ASC')->get();
 
-            if (! $ada) {
-                $saldoLalu = (int) $asal->selisih_bayar;
+            foreach ($daftarWarga as $w) {
                 TagihanListrik::create([
-                    'warga_id' => $asal->warga_id,
-                    'periode' => $validated['periode_baru'],
-                    'rt' => $asal->rt,
-                    'nama_warga' => $asal->nama_warga,
-                    'nama_pelanggan' => $asal->nama_pelanggan,
-                    'nomor_struk' => $asal->nomor_struk,
+                    'warga_id' => $w->id,
+                    'periode' => $periodeBaru,
+                    'rt' => $w->rt,
+                    'nama_warga' => $w->nama,
+                    'nama_pelanggan' => $w->nama_pelanggan_pln ?? $w->nama,
+                    'nomor_struk' => (string) ($w->nomor_meter ?: ''),
                     'tagihan_awal' => 0,
                     'kas_karang_taruna' => 0,
                     'kas_dusun' => 0,
                     'kategori_kas' => 'karang_taruna',
-                    'saldo_periode_lalu' => $saldoLalu,
+                    'saldo_periode_lalu' => 0,
                     'total_tagihan' => 0,
                     'selisih_bayar' => 0,
                     'is_lunas' => false,
                 ]);
                 $disalin++;
             }
+        } else {
+            // Mode Salin Saldo: Ambil dari periode asal, bawa selisih_bayar sebagai saldo titipan/tunggakan
+            $query = TagihanListrik::where('periode', $periodeAsal);
+            if ($rtPilihan !== 'semua' && in_array((int) $rtPilihan, [1, 2, 3], true)) {
+                $query->where('rt', (int) $rtPilihan);
+            }
+            $daftarAsal = $query->get();
+
+            // Jika periode asal belum ada data tagihan sama sekali, fallback ke master warga aktif
+            if ($daftarAsal->isEmpty()) {
+                $wargaQuery = Warga::where('is_aktif', true);
+                if ($rtPilihan !== 'semua' && in_array((int) $rtPilihan, [1, 2, 3], true)) {
+                    $wargaQuery->where('rt', (int) $rtPilihan);
+                }
+                $daftarWarga = $wargaQuery->orderByRaw('CAST(nomor_meter AS UNSIGNED) ASC')->get();
+
+                foreach ($daftarWarga as $w) {
+                    $saldoLalu = TagihanListrik::getSaldoBulanLalu($w->id, $w->nama, $periodeBaru);
+                    TagihanListrik::create([
+                        'warga_id' => $w->id,
+                        'periode' => $periodeBaru,
+                        'rt' => $w->rt,
+                        'nama_warga' => $w->nama,
+                        'nama_pelanggan' => $w->nama_pelanggan_pln ?? $w->nama,
+                        'nomor_struk' => (string) ($w->nomor_meter ?: ''),
+                        'tagihan_awal' => 0,
+                        'kas_karang_taruna' => 0,
+                        'kas_dusun' => 0,
+                        'kategori_kas' => 'karang_taruna',
+                        'saldo_periode_lalu' => $saldoLalu,
+                        'total_tagihan' => 0,
+                        'selisih_bayar' => 0,
+                        'is_lunas' => false,
+                    ]);
+                    $disalin++;
+                }
+            } else {
+                foreach ($daftarAsal as $asal) {
+                    $saldoLalu = (int) $asal->selisih_bayar;
+                    TagihanListrik::create([
+                        'warga_id' => $asal->warga_id,
+                        'periode' => $periodeBaru,
+                        'rt' => $asal->rt,
+                        'nama_warga' => $asal->nama_warga,
+                        'nama_pelanggan' => $asal->nama_pelanggan,
+                        'nomor_struk' => $asal->nomor_struk,
+                        'tagihan_awal' => 0,
+                        'kas_karang_taruna' => 0,
+                        'kas_dusun' => 0,
+                        'kategori_kas' => 'karang_taruna',
+                        'saldo_periode_lalu' => $saldoLalu,
+                        'total_tagihan' => 0,
+                        'selisih_bayar' => 0,
+                        'is_lunas' => false,
+                    ]);
+                    $disalin++;
+                }
+            }
         }
 
-        $rtTarget = $validated['rt'] === 'semua' ? 1 : (int) $validated['rt'];
+        $rtTarget = $rtPilihan === 'semua' ? 1 : (int) $rtPilihan;
 
         return redirect()->route('admin.rekap-listrik.index', [
-            'periode' => $validated['periode_baru'],
+            'periode' => $periodeBaru,
             'rt' => $rtTarget,
-        ])->with('sukses', "Siklus {$validated['periode_baru']} berhasil dibuka! {$disalin} warga disiapkan dengan saldo titipan bulan lalu otomatis terbawa.");
+        ])->with('sukses', "Siklus {$periodeBaru} berhasil dibuka! {$disalin} data warga telah disiapkan dengan saldo titipan bulan lalu otomatis terbawa.");
+    }
+
+    /**
+     * Mengubah nama siklus periode di database (CRUD Siklus - Update/Rename).
+     */
+    public function renameSiklus(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'periode_lama' => ['required', 'string'],
+            'periode_baru' => ['required', 'string', 'max:50'],
+        ]);
+
+        $lama = trim($validated['periode_lama']);
+        $baru = trim($validated['periode_baru']);
+
+        if ($lama === $baru) {
+            return back()->with('info', 'Nama siklus tidak mengalami perubahan.');
+        }
+
+        // Cek apakah siklus lama ada
+        $existsLama = TagihanListrik::where('periode', $lama)->exists();
+        if (! $existsLama) {
+            return back()->with('error', "Siklus {$lama} tidak ditemukan di sistem.");
+        }
+
+        // Cek apakah siklus baru sudah ada
+        $existsBaru = TagihanListrik::where('periode', $baru)->exists();
+        if ($existsBaru) {
+            return back()->with('error', "Siklus {$baru} sudah ada. Silakan pilih nama bulan atau tahun yang berbeda.");
+        }
+
+        $affected = TagihanListrik::where('periode', $lama)->update(['periode' => $baru]);
+
+        return redirect()->route('admin.rekap-listrik.index', [
+            'periode' => $baru,
+            'rt' => $request->query('rt', 1),
+        ])->with('sukses', "Nama siklus {$lama} berhasil diubah menjadi {$baru} ({$affected} data tagihan warga disesuaikan).");
+    }
+
+    /**
+     * Menghapus seluruh data tagihan pada satu siklus periode (CRUD Siklus - Delete).
+     */
+    public function hapusSiklus(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'periode' => ['required', 'string'],
+        ]);
+
+        $periode = trim($validated['periode']);
+
+        $daftarPeriode = TagihanListrik::getDaftarPeriodeKronologis();
+        if (count($daftarPeriode) <= 1) {
+            return back()->with('error', "Tidak dapat menghapus siklus {$periode}. Sistem membutuhkan minimal 1 siklus periode aktif.");
+        }
+
+        $count = TagihanListrik::where('periode', $periode)->count();
+        TagihanListrik::where('periode', $periode)->delete();
+
+        // Cari periode aktif tersisa
+        $sisaPeriode = TagihanListrik::getDaftarPeriodeKronologis();
+        $targetPeriode = $sisaPeriode[0] ?? null;
+
+        return redirect()->route('admin.rekap-listrik.index', [
+            'periode' => $targetPeriode,
+            'rt' => 1,
+        ])->with('sukses', "Siklus {$periode} beserta {$count} data tagihan di dalamnya berhasil dihapus.");
     }
 
     /**

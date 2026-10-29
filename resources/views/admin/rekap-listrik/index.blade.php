@@ -3,6 +3,19 @@
 @section('title', 'Rekap Listrik - ' . $periodeAktif . ' RT ' . $rtAktif)
 
 @section('content')
+<!-- Data JSON Aman Disuntikkan Sebelum Komponen Alpine Dimuat -->
+<script id="warga-rt-json" type="application/json">
+    {!! json_encode($wargaRtAktif) !!}
+</script>
+
+<script id="daftar-rekap-json" type="application/json">
+    {!! json_encode($daftarRekap) !!}
+</script>
+
+<script id="daftar-periode-json" type="application/json">
+    {!! json_encode($daftarPeriodeWithStats) !!}
+</script>
+
 <div class="space-y-4 sm:space-y-5" x-data="rekapListrik()">
 
     <!-- Top Sticky Bar / Header Mobile Friendly -->
@@ -105,30 +118,45 @@
                             @endforeach
                         </div>
 
-                        <div class="pt-1.5 border-t border-gray-100">
-                            <button type="button" @click="openDropdownPeriode = false; modalDuplikasi = true"
+                        <div class="pt-1.5 border-t border-gray-100 space-y-1">
+                            <button type="button" @click="openDropdownPeriode = false; bukaModalKelolaSiklus()"
+                                    class="w-full flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-gray-700 hover:text-[#CEA042] hover:bg-amber-50 rounded-xl transition">
+                                <svg class="w-3.5 h-3.5 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <span>⚙️ Kelola Siklus (Ubah / Hapus)</span>
+                            </button>
+                            <button type="button" @click="openDropdownPeriode = false; bukaModalDuplikasi()"
                                     class="w-full flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-[#CEA042] hover:bg-amber-50 rounded-xl transition">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                                + Buka Siklus Bulan Baru
+                                <span>+ Buka Siklus Bulan Baru</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tombol Scan / Impor Dokumen Pintar (Banyak Warga Sekaligus) -->
-            <button type="button" @click="bukaModalScan()"
-                    class="px-3.5 py-2.5 text-xs font-bold text-[#CEA042] bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-xl transition min-h-[44px] flex items-center gap-2 shadow-xs shrink-0">
-                <svg class="w-4 h-4 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                <span>📸 Scan / Impor Dokumen (Banyak Warga)</span>
-            </button>
+            <!-- Tombol Aksi Siklus (Responsif & Konsisten Mobile/PC) -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Tombol Kelola Siklus (CRUD) -->
+                <button type="button" @click.stop="bukaModalKelolaSiklus()"
+                        class="px-3.5 py-2.5 text-xs font-bold text-gray-700 bg-amber-50/80 hover:bg-amber-100 hover:text-[#CEA042] border border-amber-200/90 rounded-xl transition min-h-[44px] flex items-center gap-1.5 shadow-2xs shrink-0">
+                    <svg class="w-4 h-4 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>Kelola Siklus</span>
+                </button>
 
-            <!-- Tombol Buka Siklus Baru & Salin Titipan -->
-            <button type="button" @click="modalDuplikasi = true"
-                    class="px-3.5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition min-h-[44px] flex items-center gap-1.5 shadow-xs shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
-                + Buka Siklus Baru (Bawa Saldo Titipan)
-            </button>
+                <!-- Tombol Scan / Impor Dokumen Pintar (Banyak Warga Sekaligus) -->
+                <button type="button" @click.stop="bukaModalScan()"
+                        class="px-3.5 py-2.5 text-xs font-bold text-[#CEA042] bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-xl transition min-h-[44px] flex items-center gap-1.5 shadow-xs shrink-0">
+                    <svg class="w-4 h-4 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>📸 Scan / Impor</span>
+                </button>
+
+                <!-- Tombol Buka Siklus Baru & Salin Titipan -->
+                <button type="button" @click.stop="bukaModalDuplikasi()"
+                        class="px-3.5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition min-h-[44px] flex items-center gap-1.5 shadow-xs shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>+ Buka Siklus Baru</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -357,9 +385,9 @@
 
         <!-- MODAL GABUNGKAN TAGIHAN REKAP (Bottom Sheet di HP) -->
         <div x-show="modalGabungkan" x-cloak
+             @click.self="modalGabungkan = false"
              class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <div @click.away="modalGabungkan = false"
-                 class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
                 
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div class="flex items-center gap-2">
@@ -460,9 +488,9 @@
 
     <!-- MODAL CATAT REKAP STRUK TERARAH (Otomatis Warga & Nomor Struk, Cukup Tagihan Awal) -->
     <div x-show="modalTambah" x-cloak
+         @click.self="tutupModalTambah()"
          class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div @click.away="tutupModalTambah()"
-             class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
             
             <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                 <div class="flex items-center gap-2">
@@ -602,35 +630,69 @@
         </div>
     </div>
 
-    <!-- MODAL DUPLIKASI / SIKLUS BARU (Salin Warga & Bawa Titipan Bulan Lalu) -->
+    <!-- MODAL DUPLIKASI / BUKA SIKLUS BARU (Salin Warga & Bawa Titipan Bulan Lalu) -->
     <div x-show="modalDuplikasi" x-cloak
-         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div @click.away="modalDuplikasi = false"
-             class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-xl border border-gray-200 space-y-4">
-            <div class="border-b border-gray-100 pb-3">
-                <h3 class="text-sm font-bold text-gray-900">Buka Siklus Periode Baru</h3>
-                <p class="text-xs text-gray-500">Otomatis menyalin daftar warga dan membawa saldo titipan bulan lalu.</p>
+         @click.self="modalDuplikasi = false"
+         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold text-sm">
+                        📅
+                    </span>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-bold text-gray-900">Buka Siklus Periode Baru</h3>
+                        <p class="text-xs text-gray-500">Mempersiapkan data rekap untuk bulan berikutnya</p>
+                    </div>
+                </div>
+                <button type="button" @click="modalDuplikasi = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
             </div>
             
             <form method="POST" action="{{ route('admin.rekap-listrik.duplikasi-siklus') }}"
                   x-data="{
                       bulanBaru: '{{ $saranBulan }}',
                       tahunBaru: {{ $saranTahun }},
+                      modeSiklus: 'salin_saldo',
                       get periodeBaru() {
                           return this.bulanBaru + ' ' + this.tahunBaru;
                       }
                   }"
                   class="space-y-3.5 text-xs">
                 @csrf
-                <div>
-                    <label class="block font-bold text-gray-700 uppercase mb-1">Ambil Data Dari Periode Asal:</label>
+
+                <!-- Pilihan Mode Siklus -->
+                <div class="space-y-1.5">
+                    <label class="block font-bold text-gray-700 uppercase">Metode Pembuatan Siklus:</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <label class="flex items-start gap-2 p-2.5 rounded-xl border cursor-pointer transition"
+                               :class="modeSiklus === 'salin_saldo' ? 'bg-amber-50/80 border-[#CEA042] text-amber-950 font-bold' : 'border-gray-200 text-gray-600'">
+                            <input type="radio" name="mode" value="salin_saldo" x-model="modeSiklus" class="mt-0.5 text-[#CEA042] focus:ring-[#CEA042]">
+                            <div>
+                                <span class="block leading-tight text-xs">Bawa Saldo Titipan</span>
+                                <span class="text-[10px] text-gray-500 font-normal">Kelebihan/kurang bulan lalu otomatis terpotong</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-2 p-2.5 rounded-xl border cursor-pointer transition"
+                               :class="modeSiklus === 'kosong' ? 'bg-amber-50/80 border-[#CEA042] text-amber-950 font-bold' : 'border-gray-200 text-gray-600'">
+                            <input type="radio" name="mode" value="kosong" x-model="modeSiklus" class="mt-0.5 text-[#CEA042] focus:ring-[#CEA042]">
+                            <div>
+                                <span class="block leading-tight text-xs">Mulai Bersih</span>
+                                <span class="text-[10px] text-gray-500 font-normal">Ambil warga tanpa bawa saldo bulan lalu</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div x-show="modeSiklus === 'salin_saldo'">
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Ambil Data & Saldo Dari Siklus:</label>
                     <input type="text" name="periode_asal" value="{{ $periodeAktif }}" readonly
-                           class="w-full text-xs font-bold bg-gray-100 rounded-xl border-gray-300 py-2.5">
+                           class="w-full text-xs font-bold bg-gray-100 rounded-xl border-gray-300 py-2.5 px-3 min-h-[44px]">
                 </div>
 
                 <!-- Pemilih Bulan dan Tahun Terstruktur Kalender -->
                 <div class="space-y-1.5">
-                    <label class="block font-bold text-gray-700 uppercase">Siklus Bulan & Tahun Baru *</label>
+                    <label class="block font-bold text-gray-700 uppercase">Siklus Bulan & Tahun Baru <span class="text-rose-500">*</span></label>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[11px] text-gray-500 mb-0.5">Bulan:</label>
@@ -670,18 +732,232 @@
                     </select>
                 </div>
 
-                <div class="bg-amber-50 rounded-xl p-3 text-[11px] text-amber-900 border border-amber-200">
-                    Setiap warga yang memiliki kelebihan/titipan uang di periode sebelumnya akan otomatis mendapatkan <strong>potongan tagihan</strong> di periode baru ini.
-                </div>
-                
-                <div class="flex items-center justify-end gap-2 pt-2">
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
                     <button type="button" @click="modalDuplikasi = false"
                             class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px]">
                         Batal
                     </button>
                     <button type="submit"
                             class="px-5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl shadow-xs min-h-[44px] transition">
-                        + Buka Siklus & Bawa Saldo
+                        + Buka Siklus Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL KELOLA SIKLUS PERIODE (CRUD: DAFTAR, UBAH NAMA, HAPUS, BUKA BARU) -->
+    <div x-show="modalKelolaSiklus" x-cloak
+         @click.self="modalKelolaSiklus = false"
+         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] flex flex-col">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900 leading-tight">Kelola Siklus Periode</h3>
+                        <p class="text-xs text-gray-500">Daftar siklus, ubah nama (rename), atau hapus siklus</p>
+                    </div>
+                </div>
+                <button type="button" @click="modalKelolaSiklus = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+            </div>
+
+            <!-- Tombol Buka Siklus Baru Cepat di Header Modal -->
+            <div class="flex items-center justify-between bg-amber-50/70 p-3 rounded-xl border border-amber-200/80 shrink-0">
+                <div>
+                    <span class="text-xs font-bold text-amber-950 block">Ingin menambah bulan baru?</span>
+                    <span class="text-[11px] text-amber-800">Otomatis salin data warga & bawa saldo titipan</span>
+                </div>
+                <button type="button" @click="modalKelolaSiklus = false; bukaModalDuplikasi()"
+                        class="px-3 py-2 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition shadow-xs min-h-[40px] flex items-center gap-1.5 shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    <span>+ Siklus Baru</span>
+                </button>
+            </div>
+
+            <!-- Daftar Siklus (Scrollable List) -->
+            <div class="overflow-y-auto space-y-2.5 pr-0.5 flex-1 max-h-[50vh]">
+                <template x-for="item in siklusStats" :key="item.nama">
+                    <div class="p-3.5 rounded-xl border transition"
+                         :class="item.nama === '{{ $periodeAktif }}' ? 'bg-amber-50/40 border-[#CEA042] shadow-2xs' : 'bg-white border-gray-200 hover:border-gray-300'">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-sm font-black text-gray-900" x-text="item.nama"></span>
+                                    <template x-if="item.nama === '{{ $periodeAktif }}'">
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#CEA042] text-white">
+                                            Sedang Dibuka
+                                        </span>
+                                    </template>
+                                </div>
+                                <div class="flex items-center gap-2 mt-1 text-[11px] text-gray-500 flex-wrap">
+                                    <span><strong class="text-gray-800" x-text="item.total_tagihan"></strong> Warga</span>
+                                    <span>•</span>
+                                    <span class="text-emerald-700 font-semibold"><strong x-text="item.total_lunas"></strong> Lunas</span>
+                                    <span>•</span>
+                                    <span class="text-amber-800 font-semibold"><strong x-text="item.total_belum_lunas"></strong> Belum</span>
+                                    <span>•</span>
+                                    <span class="font-bold text-[#CEA042]" x-text="'Rp ' + formatRupiah(item.total_nominal)"></span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <!-- Buka Siklus Ini (jika bukan yang aktif) -->
+                                <a :href="'{{ route('admin.rekap-listrik.index') }}?periode=' + encodeURIComponent(item.nama) + '&rt={{ $rtAktif }}'"
+                                   x-show="item.nama !== '{{ $periodeAktif }}'"
+                                   title="Buka Rekap Periode Ini"
+                                   class="p-2 text-xs font-bold text-[#CEA042] hover:bg-amber-50 rounded-lg border border-amber-200 transition min-h-[38px] min-w-[38px] flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </a>
+
+                                <!-- Ubah Nama (Rename) -->
+                                <button type="button"
+                                        @click="bukaModalRenameSiklus(item.nama)"
+                                        title="Ubah Nama Siklus"
+                                        class="p-2 text-xs font-bold text-gray-700 hover:text-[#CEA042] hover:bg-amber-50 rounded-lg border border-gray-200 transition min-h-[38px] min-w-[38px] flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                </button>
+
+                                <!-- Hapus Siklus -->
+                                <button type="button"
+                                        @click="bukaModalHapusSiklus(item.nama, item.total_tagihan, item.total_lunas)"
+                                        title="Hapus Siklus Ini"
+                                        class="p-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200 transition min-h-[38px] min-w-[38px] flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-3 border-t border-gray-100 flex items-center justify-end shrink-0">
+                <button type="button" @click="modalKelolaSiklus = false"
+                        class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px] transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RENAME / UBAH NAMA SIKLUS -->
+    <div x-show="modalRenameSiklus" x-cloak
+         @click.self="modalRenameSiklus = false"
+         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div>
+                    <h3 class="text-base font-bold text-gray-900">Ubah Nama Siklus</h3>
+                    <p class="text-xs text-gray-500">Sesuaikan nama bulan atau tahun siklus tagihan</p>
+                </div>
+                <button type="button" @click="modalRenameSiklus = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+            </div>
+
+            <form method="POST" action="{{ route('admin.rekap-listrik.siklus.rename') }}" class="space-y-4 text-xs">
+                @csrf
+                <div>
+                    <label class="block font-bold text-gray-600 uppercase mb-1">Nama Siklus Saat Ini:</label>
+                    <input type="text" name="periode_lama" x-model="siklusTerpilih" readonly
+                           class="w-full text-xs font-bold bg-gray-100 rounded-xl border-gray-300 py-2.5 px-3 min-h-[44px]">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block font-bold text-gray-800 uppercase">Ubah Menjadi Bulan & Tahun Baru <span class="text-rose-500">*</span></label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] text-gray-500 mb-0.5">Bulan:</label>
+                            <select x-model="bulanRename" required
+                                    class="w-full text-xs font-bold rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-2.5 min-h-[46px]">
+                                @foreach($daftarBulan as $num => $namaBulan)
+                                    <option value="{{ $namaBulan }}">{{ $namaBulan }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-gray-500 mb-0.5">Tahun:</label>
+                            <input type="number" x-model.number="tahunRename" required min="2020" max="2035"
+                                   class="w-full text-xs font-bold rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-2.5 min-h-[46px]">
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="periode_baru" :value="(bulanRename + ' ' + tahunRename).trim()">
+
+                    <div class="flex items-center justify-between p-2.5 bg-amber-50/80 rounded-xl border border-amber-200 mt-2">
+                        <span class="text-gray-600 text-[11px]">Nama Baru:</span>
+                        <span class="font-black text-[#CEA042] text-xs font-mono" x-text="bulanRename + ' ' + tahunRename"></span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                    <button type="button" @click="modalRenameSiklus = false"
+                            class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px]">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl shadow-xs min-h-[44px] transition">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL HAPUS SIKLUS -->
+    <div x-show="modalHapusSiklus" x-cloak
+         @click.self="modalHapusSiklus = false"
+         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4">
+            <div class="flex items-center gap-2.5 border-b border-gray-100 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-gray-900">Hapus Siklus Periode</h3>
+                    <p class="text-xs text-gray-500">Tindakan ini tidak dapat dibatalkan</p>
+                </div>
+            </div>
+
+            <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-950 text-xs space-y-1.5">
+                <p>
+                    Apakah Anda yakin ingin menghapus siklus <strong class="text-rose-900 font-black" x-text="siklusTerpilih"></strong>?
+                </p>
+                <p class="text-[11px] text-rose-800">
+                    Semua data tagihan warga (<strong x-text="siklusHapusTotalData"></strong> data) di dalam siklus ini akan dihapus permanen.
+                </p>
+                <template x-if="siklusHapusTotalLunas > 0">
+                    <p class="text-[11px] font-bold text-amber-900 bg-amber-100/80 p-2 rounded-lg border border-amber-300">
+                        ⚠️ Peringatan: Ada <span x-text="siklusHapusTotalLunas"></span> tagihan yang sudah tercatat LUNAS pada siklus ini.
+                    </p>
+                </template>
+            </div>
+
+            <form method="POST" action="{{ route('admin.rekap-listrik.siklus.hapus') }}" class="space-y-4 text-xs">
+                @csrf
+                <input type="hidden" name="periode" :value="siklusTerpilih">
+
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                    <button type="button" @click="modalHapusSiklus = false"
+                            class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px]">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs min-h-[44px] transition">
+                        Ya, Hapus Siklus Ini
                     </button>
                 </div>
             </form>
@@ -690,9 +966,9 @@
 
     <!-- MODAL SCAN & IMPOR DOKUMEN (BANYAK WARGA SEKALIGUS - MOBILE FRIENDLY) -->
     <div x-show="modalScan" x-cloak
+         @click.self="if(stepScan !== 'processing') modalScan = false"
          class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div @click.away="if(stepScan !== 'processing') modalScan = false"
-             class="bg-white rounded-t-3xl sm:rounded-2xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] flex flex-col w-full">
+        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] flex flex-col w-full">
             
             <!-- Header Modal -->
             <div class="flex items-center justify-between border-b border-gray-100 pb-3 shrink-0">
@@ -904,32 +1180,27 @@
 
 </div>
 
-<!-- Data Master Warga RT Aktif untuk Pencocokan OCR / Dokumen -->
-<script id="warga-rt-json" type="application/json">
-    {!! json_encode($wargaRtAktif) !!}
-</script>
-
-<!-- Data Rekap Aktif untuk Fitur Penggabungan Tagihan -->
-<script id="daftar-rekap-json" type="application/json">
-    {!! json_encode($daftarRekap) !!}
-</script>
-
 @push('scripts')
 <script>
 function rekapListrik() {
     let masterWarga = [];
     let allRekap = [];
+    let allPeriode = [];
     try {
         const elJson = document.getElementById('warga-rt-json');
-        if (elJson) {
+        if (elJson && elJson.textContent) {
             masterWarga = JSON.parse(elJson.textContent);
         }
         const elRekap = document.getElementById('daftar-rekap-json');
-        if (elRekap) {
+        if (elRekap && elRekap.textContent) {
             allRekap = JSON.parse(elRekap.textContent);
         }
+        const elPeriode = document.getElementById('daftar-periode-json');
+        if (elPeriode && elPeriode.textContent) {
+            allPeriode = JSON.parse(elPeriode.textContent);
+        }
     } catch (e) {
-        console.error('Error parsing warga master / rekap', e);
+        console.error('Error parsing warga master / rekap / periode json', e);
     }
 
     return {
@@ -938,17 +1209,28 @@ function rekapListrik() {
         modalDuplikasi: false,
         modalScan: false,
         modalGabungkan: false,
+        modalKelolaSiklus: false,
+        modalRenameSiklus: false,
+        modalHapusSiklus: false,
+
+        siklusTerpilih: '{{ $periodeAktif }}',
+        siklusHapusTotalData: 0,
+        siklusHapusTotalLunas: 0,
+        bulanRename: '{{ $saranBulan }}',
+        tahunRename: {{ $saranTahun }},
+        siklusStats: allPeriode || [],
+
         selectedIds: [],
         namaPembayarGabungan: '',
         kodeGabunganInput: '',
-        allRekap: allRekap,
+        allRekap: allRekap || [],
         hasilScan: [],
         stepScan: 'upload', // 'upload', 'processing', 'crosscheck'
         statusScanText: 'Membaca Dokumen...',
         progressScan: 0,
         previewFileUrl: null,
         tampilkanPreview: true,
-        masterWarga: masterWarga,
+        masterWarga: masterWarga || [],
         wargaIndexAktif: 0,
         saving: false,
         notifSukses: '',
@@ -961,9 +1243,64 @@ function rekapListrik() {
         tagihanAwalDisplay: '',
         kasKartar: 3000,
 
+        init() {
+            this.refreshData();
+        },
+
+        refreshData() {
+            try {
+                if (!this.masterWarga || this.masterWarga.length === 0) {
+                    const elJson = document.getElementById('warga-rt-json');
+                    if (elJson && elJson.textContent) {
+                        this.masterWarga = JSON.parse(elJson.textContent);
+                    }
+                }
+                if (!this.allRekap || this.allRekap.length === 0) {
+                    const elRekap = document.getElementById('daftar-rekap-json');
+                    if (elRekap && elRekap.textContent) {
+                        this.allRekap = JSON.parse(elRekap.textContent);
+                    }
+                }
+                if (!this.siklusStats || this.siklusStats.length === 0) {
+                    const elPeriode = document.getElementById('daftar-periode-json');
+                    if (elPeriode && elPeriode.textContent) {
+                        this.siklusStats = JSON.parse(elPeriode.textContent);
+                    }
+                }
+            } catch (e) {
+                console.error('Error refreshing rekap data', e);
+            }
+        },
+
+        bukaModalKelolaSiklus() {
+            this.refreshData();
+            this.modalKelolaSiklus = true;
+        },
+
+        bukaModalRenameSiklus(namaSiklus) {
+            this.siklusTerpilih = namaSiklus;
+            const parts = (namaSiklus || '').trim().split(' ');
+            this.bulanRename = parts[0] || '{{ $saranBulan }}';
+            this.tahunRename = parseInt(parts[1]) || {{ date('Y') }};
+            this.modalRenameSiklus = true;
+        },
+
+        bukaModalHapusSiklus(namaSiklus, totalData, totalLunas) {
+            this.siklusTerpilih = namaSiklus;
+            this.siklusHapusTotalData = totalData || 0;
+            this.siklusHapusTotalLunas = totalLunas || 0;
+            this.modalHapusSiklus = true;
+        },
+
+        bukaModalDuplikasi() {
+            this.modalDuplikasi = true;
+        },
+
         get wargaAktif() {
-            if (!this.masterWarga || this.masterWarga.length === 0) return {};
-            return this.masterWarga[this.wargaIndexAktif] || {};
+            if (!this.masterWarga || this.masterWarga.length === 0) {
+                return { nama: '', nomor_struk: '', nomor_meter: '', saldo_lalu: 0, is_tercatat: false };
+            }
+            return this.masterWarga[this.wargaIndexAktif] || { nama: '', nomor_struk: '', nomor_meter: '', saldo_lalu: 0, is_tercatat: false };
         },
 
         get saldoLalu() {
@@ -998,6 +1335,7 @@ function rekapListrik() {
         },
 
         get selectedItems() {
+            if (!this.allRekap || !Array.isArray(this.allRekap)) return [];
             return this.allRekap.filter(item => this.selectedIds.includes(item.id));
         },
 
@@ -1034,6 +1372,7 @@ function rekapListrik() {
         },
 
         bukaModalTambah(index = null) {
+            this.refreshData();
             if (!this.masterWarga || this.masterWarga.length === 0) {
                 alert('Belum ada data warga terdaftar di RT {{ $rtAktif }}.');
                 return;
@@ -1045,6 +1384,16 @@ function rekapListrik() {
                 const belumCatatIndex = this.masterWarga.findIndex(w => !w.is_tercatat);
                 this.wargaIndexAktif = belumCatatIndex !== -1 ? belumCatatIndex : 0;
             }
+            this.muatDataWargaAktif();
+            this.modalTambah = true;
+            setTimeout(() => {
+                const inp = document.getElementById('input-tagihan-awal-modal');
+                if (inp) {
+                    inp.focus();
+                    inp.select();
+                }
+            }, 100);
+        },
             this.muatDataWargaAktif();
             this.modalTambah = true;
             setTimeout(() => {
@@ -1362,7 +1711,7 @@ function rekapListrik() {
             let counterStruk = 1;
 
             // Periksa setiap warga master: apakah namanya muncul di teks dokumen ini?
-            masterWarga.forEach(w => {
+            (this.masterWarga || []).forEach(w => {
                 const namaTokens = w.nama.toLowerCase().split(' ').filter(t => t.length > 2);
                 let foundLine = null;
 
@@ -1458,7 +1807,7 @@ function rekapListrik() {
         cariWargaCocok(namaInput) {
             if (!namaInput) return null;
             const q = namaInput.toLowerCase();
-            return masterWarga.find(w => {
+            return (this.masterWarga || []).find(w => {
                 const n = w.nama.toLowerCase();
                 const p = (w.nama_pelanggan_pln || '').toLowerCase();
                 return n.includes(q) || q.includes(n) || (p && (p.includes(q) || q.includes(p)));
@@ -1512,6 +1861,7 @@ function rekapListrik() {
         },
 
         get totalAkumulasiScan() {
+            if (!this.hasilScan || !Array.isArray(this.hasilScan)) return 0;
             return this.hasilScan.reduce((acc, curr) => acc + (curr.total_tagihan || 0), 0);
         },
 
