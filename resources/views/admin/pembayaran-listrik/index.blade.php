@@ -736,6 +736,8 @@
                 <input type="hidden" name="kode_gabungan" x-model="kodeGabungan">
                 <!-- Hidden input berisi nilai murni tanpa titik untuk backend -->
                 <input type="hidden" name="uang_dibayar" :value="uangDibayar">
+                <input type="hidden" name="uang_kembalian" :value="uangKembalian">
+                <input type="hidden" name="jadikan_titipan" :value="sisaKembalian > 0 ? 1 : 0">
 
                 <!-- Informasi Pembayaran & Potongan Saldo -->
                 <div class="bg-gray-50 rounded-xl p-3.5 border border-gray-200/80 space-y-2">
@@ -823,35 +825,105 @@
 
                 <!-- Live Status Kembalian vs Kurang vs Uang Pas -->
                 <!-- KONDISI 1: ADA KEMBALIAN (Uang Diterima > Total Wajib) -->
-                <div x-show="selisihUang > 0" class="space-y-2">
-                    <div class="rounded-xl p-3 border"
-                         :class="jadikanTitipan ? 'bg-amber-50 border-[#CEA042] text-amber-950' : 'bg-emerald-50 border-emerald-200 text-emerald-950'">
+                <div x-show="selisihUang > 0" class="space-y-3 pt-1">
+                    <!-- Rangkuman Kembalian Semestinya -->
+                    <div class="rounded-xl p-3 bg-emerald-50/70 border border-emerald-200">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold uppercase tracking-wider"
-                                  x-text="jadikanTitipan ? 'Titipan (Tidak Ada Kembalian):' : 'Kembalian Warga:'"></span>
-                            <span class="text-base font-black"
-                                  :class="jadikanTitipan ? 'text-[#CEA042]' : 'text-emerald-700'"
-                                  x-text="'Rp ' + formatRupiah(kembalian)"></span>
+                            <span class="text-xs font-semibold text-emerald-900 uppercase tracking-wider">Kembalian Semestinya:</span>
+                            <span class="text-base font-black text-emerald-700" x-text="'Rp ' + formatRupiah(kembalianSemestinya)"></span>
                         </div>
-                        <p class="text-[11px] mt-1 leading-relaxed"
-                           :class="jadikanTitipan ? 'text-amber-800' : 'text-emerald-700'"
-                           x-text="jadikanTitipan ? 'Sisa Rp ' + formatRupiah(kembalian) + ' disimpan sebagai saldo titipan bulan depan.' : 'Kembalikan uang Rp ' + formatRupiah(kembalian) + ' ke warga. Tidak ada titipan.'">
+                    </div>
+
+                    <!-- Input Kembalian yang Diserahkan Tunai oleh Kasir -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block font-bold text-gray-700 uppercase">Uang Kembalian Diserahkan (Rp) *</label>
+                            <span class="text-[11px] text-gray-500 font-semibold" x-text="'Diserahkan: Rp ' + formatRupiah(uangKembalian)"></span>
+                        </div>
+                        <div class="flex items-stretch rounded-2xl border border-gray-300 bg-white shadow-xs focus-within:border-[#CEA042] focus-within:ring-2 focus-within:ring-[#CEA042]/25 overflow-hidden transition-all min-h-[48px]">
+                            <span class="flex items-center justify-center bg-gray-100/90 px-3.5 text-gray-500 font-black text-sm select-none border-r border-gray-200 shrink-0">
+                                Rp
+                            </span>
+                            <input type="text"
+                                   inputmode="numeric"
+                                   x-model="uangKembalianInput"
+                                   @input="onInputKembalian($event)"
+                                   placeholder="0"
+                                   class="w-full text-lg font-black text-gray-900 border-0 focus:ring-0 focus:outline-none py-2.5 px-3 min-h-[48px] bg-transparent">
+                        </div>
+
+                        <!-- Shortcut Cepat Uang Kembalian -->
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" @click="setKembalianPas()"
+                                    class="flex-1 py-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg font-bold text-[11px] min-h-[38px] border border-emerald-200/70 transition text-center whitespace-nowrap">
+                                Pas (<span x-text="'Rp ' + formatRupiah(kembalianSemestinya)"></span>)
+                            </button>
+                            <button type="button" @click="setKembalianNol()"
+                                    class="py-1.5 px-2 bg-amber-50 hover:bg-amber-100 text-[#CEA042] rounded-lg font-bold text-[11px] min-h-[38px] border border-amber-200/70 transition whitespace-nowrap">
+                                Gada Kembalian (Rp 0)
+                            </button>
+                            <template x-if="kembalianSemestinya >= 5000">
+                                <button type="button" @click="setKembalianNominal(5000)"
+                                        class="py-1.5 px-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-semibold text-[11px] min-h-[38px] transition">
+                                    5.000
+                                </button>
+                            </template>
+                            <template x-if="kembalianSemestinya >= 2000 && kembalianSemestinya !== 5000">
+                                <button type="button" @click="setKembalianNominal(2000)"
+                                        class="py-1.5 px-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-semibold text-[11px] min-h-[38px] transition">
+                                    2.000
+                                </button>
+                            </template>
+                            <template x-if="kembalianSemestinya >= 10000">
+                                <button type="button" @click="setKembalianNominal(10000)"
+                                        class="py-1.5 px-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-semibold text-[11px] min-h-[38px] transition">
+                                    10.000
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Live Penentuan Sistem Terhadap Sisa Kembalian -->
+                    <!-- Sub-kondisi 1: Kembalian Pas Diserahkan Penuh (sisaKembalian === 0) -->
+                    <div x-show="sisaKembalian === 0" class="rounded-xl p-3 bg-emerald-50 border border-emerald-200 text-emerald-950">
+                        <div class="flex items-center justify-between font-bold">
+                            <span class="text-xs uppercase tracking-wider text-emerald-800">Status Kembalian:</span>
+                            <span class="text-sm font-black text-emerald-700">Pas Diserahkan Semua</span>
+                        </div>
+                        <p class="text-[11px] mt-1 text-emerald-800 leading-relaxed">
+                            Uang kembalian <strong x-text="'Rp ' + formatRupiah(uangKembalian)"></strong> diserahkan tunai ke warga. Tidak ada sisa saldo titipan (Rp 0).
                         </p>
                     </div>
 
-                    <!-- Pilihan Darurat: Titipan Hanya Berfungsi Jika Tidak Ada Kembalian -->
-                    <label class="flex items-start gap-2.5 p-2.5 rounded-xl border cursor-pointer select-none transition"
-                           :class="jadikanTitipan ? 'bg-amber-50/70 border-amber-300' : 'bg-gray-50 border-gray-200 hover:bg-gray-100/60'">
-                        <input type="checkbox"
-                               name="jadikan_titipan"
-                               value="1"
-                               x-model="jadikanTitipan"
-                               class="mt-0.5 rounded border-gray-300 text-[#CEA042] focus:ring-[#CEA042] w-4 h-4">
-                        <div class="text-[11px] leading-snug">
-                            <span class="font-bold text-gray-900 block">Tidak ada uang kembalian?</span>
-                            <span class="text-gray-500">Centang untuk menyimpan kembalian <strong class="text-gray-800" x-text="'Rp ' + formatRupiah(kembalian)"></strong> sebagai saldo titipan warga bulan depan.</span>
+                    <!-- Sub-kondisi 2: Kembalian Sebagian (uangKembalian > 0 && sisaKembalian > 0) -->
+                    <div x-show="uangKembalian > 0 && sisaKembalian > 0" class="rounded-xl p-3 bg-amber-50 border border-amber-300 text-amber-950 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-amber-900">Kembalian Diserahkan:</span>
+                            <span class="text-sm font-bold text-gray-800" x-text="'Rp ' + formatRupiah(uangKembalian)"></span>
                         </div>
-                    </label>
+                        <div class="flex items-center justify-between pt-1 border-t border-amber-200/80">
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-900">Sisa Kembalian (Kurang Pecahan):</span>
+                            <span class="text-base font-black text-[#CEA042]" x-text="'Rp ' + formatRupiah(sisaKembalian)"></span>
+                        </div>
+                        <p class="text-[11px] text-amber-900 leading-relaxed pt-1">
+                            Karena hanya ada pecahan <strong x-text="'Rp ' + formatRupiah(uangKembalian)"></strong>, maka sisa kembalian <strong class="text-amber-950" x-text="'Rp ' + formatRupiah(sisaKembalian)"></strong> otomatis disimpan sebagai <strong>saldo titipan warga</strong> bulan depan.
+                        </p>
+                    </div>
+
+                    <!-- Sub-kondisi 3: Gada Kembalian Sama Sekali (uangKembalian === 0) -->
+                    <div x-show="uangKembalian === 0" class="rounded-xl p-3 bg-amber-50 border border-amber-300 text-amber-950 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-amber-900">Kembalian Diserahkan:</span>
+                            <span class="text-sm font-bold text-gray-600">Rp 0 (Tidak Ada)</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-amber-200/80">
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-900">Disimpan Sebagai Saldo Titipan:</span>
+                            <span class="text-base font-black text-[#CEA042]" x-text="'Rp ' + formatRupiah(sisaKembalian)"></span>
+                        </div>
+                        <p class="text-[11px] text-amber-900 leading-relaxed pt-1">
+                            Tidak ada uang kembalian diserahkan. Seluruh <strong class="text-amber-950" x-text="'Rp ' + formatRupiah(sisaKembalian)"></strong> otomatis disimpan sebagai <strong>saldo titipan warga</strong> bulan depan.
+                        </p>
+                    </div>
                 </div>
 
                 <!-- KONDISI 2: KURANG / NINGGAL (Uang Diterima < Total Wajib) -->
@@ -923,6 +995,7 @@ function kasirListrik() {
             saldoLalu: 0
         },
         uangDibayarInput: '',
+        uangKembalianInput: '',
         namaPembayar: '',
         jadikanTitipan: false,
         kodeGabungan: '',
@@ -943,10 +1016,10 @@ function kasirListrik() {
                 total: total,
                 saldoLalu: saldoLalu || 0
             };
-            this.uangDibayar = total;
             this.namaPembayar = '';
             this.jadikanTitipan = false;
             this.kodeGabungan = '';
+            this.uangDibayar = total;
             this.modalBayar = true;
         },
 
@@ -967,10 +1040,10 @@ function kasirListrik() {
                 total: total,
                 saldoLalu: saldoLalu || 0
             };
-            this.uangDibayar = total;
             this.namaPembayar = nama;
             this.jadikanTitipan = false;
             this.kodeGabungan = kodeGabungan;
+            this.uangDibayar = total;
             this.modalBayar = true;
         },
 
@@ -987,10 +1060,10 @@ function kasirListrik() {
                 total: total,
                 saldoLalu: 0
             };
-            this.uangDibayar = total;
             this.namaPembayar = filtered.length > 0 ? filtered[0].nama_warga : '';
             this.jadikanTitipan = false;
             this.kodeGabungan = 'GAB-' + Math.floor(100000 + Math.random() * 900000);
+            this.uangDibayar = total;
             this.modalBayar = true;
         },
 
@@ -1026,32 +1099,86 @@ function kasirListrik() {
         set uangDibayar(val) {
             let num = parseInt(val) || 0;
             this.uangDibayarInput = num > 0 ? this.formatRupiah(num) : '';
+            this.sinkronKembalianDefault();
         },
 
-        onInputUang(e) {
-            let clean = e.target.value.replace(/[^0-9]/g, '');
-            if (!clean) {
-                this.uangDibayarInput = '';
-                return;
-            }
-            this.uangDibayarInput = this.formatRupiah(parseInt(clean));
+        get uangKembalian() {
+            let clean = this.uangKembalianInput.toString().replace(/[^0-9]/g, '');
+            if (clean === '') return 0;
+            return parseInt(clean) || 0;
+        },
+
+        set uangKembalian(val) {
+            let num = parseInt(val) || 0;
+            let max = Math.max(0, this.kembalianSemestinya);
+            let clamped = Math.min(num, max);
+            this.uangKembalianInput = clamped > 0 ? this.formatRupiah(clamped) : '0';
         },
 
         get selisihUang() {
             return this.uangDibayar - (this.bayarItem.total || 0);
         },
 
-        get kembalian() {
+        get kembalianSemestinya() {
             return Math.max(0, this.selisihUang);
+        },
+
+        get sisaKembalian() {
+            return Math.max(0, this.kembalianSemestinya - this.uangKembalian);
         },
 
         get kurang() {
             return Math.max(0, -this.selisihUang);
         },
 
+        sinkronKembalianDefault() {
+            let s = this.kembalianSemestinya;
+            if (s > 0) {
+                this.uangKembalianInput = this.formatRupiah(s);
+            } else {
+                this.uangKembalianInput = '0';
+            }
+        },
+
+        onInputUang(e) {
+            let clean = e.target.value.replace(/[^0-9]/g, '');
+            if (!clean) {
+                this.uangDibayarInput = '';
+                this.uangKembalianInput = '0';
+                return;
+            }
+            this.uangDibayarInput = this.formatRupiah(parseInt(clean));
+            this.sinkronKembalianDefault();
+        },
+
+        onInputKembalian(e) {
+            let clean = e.target.value.replace(/[^0-9]/g, '');
+            if (!clean || clean === '0') {
+                this.uangKembalianInput = '0';
+                return;
+            }
+            let val = parseInt(clean);
+            let max = this.kembalianSemestinya;
+            if (val > max) {
+                val = max;
+            }
+            this.uangKembalianInput = this.formatRupiah(val);
+        },
+
+        setKembalianPas() {
+            this.uangKembalian = this.kembalianSemestinya;
+        },
+
+        setKembalianNol() {
+            this.uangKembalianInput = '0';
+        },
+
+        setKembalianNominal(val) {
+            this.uangKembalian = val;
+        },
+
         setNominal(val) {
             this.uangDibayar = val;
-            this.jadikanTitipan = false;
         },
 
         tambahNominal(val) {
@@ -1060,7 +1187,6 @@ function kasirListrik() {
 
         resetNominal() {
             this.uangDibayar = 0;
-            this.jadikanTitipan = false;
         },
 
         formatRupiah(num) {

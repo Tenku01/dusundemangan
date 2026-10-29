@@ -204,6 +204,104 @@ class TagihanListrikTest extends TestCase
         $this->assertTrue($tagihanFresh->isLebih());
     }
 
+    public function test_kasir_dapat_input_kembalian_sebagian_dan_sisa_kembalian_jadi_titipan(): void
+    {
+        // Contoh nyata sesuai use-case: Tagihan 43.000, bayar 50.000. Kembalian seharusnya 7.000.
+        // Kasir hanya punya pecahan 5.000, diinput 5.000, maka sisa 2.000 otomatis menjadi titipan.
+        $tagihan = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Bambang Uji',
+            'nama_pelanggan' => 'BAMBANG PLN UJI',
+            'nomor_struk' => 'STR-KEMBALIAN-43',
+            'tagihan_awal' => 40000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 43000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $tagihan->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.pembayaran-listrik.bayar'), [
+                'tagihan_ids' => [$tagihan->id],
+                'uang_dibayar' => '50.000',
+                'uang_kembalian' => '5.000',
+            ]);
+
+        $response->assertSessionHas('sukses');
+
+        $fresh = $tagihan->fresh();
+        $this->assertTrue($fresh->is_lunas);
+        $this->assertEquals(2000, $fresh->selisih_bayar);
+        $this->assertTrue($fresh->isLebih());
+    }
+
+    public function test_kasir_input_kembalian_nol_maka_seluruhnya_jadi_titipan(): void
+    {
+        // Tagihan 43.000, bayar 50.000. Kasir tidak ada kembalian sama sekali (input 0).
+        // Seluruh 7.000 disimpan sebagai saldo titipan.
+        $tagihan = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Cahyo Uji',
+            'nama_pelanggan' => 'CAHYO PLN UJI',
+            'nomor_struk' => 'STR-KEMBALIAN-0',
+            'tagihan_awal' => 40000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 43000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $tagihan->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.pembayaran-listrik.bayar'), [
+                'tagihan_ids' => [$tagihan->id],
+                'uang_dibayar' => 50000,
+                'uang_kembalian' => 0,
+            ]);
+
+        $response->assertSessionHas('sukses');
+
+        $fresh = $tagihan->fresh();
+        $this->assertTrue($fresh->is_lunas);
+        $this->assertEquals(7000, $fresh->selisih_bayar);
+        $this->assertTrue($fresh->isLebih());
+    }
+
+    public function test_kasir_input_kembalian_pas_maka_tanpa_titipan(): void
+    {
+        // Tagihan 43.000, bayar 50.000. Kembalian diserahkan penuh 7.000 -> selisih_bayar = 0.
+        $tagihan = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Doni Uji',
+            'nama_pelanggan' => 'DONI PLN UJI',
+            'nomor_struk' => 'STR-KEMBALIAN-PAS',
+            'tagihan_awal' => 40000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 43000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $tagihan->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.pembayaran-listrik.bayar'), [
+                'tagihan_ids' => [$tagihan->id],
+                'uang_dibayar' => 50000,
+                'uang_kembalian' => 7000,
+            ]);
+
+        $response->assertSessionHas('sukses');
+
+        $fresh = $tagihan->fresh();
+        $this->assertTrue($fresh->is_lunas);
+        $this->assertEquals(0, $fresh->selisih_bayar);
+        $this->assertTrue($fresh->isPas());
+    }
+
     public function test_proses_kasir_bayar_gabungan_beberapa_warga_dalam_satu_struk(): void
     {
         $tagihan1 = TagihanListrik::create([
@@ -253,6 +351,57 @@ class TagihanListrikTest extends TestCase
         $this->assertEquals('GAB-TEST-123', $t1->kode_gabungan);
         $this->assertEquals('GAB-TEST-123', $t2->kode_gabungan);
         $this->assertEquals(4000, $t1->selisih_bayar);
+    }
+
+    public function test_proses_kasir_bayar_gabungan_dengan_kembalian_sebagian(): void
+    {
+        $tagihan1 = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Keluarga X Uji',
+            'nama_pelanggan' => 'NAMA PLN X UJI',
+            'nomor_struk' => 'STR-GAB-X-UJI',
+            'tagihan_awal' => 40000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 43000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $tagihan1->id;
+
+        $tagihan2 = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Keluarga Y Uji',
+            'nama_pelanggan' => 'NAMA PLN Y UJI',
+            'nomor_struk' => 'STR-GAB-Y-UJI',
+            'tagihan_awal' => 50000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 53000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $tagihan2->id;
+
+        // Total 43.000 + 53.000 = 96.000. Bayar 100.000. Kembalian seharusnya 4.000.
+        // Kasir hanya kembalikan 2.000, maka sisa titipan adalah 2.000.
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.pembayaran-listrik.bayar'), [
+                'tagihan_ids' => [$tagihan1->id, $tagihan2->id],
+                'uang_dibayar' => 100000,
+                'uang_kembalian' => 2000,
+                'kode_gabungan' => 'GAB-PARSIAL-456',
+            ]);
+
+        $response->assertSessionHas('sukses');
+
+        $t1 = $tagihan1->fresh();
+        $t2 = $tagihan2->fresh();
+
+        $this->assertTrue($t1->is_lunas);
+        $this->assertTrue($t2->is_lunas);
+        $this->assertEquals(2000, $t1->selisih_bayar);
+        $this->assertEquals(0, $t2->selisih_bayar);
     }
 
     public function test_kasir_dapat_membatalkan_status_lunas(): void
