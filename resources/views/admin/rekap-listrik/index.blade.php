@@ -483,7 +483,6 @@
                 </form>
             </div>
         </div>
-        </div>
     @endif
 
     <!-- MODAL CATAT REKAP STRUK TERARAH (Otomatis Warga & Nomor Struk, Cukup Tagihan Awal) -->
@@ -1384,16 +1383,6 @@ function rekapListrik() {
                 const belumCatatIndex = this.masterWarga.findIndex(w => !w.is_tercatat);
                 this.wargaIndexAktif = belumCatatIndex !== -1 ? belumCatatIndex : 0;
             }
-            this.muatDataWargaAktif();
-            this.modalTambah = true;
-            setTimeout(() => {
-                const inp = document.getElementById('input-tagihan-awal-modal');
-                if (inp) {
-                    inp.focus();
-                    inp.select();
-                }
-            }, 100);
-        },
             this.muatDataWargaAktif();
             this.modalTambah = true;
             setTimeout(() => {
