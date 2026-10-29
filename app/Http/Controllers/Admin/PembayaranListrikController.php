@@ -451,6 +451,12 @@ class PembayaranListrikController extends Controller
      */
     public function bukukanKas(Request $request): RedirectResponse
     {
+        if ($request->has('nominal') && is_string($request->input('nominal'))) {
+            $request->merge([
+                'nominal' => (float) str_replace(['.', ' '], '', str_replace(',', '.', $request->input('nominal'))),
+            ]);
+        }
+
         $validated = $request->validate([
             'periode' => ['required', 'string'],
             'rt' => ['required', 'string'],
@@ -458,28 +464,34 @@ class PembayaranListrikController extends Controller
         ]);
 
         $rtLabel = $validated['rt'] !== 'semua' ? " RT {$validated['rt']}" : ' Seluruh RT';
-        $keterangan = "Kas Karang Taruna Rekap Listrik Periode {$validated['periode']}{$rtLabel}";
+        $keterangan = "Kas Listrik Warga Periode {$validated['periode']}{$rtLabel} (Ditahan di Kas Listrik sebelum disetor ke Kas Karang Taruna)";
 
-        $sudahAda = Keuangan::where('kategori', 'like', '%Karang Taruna%')
-            ->where('keterangan', $keterangan)
+        $sudahAda = Keuangan::where(function ($q) {
+            $q->where('kategori_kas', Keuangan::KAS_LISTRIK)
+                ->orWhere('kategori', 'like', '%Karang Taruna%')
+                ->orWhere('kategori', 'like', '%Listrik%');
+        })
+            ->where('keterangan', 'like', "%{$validated['periode']}%")
+            ->when($validated['rt'] !== 'semua', fn ($q) => $q->where('keterangan', 'like', "%RT {$validated['rt']}%"))
             ->first();
 
         if ($sudahAda) {
-            return back()->with('sukses', "Kas Karang Taruna periode ini sudah pernah dibukukan dengan kode transaksi {$sudahAda->kode_transaksi}.");
+            return back()->with('sukses', "Kas Listrik periode ini sudah pernah dibukukan dengan kode transaksi {$sudahAda->kode_transaksi}.");
         }
 
-        $kodeTransaksi = 'KAS-KARTAR-'.date('Ymd').'-'.Str::upper(Str::random(4));
+        $kodeTransaksi = 'KAS-LST-'.date('Ymd').'-'.Str::upper(Str::random(4));
 
         Keuangan::create([
             'kode_transaksi' => $kodeTransaksi,
             'tanggal' => now()->toDateString(),
             'jenis' => 'masuk',
             'nominal' => (float) $validated['nominal'],
-            'kategori' => 'Iuran Warga',
+            'kategori_kas' => Keuangan::KAS_LISTRIK,
+            'kategori' => 'Iuran Listrik Warga',
             'keterangan' => $keterangan,
             'dicatat_oleh' => auth()->id(),
         ]);
 
-        return back()->with('sukses', 'Kas Karang Taruna sebesar Rp '.number_format($validated['nominal'], 0, ',', '.')." berhasil dibukukan ke Kas Dusun (Kode: {$kodeTransaksi})!");
+        return back()->with('sukses', 'Kas Listrik sebesar Rp '.number_format($validated['nominal'], 0, ',', '.')." berhasil dibukukan dan ditahan di Kas Listrik (Kode: {$kodeTransaksi}) sebelum disetor ke Kas Karang Taruna!");
     }
 }

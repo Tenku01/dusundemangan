@@ -32,12 +32,19 @@
             <x-input-error :messages="$errors->get('password')" class="mt-1.5" />
         </div>
 
-        <!-- Remember Me -->
+        <!-- Remember Me & Forgot Password -->
         <div class="flex items-center justify-between text-xs pt-1">
             <label for="remember_me" class="inline-flex items-center text-gray-600">
                 <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-[#CEA042] focus:ring-[#CEA042]" name="remember">
                 <span class="ms-2">Ingat sesi saya</span>
             </label>
+
+            @if (Route::has('password.request'))
+                <a href="{{ route('password.request') }}"
+                   class="font-semibold text-gray-500 hover:text-[#CEA042] transition underline underline-offset-2">
+                    Lupa sandi?
+                </a>
+            @endif
         </div>
 
         <button type="submit"

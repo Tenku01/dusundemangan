@@ -10,6 +10,10 @@ class Keuangan extends Model
 {
     use HasFactory;
 
+    public const KAS_KARANG_TARUNA = 'Kas Karang Taruna';
+
+    public const KAS_LISTRIK = 'Kas Listrik';
+
     protected $table = 'keuangan';
 
     protected $fillable = [
@@ -17,6 +21,7 @@ class Keuangan extends Model
         'tanggal',
         'jenis',
         'nominal',
+        'kategori_kas',
         'kategori',
         'keterangan',
         'lampiran',

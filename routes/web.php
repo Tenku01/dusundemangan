@@ -52,6 +52,7 @@ Route::middleware(['auth', 'peran:admin,superadmin'])->prefix('admin')->name('ad
     Route::middleware('menu.akses:kas')->group(function () {
         Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
         Route::post('/keuangan', [KeuanganController::class, 'store'])->name('keuangan.store');
+        Route::post('/keuangan/setor-kas-kartar', [KeuanganController::class, 'setorKeKasKarangTaruna'])->name('keuangan.setor-kartar');
         Route::get('/keuangan/laporan', [KeuanganController::class, 'laporan'])->name('keuangan.laporan');
         Route::delete('/keuangan/{keuangan}', [KeuanganController::class, 'destroy'])->name('keuangan.destroy');
     });
