@@ -39,10 +39,17 @@ class PeminjamanController extends Controller
 
         $daftarPinjam = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
-        $jumlahMenunggu = Peminjaman::where('status', 'menunggu')->count();
-        $jumlahDisetujui = Peminjaman::where('status', 'disetujui')->count();
-        $jumlahDikembalikan = Peminjaman::where('status', 'dikembalikan')->count();
-        $jumlahDitolak = Peminjaman::where('status', 'ditolak')->count();
+        $statusStats = Peminjaman::selectRaw("
+            COUNT(CASE WHEN status = 'menunggu' THEN 1 END) as menunggu,
+            COUNT(CASE WHEN status = 'disetujui' THEN 1 END) as disetujui,
+            COUNT(CASE WHEN status = 'dikembalikan' THEN 1 END) as dikembalikan,
+            COUNT(CASE WHEN status = 'ditolak' THEN 1 END) as ditolak
+        ")->first();
+
+        $jumlahMenunggu = (int) ($statusStats->menunggu ?? 0);
+        $jumlahDisetujui = (int) ($statusStats->disetujui ?? 0);
+        $jumlahDikembalikan = (int) ($statusStats->dikembalikan ?? 0);
+        $jumlahDitolak = (int) ($statusStats->ditolak ?? 0);
 
         return view('admin.peminjaman.index', compact(
             'daftarPinjam',

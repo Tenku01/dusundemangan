@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
-    <title>@yield('title', 'Sistem Manajemen Inventaris & Keuangan Dusun') | Karang Taruna Demangan</title>
+    <title>@yield('title', 'Dusun Demangan')</title>
 
     <!-- Favicon Lingkaran Karang Taruna Demangan -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
@@ -32,14 +32,6 @@
 </head>
 <body class="min-h-full flex flex-col font-sans text-gray-900 bg-gray-50 antialiased selection:bg-amber-100 selection:text-amber-900 pb-20 md:pb-0">
 
-    <!-- Top Identity Bar -->
-    <div class="bg-[#CEA042] text-white text-xs py-1.5 px-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <span class="font-medium tracking-wide truncate">Karang Taruna Dusun Demangan</span>
-            <span class="text-amber-100 text-[11px] shrink-0 font-medium">Layanan Warga</span>
-        </div>
-    </div>
-
     <!-- Main Navigation Header -->
     <header class="sticky top-0 z-30 bg-white border-b border-gray-200/80 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,15 +39,12 @@
                 <!-- Brand & Logo -->
                 <a href="{{ route('beranda') }}" class="flex items-center gap-2.5 sm:gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CEA042] rounded-lg p-1">
                     <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
-                         alt="Logo Karang Taruna Demangan"
+                         alt="Logo Dusun Demangan"
                          width="44" height="44"
                          fetchpriority="high"
                          class="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shadow-xs border border-amber-200/90 group-hover:scale-105 transition shrink-0 bg-white">
                     <div>
-                        <div class="text-sm sm:text-lg font-bold tracking-tight text-gray-900 group-hover:text-[#CEA042] transition leading-tight">
-                            Inventaris & Kas Dusun
-                        </div>
-                        <div class="text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wide uppercase">
+                        <div class="text-base sm:text-xl font-bold tracking-tight text-gray-900 group-hover:text-[#CEA042] transition leading-tight">
                             Dusun Demangan
                         </div>
                     </div>
@@ -63,13 +52,13 @@
 
                 <!-- Desktop Navigation Menu -->
                 <nav class="hidden md:flex items-center gap-1 sm:gap-2">
-                    <a href="{{ route('beranda') }}"
-                       class="px-3.5 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('beranda') ? 'text-[#CEA042] bg-amber-50 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100' }}">
-                        Katalog Barang
-                    </a>
                     <a href="{{ route('publik.buku-kas') }}"
                        class="px-3.5 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('publik.buku-kas') ? 'text-[#CEA042] bg-amber-50 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100' }}">
                         Transparansi Kas
+                    </a>
+                    <a href="{{ route('beranda') }}"
+                       class="px-3.5 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('beranda') ? 'text-[#CEA042] bg-amber-50 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100' }}">
+                        Katalog Barang
                     </a>
                     <a href="{{ route('peminjaman.cek-status') }}"
                        class="px-3.5 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('peminjaman.cek-status') ? 'text-[#CEA042] bg-amber-50 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100' }}">
@@ -130,11 +119,11 @@
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
                 <div class="flex items-center gap-3">
                     <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
-                         alt="Logo Karang Taruna Demangan"
+                         alt="Logo Dusun Demangan"
                          class="w-9 h-9 rounded-full object-cover shadow-xs border border-amber-200 shrink-0 bg-white">
                     <div class="text-xs text-gray-700">
-                        <strong class="block text-gray-900 font-bold">Karang Taruna Dusun Demangan</strong>
-                        Sistem Inventaris & Kas Transparan Warga
+                        <strong class="block text-gray-900 font-bold">Dusun Demangan</strong>
+                        Layanan & Informasi Transparan Warga
                     </div>
                 </div>
 
@@ -147,25 +136,25 @@
 
     <!-- MOBILE STICKY BOTTOM NAVIGATION BAR (Khusus Pengguna HP) -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg px-2 py-1.5 flex justify-around items-center">
-        <!-- Tab 1: Katalog -->
+        <!-- Tab 1: Transparansi Kas -->
+        <a href="{{ route('publik.buku-kas') }}"
+           class="flex flex-col items-center justify-center w-16 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('publik.buku-kas') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
+            <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="text-[10px] leading-tight">Buku Kas</span>
+        </a>
+
+        <!-- Tab 2: Katalog -->
         <a href="{{ route('beranda') }}"
            class="flex flex-col items-center justify-center w-16 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('beranda') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
             <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
             <span class="text-[10px] leading-tight">Katalog</span>
         </a>
 
-        <!-- Tab 2: Lacak Status Tiket -->
+        <!-- Tab 3: Lacak Status Tiket -->
         <a href="{{ route('peminjaman.cek-status') }}"
            class="flex flex-col items-center justify-center w-16 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('peminjaman.cek-status') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
             <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
             <span class="text-[10px] leading-tight">Cek Resi</span>
-        </a>
-
-        <!-- Tab 3: Transparansi Kas -->
-        <a href="{{ route('publik.buku-kas') }}"
-           class="flex flex-col items-center justify-center w-16 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('publik.buku-kas') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
-            <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="text-[10px] leading-tight">Buku Kas</span>
         </a>
 
         <!-- Tab 4: Pengurus / Bantuan -->

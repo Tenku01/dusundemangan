@@ -57,6 +57,8 @@ Route::middleware(['auth', 'peran:admin,superadmin'])->prefix('admin')->name('ad
     // Rekapitulasi Tagihan Listrik Warga per Periode & RT
     Route::post('/rekap-listrik/batch-store', [RekapListrikController::class, 'batchStore'])->name('rekap-listrik.batch-store');
     Route::post('/rekap-listrik/duplikasi-siklus', [RekapListrikController::class, 'duplikasiSiklus'])->name('rekap-listrik.duplikasi-siklus');
+    Route::post('/rekap-listrik/gabungkan', [RekapListrikController::class, 'gabungkan'])->name('rekap-listrik.gabungkan');
+    Route::post('/rekap-listrik/pisahkan', [RekapListrikController::class, 'pisahkan'])->name('rekap-listrik.pisahkan');
     Route::resource('rekap-listrik', RekapListrikController::class)
         ->parameters(['rekap-listrik' => 'tagihanListrik'])
         ->except(['show']);
@@ -64,6 +66,8 @@ Route::middleware(['auth', 'peran:admin,superadmin'])->prefix('admin')->name('ad
     // Kasir Pembayaran Listrik Warga
     Route::get('/pembayaran-listrik', [PembayaranListrikController::class, 'index'])->name('pembayaran-listrik.index');
     Route::post('/pembayaran-listrik/bayar', [PembayaranListrikController::class, 'bayar'])->name('pembayaran-listrik.bayar');
+    Route::post('/pembayaran-listrik/gabungkan', [PembayaranListrikController::class, 'gabungkan'])->name('pembayaran-listrik.gabungkan');
+    Route::post('/pembayaran-listrik/pisahkan', [PembayaranListrikController::class, 'pisahkan'])->name('pembayaran-listrik.pisahkan');
     Route::patch('/pembayaran-listrik/{tagihanListrik}/batal', [PembayaranListrikController::class, 'batalBayar'])->name('pembayaran-listrik.batal');
     Route::post('/pembayaran-listrik/bukukan-kas', [PembayaranListrikController::class, 'bukukanKas'])->name('pembayaran-listrik.bukukan-kas');
 

@@ -8,6 +8,7 @@ use App\Models\Warga;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class RekapListrikController extends Controller
@@ -35,49 +36,96 @@ class RekapListrikController extends Controller
         if ($cari) {
             $query->where(function ($q) use ($cari) {
                 $q->where('nama_warga', 'like', "%{$cari}%")
+                    ->orWhere('nama_pembayar', 'like', "%{$cari}%")
                     ->orWhere('nama_pelanggan', 'like', "%{$cari}%")
-                    ->orWhere('nomor_struk', 'like', "%{$cari}%");
+                    ->orWhere('nomor_struk', 'like', "%{$cari}%")
+                    ->orWhere('kode_gabungan', 'like', "%{$cari}%");
             });
         }
 
-        // Summary KPI siklus periode ini di RT ini
-        $totalWargaTerdata = (clone $query)->count();
-        $totalTagihanAwal = (int) (clone $query)->sum('tagihan_awal');
-        $grandTotalWajib = (int) (clone $query)->sum('total_tagihan');
-        $totalKasKartar = (clone $query)->where('tagihan_awal', '>', 0)->count() * 3000;
+        // Summary KPI siklus periode ini di RT ini (1 Query Konsolidasi)
+        $summary = (clone $query)->selectRaw('
+            COUNT(*) as total_warga,
+            COALESCE(SUM(tagihan_awal), 0) as total_awal,
+            COALESCE(SUM(total_tagihan), 0) as grand_total,
+            COUNT(CASE WHEN tagihan_awal > 0 THEN 1 END) as count_kartar
+        ')->first();
+        $totalWargaTerdata = (int) ($summary->total_warga ?? 0);
+        $totalTagihanAwal = (int) ($summary->total_awal ?? 0);
+        $grandTotalWajib = (int) ($summary->grand_total ?? 0);
+        $totalKasKartar = (int) ($summary->count_kartar ?? 0) * 3000;
 
         // Ambil data rekap (urutkan berdasarkan nomor struk numerik)
         $daftarRekap = $query->orderByRaw('CAST(nomor_struk AS UNSIGNED) ASC')
             ->orderBy('id', 'asc')
             ->get();
 
-        // Hitung jumlah data per RT di periode ini untuk indikator badge tombol RT
-        $countRt1 = TagihanListrik::where('periode', $periodeAktif)->where('rt', 1)->count();
-        $countRt2 = TagihanListrik::where('periode', $periodeAktif)->where('rt', 2)->count();
-        $countRt3 = TagihanListrik::where('periode', $periodeAktif)->where('rt', 3)->count();
+        // Hitung jumlah data per RT di periode ini (1 Query GroupBy)
+        $rtCounts = TagihanListrik::where('periode', $periodeAktif)
+            ->whereIn('rt', [1, 2, 3])
+            ->selectRaw('rt, COUNT(*) as aggregate')
+            ->groupBy('rt')
+            ->pluck('aggregate', 'rt');
+
+        $countRt1 = (int) ($rtCounts[1] ?? 0);
+        $countRt2 = (int) ($rtCounts[2] ?? 0);
+        $countRt3 = (int) ($rtCounts[3] ?? 0);
 
         // Master Warga di RT ini untuk input terarah (urut nomor struk), beserta saldo titipan & status tercatat
         $wargaRtAktif = Warga::where('rt', $rtAktif)
             ->where('is_aktif', true)
             ->orderByRaw('CAST(nomor_meter AS UNSIGNED) ASC')
             ->orderBy('nama', 'asc')
-            ->get()
-            ->map(function ($w) use ($periodeAktif, $daftarRekap) {
-                $w->saldo_lalu = TagihanListrik::getSaldoBulanLalu($w->id, $w->nama, $periodeAktif);
-                $w->nomor_struk = (string) ($w->nomor_meter ?: '');
+            ->get();
 
-                $rekap = $daftarRekap->first(function ($item) use ($w) {
-                    return ($item->warga_id && $item->warga_id == $w->id)
-                        || ((string) $item->nomor_struk === (string) $w->nomor_meter);
-                });
+        // Index rekap saat ini untuk lookup instan O(1)
+        $rekapByWargaId = $daftarRekap->whereNotNull('warga_id')->keyBy('warga_id');
+        $rekapByStruk = $daftarRekap->keyBy(fn ($item) => (string) $item->nomor_struk);
 
-                $w->is_tercatat = ! is_null($rekap);
-                $w->tagihan_awal_tercatat = $rekap ? (int) $rekap->tagihan_awal : 0;
-                $w->total_tagihan_tercatat = $rekap ? (int) $rekap->total_tagihan : 0;
-                $w->rekap_id = $rekap?->id;
+        // Preload riwayat tagihan periode lalu secara bulk (Mencegah N+1 Query)
+        $wargaIds = $wargaRtAktif->pluck('id')->filter()->all();
+        $wargaNames = $wargaRtAktif->pluck('nama')->filter()->all();
+        $currentKey = TagihanListrik::parsePeriodeToKey($periodeAktif);
 
-                return $w;
-            });
+        $riwayatListAll = TagihanListrik::where(function ($q) use ($wargaIds, $wargaNames) {
+            if (! empty($wargaIds)) {
+                $q->whereIn('warga_id', $wargaIds);
+            }
+            if (! empty($wargaNames)) {
+                $q->orWhereIn('nama_warga', $wargaNames);
+            }
+        })->get();
+
+        $riwayatByWargaId = $riwayatListAll->whereNotNull('warga_id')->groupBy('warga_id');
+        $riwayatByNama = $riwayatListAll->groupBy('nama_warga');
+
+        $wargaRtAktif->transform(function ($w) use ($periodeAktif, $currentKey, $rekapByWargaId, $rekapByStruk, $riwayatByWargaId, $riwayatByNama) {
+            $riwayatWarga = ($w->id && isset($riwayatByWargaId[$w->id]))
+                ? $riwayatByWargaId[$w->id]
+                : ($riwayatByNama[$w->nama] ?? collect());
+
+            $riwayatLalu = $riwayatWarga->filter(function ($item) use ($currentKey) {
+                return TagihanListrik::parsePeriodeToKey($item->periode) < $currentKey;
+            })->sortByDesc(function ($item) {
+                return TagihanListrik::parsePeriodeToKey($item->periode);
+            })->first();
+
+            if (! $riwayatLalu) {
+                $riwayatLalu = $riwayatWarga->where('periode', '!=', $periodeAktif)->last();
+            }
+
+            $w->saldo_lalu = ($riwayatLalu && $riwayatLalu->is_lunas) ? (int) $riwayatLalu->selisih_bayar : 0;
+            $w->nomor_struk = (string) ($w->nomor_meter ?: '');
+
+            $rekap = ($w->id ? $rekapByWargaId->get($w->id) : null) ?? $rekapByStruk->get($w->nomor_struk);
+
+            $w->is_tercatat = ! is_null($rekap);
+            $w->tagihan_awal_tercatat = $rekap ? (int) $rekap->tagihan_awal : 0;
+            $w->total_tagihan_tercatat = $rekap ? (int) $rekap->total_tagihan : 0;
+            $w->rekap_id = $rekap?->id;
+
+            return $w;
+        });
 
         // Struktur data bulan untuk modal pembuka siklus baru
         $bulanBerikutnya = TagihanListrik::getBulanBerikutnya($periodeAktif);
@@ -387,5 +435,101 @@ class RekapListrikController extends Controller
             'periode' => $periode,
             'rt' => $rt,
         ])->with('sukses', "Data rekap {$nama} telah dihapus.");
+    }
+
+    /**
+     * Menggabungkan beberapa tagihan warga ke dalam satu struk tagihan gabungan pada waktu rekapitulasi.
+     */
+    public function gabungkan(Request $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'tagihan_ids' => ['required', 'array', 'min:2'],
+            'tagihan_ids.*' => ['required', 'integer', 'exists:tagihan_listrik,id'],
+            'nama_pembayar' => ['required', 'string', 'max:255'],
+            'kode_gabungan' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $tagihanList = TagihanListrik::whereIn('id', $validated['tagihan_ids'])->get();
+        $kodeGabungan = ! empty($validated['kode_gabungan'])
+            ? trim($validated['kode_gabungan'])
+            : 'GAB-'.Str::upper(Str::random(6));
+
+        $namaPembayar = trim($validated['nama_pembayar']);
+
+        foreach ($tagihanList as $tagihan) {
+            $tagihan->update([
+                'kode_gabungan' => $kodeGabungan,
+                'nama_pembayar' => $namaPembayar,
+            ]);
+        }
+
+        $totalWajib = (int) $tagihanList->sum('total_tagihan');
+        $pesan = count($tagihanList)." tagihan berhasil digabungkan atas nama {$namaPembayar} (Kode: {$kodeGabungan}, Total: Rp ".number_format($totalWajib, 0, ',', '.').').';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $pesan,
+                'kode_gabungan' => $kodeGabungan,
+                'nama_pembayar' => $namaPembayar,
+                'total_tagihan' => $totalWajib,
+            ]);
+        }
+
+        return back()->with('sukses', $pesan);
+    }
+
+    /**
+     * Memisahkan tagihan dari kelompok gabungan (mengembalikan menjadi tagihan mandiri).
+     */
+    public function pisahkan(Request $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'tagihan_id' => ['nullable', 'integer', 'exists:tagihan_listrik,id'],
+            'kode_gabungan' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        if (! empty($validated['tagihan_id'])) {
+            $tagihan = TagihanListrik::findOrFail($validated['tagihan_id']);
+            $kodeLama = $tagihan->kode_gabungan;
+            $nama = $tagihan->nama_warga ?: $tagihan->nama_pelanggan;
+
+            $tagihan->update([
+                'kode_gabungan' => null,
+                'nama_pembayar' => null,
+            ]);
+
+            // Jika anggota kelompok tersisa hanya 1, lepaskan juga agar tidak ada gabungan tunggal
+            if ($kodeLama) {
+                $sisa = TagihanListrik::where('kode_gabungan', $kodeLama)->get();
+                if ($sisa->count() === 1) {
+                    $sisa->first()->update([
+                        'kode_gabungan' => null,
+                        'nama_pembayar' => null,
+                    ]);
+                }
+            }
+
+            $pesan = "Tagihan {$nama} berhasil dipisahkan dari tagihan gabungan.";
+        } elseif (! empty($validated['kode_gabungan'])) {
+            $affected = TagihanListrik::where('kode_gabungan', $validated['kode_gabungan'])
+                ->update([
+                    'kode_gabungan' => null,
+                    'nama_pembayar' => null,
+                ]);
+
+            $pesan = "Seluruh tagihan dalam kelompok {$validated['kode_gabungan']} ({$affected} tagihan) berhasil dipisahkan menjadi tagihan mandiri.";
+        } else {
+            return back()->withErrors(['error' => 'Data tagihan atau kode gabungan tidak ditemukan.']);
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $pesan,
+            ]);
+        }
+
+        return back()->with('sukses', $pesan);
     }
 }

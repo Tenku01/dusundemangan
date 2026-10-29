@@ -104,19 +104,25 @@ Aplikasi berjalan sebagai serverless function di Vercel dengan integrasi CI/CD d
    - Siklus diurutkan berdasarkan kalender riil (Januari – Desember) via `TagihanListrik::parsePeriodeToKey()` dan `TagihanListrik::getDaftarPeriodeKronologis()`.
 5. **Duplikasi Siklus & Saldo Titipan Otomatis**:
    - Membuka bulan baru otomatis membawa kelebihan bayar (`selisih_bayar > 0`) dari bulan sebelumnya sebagai **potongan saldo titipan**, atau kekurangan bayar (`selisih_bayar < 0`) sebagai **tunggakan**.
+6. **Penggabungan Tagihan pada Waktu Rekapitulasi**:
+   - Pengurus mengisi nominal tagihan tiap struk/warga terlebih dahulu.
+   - Setelah tagihan tercatat, pengurus dapat memilih/mencentang beberapa tagihan warga dan menentukan **Atas Nama Siapa** (misal: "Keluarga Pak Budi") untuk digabungkan menjadi satu struk kelompok (`GAB-XXXXXX`).
+   - Tersedia tombol cepat untuk memisahkan struk jika salah gabung.
 
 ### B. Modul Kasir Pembayaran Listrik (`PembayaranListrikController`)
-1. **Format Penulisan Rupiah Real-Time**:
+1. **Tampilan Kartu Tagihan Gabungan (Bundled Card)**:
+   - Tagihan yang sudah digabungkan saat rekap langsung tampil sebagai **satu kartu paket gabungan** yang memperlihatkan **Total Wajib Bayar Gabungan**, daftar nomor struk, dan accordion rincian tiap meter.
+   - Kasir cukup menekan satu tombol **"Bayar Gabungan"** untuk langsung memproses lunas seluruh struk dalam kelompok tersebut tanpa perlu mencentang manual satu per satu.
+2. **Fleksibilitas & Dinamis di Kasir**:
+   - Apabila lupa menggabungkan saat rekap, kasir tetap dapat mencentang beberapa tagihan mandiri dan memilih **"Bayar Gabungan"** atau **"Gabung Dulu"**.
+   - Kasir juga dapat memisahkan (*ungroup*) struk gabungan kembali menjadi tagihan mandiri langsung dari kasir jika warga ingin membayar terpisah.
+3. **Format Penulisan Rupiah Real-Time**:
    - Angka yang diketik langsung terformat titik ribuan secara live (`20000` $\rightarrow$ `20.000`).
-2. **Logika Kembalian vs Titipan**:
+4. **Logika Kembalian vs Titipan**:
    - **Jika Uang Diterima > Total Wajib**: Status **KEMBALIAN** langsung tampil jelas (hijau). Uang kembalian diserahkan ke warga sehingga **tidak ada titipan** (`selisih_bayar = 0`).
    - **Opsi Darurat**: Checkbox titipan jika uang pas tidak ada: *"Tidak ada kembalian? Simpan sebagai saldo titipan bulan depan"*.
    - **Jika Uang Diterima < Total Wajib**: Status **KURANG / NINGGAL** (merah, `selisih_bayar < 0`).
    - **Jika Uang Pas**: Status **Uang Pas (Lunas)**.
-3. **Pembayaran Gabungan (Multi-Struk)**:
-   - Kasir dapat mencentang beberapa warga dalam satu keluarga untuk dibayarkan sekaligus dengan satu nomor transaksi gabungan (`GAB-XXXXXX`).
-4. **Input Nama Pembayar**:
-   - Tersedia di modal kasir pembayaran (opsional, jika dibayarkan oleh anak/kerabat).
 
 ### C. Master Data Warga (`WargaController`)
 1. **Label Kolom**: Diubah menjadi **Nomor Struk [ # ]** (menggantikan "No. IDPEL / Meter PLN").

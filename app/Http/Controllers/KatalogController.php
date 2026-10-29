@@ -218,8 +218,13 @@ class KatalogController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $totalMasuk = Keuangan::where('jenis', 'masuk')->sum('nominal');
-        $totalKeluar = Keuangan::where('jenis', 'keluar')->sum('nominal');
+        $keuanganStats = Keuangan::selectRaw("
+            COALESCE(SUM(CASE WHEN jenis = 'masuk' THEN nominal ELSE 0 END), 0) as total_masuk,
+            COALESCE(SUM(CASE WHEN jenis = 'keluar' THEN nominal ELSE 0 END), 0) as total_keluar
+        ")->first();
+
+        $totalMasuk = (int) ($keuanganStats->total_masuk ?? 0);
+        $totalKeluar = (int) ($keuanganStats->total_keluar ?? 0);
         $saldoKasSaatIni = $totalMasuk - $totalKeluar;
 
         return view('publik.buku_kas', compact(

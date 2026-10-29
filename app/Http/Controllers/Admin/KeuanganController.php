@@ -50,9 +50,14 @@ class KeuanganController extends Controller
 
         $daftarKas = $query->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->paginate(15)->withQueryString();
 
-        // Rekapitulasi Kas
-        $totalMasuk = Keuangan::where('jenis', 'masuk')->sum('nominal');
-        $totalKeluar = Keuangan::where('jenis', 'keluar')->sum('nominal');
+        // Rekapitulasi Kas (1 Query Konsolidasi)
+        $keuanganStats = Keuangan::selectRaw("
+            COALESCE(SUM(CASE WHEN jenis = 'masuk' THEN nominal ELSE 0 END), 0) as total_masuk,
+            COALESCE(SUM(CASE WHEN jenis = 'keluar' THEN nominal ELSE 0 END), 0) as total_keluar
+        ")->first();
+
+        $totalMasuk = (int) ($keuanganStats->total_masuk ?? 0);
+        $totalKeluar = (int) ($keuanganStats->total_keluar ?? 0);
         $saldoKasSaatIni = $totalMasuk - $totalKeluar;
 
         $kategoriList = Keuangan::select('kategori')->distinct()->pluck('kategori');

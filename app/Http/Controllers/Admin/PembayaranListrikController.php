@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Keuangan;
 use App\Models\TagihanListrik;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -34,32 +35,51 @@ class PembayaranListrikController extends Controller
         if ($cari) {
             $query->where(function ($q) use ($cari) {
                 $q->where('nama_warga', 'like', "%{$cari}%")
+                    ->orWhere('nama_pembayar', 'like', "%{$cari}%")
                     ->orWhere('nama_pelanggan', 'like', "%{$cari}%")
                     ->orWhere('nomor_struk', 'like', "%{$cari}%")
                     ->orWhere('kode_gabungan', 'like', "%{$cari}%");
             });
         }
 
-        // Target dari Rekapitulasi (Harus 100% Sesuai dengan Hasil Rekap)
-        $summaryBase = clone $query;
-        $totalTagihan = (clone $summaryBase)->count();
-        $targetPlnAwal = (int) (clone $summaryBase)->sum('tagihan_awal');
-        $targetKasKartar = (int) (clone $summaryBase)->sum('kas_karang_taruna');
-        $targetTotalWajib = (int) (clone $summaryBase)->sum('total_tagihan');
+        // Target & Realisasi Pembayaran (Dihitung dalam 1 Query Terkonsolidasi)
+        $stats = (clone $query)->selectRaw('
+            COUNT(*) as total_tagihan,
+            COALESCE(SUM(tagihan_awal), 0) as target_pln_awal,
+            COALESCE(SUM(kas_karang_taruna), 0) as target_kas_kartar,
+            COALESCE(SUM(total_tagihan), 0) as target_total_wajib,
 
-        // Realisasi Pembayaran Kasir
-        $totalBelumLunas = (clone $summaryBase)->where('is_lunas', false)->count();
-        $nominalBelumLunas = (int) (clone $summaryBase)->where('is_lunas', false)->sum('total_tagihan');
-        $plnBelumLunas = (int) (clone $summaryBase)->where('is_lunas', false)->sum('tagihan_awal');
-        $kasBelumLunas = (int) (clone $summaryBase)->where('is_lunas', false)->sum('kas_karang_taruna');
+            COUNT(CASE WHEN is_lunas = 0 THEN 1 END) as total_belum_lunas,
+            COALESCE(SUM(CASE WHEN is_lunas = 0 THEN total_tagihan ELSE 0 END), 0) as nominal_belum_lunas,
+            COALESCE(SUM(CASE WHEN is_lunas = 0 THEN tagihan_awal ELSE 0 END), 0) as pln_belum_lunas,
+            COALESCE(SUM(CASE WHEN is_lunas = 0 THEN kas_karang_taruna ELSE 0 END), 0) as kas_belum_lunas,
 
-        $totalLunas = (clone $summaryBase)->where('is_lunas', true)->count();
-        $nominalLunas = (int) (clone $summaryBase)->where('is_lunas', true)->sum('total_tagihan');
-        $plnTerkumpul = (int) (clone $summaryBase)->where('is_lunas', true)->sum('tagihan_awal');
-        $kasKartarTerkumpul = (int) (clone $summaryBase)->where('is_lunas', true)->sum('kas_karang_taruna');
+            COUNT(CASE WHEN is_lunas = 1 THEN 1 END) as total_lunas,
+            COALESCE(SUM(CASE WHEN is_lunas = 1 THEN total_tagihan ELSE 0 END), 0) as nominal_lunas,
+            COALESCE(SUM(CASE WHEN is_lunas = 1 THEN tagihan_awal ELSE 0 END), 0) as pln_terkumpul,
+            COALESCE(SUM(CASE WHEN is_lunas = 1 THEN kas_karang_taruna ELSE 0 END), 0) as kas_kartar_terkumpul,
 
-        $totalTitipan = (int) (clone $summaryBase)->where('is_lunas', true)->where('selisih_bayar', '>', 0)->sum('selisih_bayar');
-        $totalKurang = (int) (clone $summaryBase)->where('is_lunas', true)->where('selisih_bayar', '<', 0)->sum('selisih_bayar');
+            COALESCE(SUM(CASE WHEN is_lunas = 1 AND selisih_bayar > 0 THEN selisih_bayar ELSE 0 END), 0) as total_titipan,
+            COALESCE(SUM(CASE WHEN is_lunas = 1 AND selisih_bayar < 0 THEN selisih_bayar ELSE 0 END), 0) as total_kurang
+        ')->first();
+
+        $totalTagihan = (int) ($stats->total_tagihan ?? 0);
+        $targetPlnAwal = (int) ($stats->target_pln_awal ?? 0);
+        $targetKasKartar = (int) ($stats->target_kas_kartar ?? 0);
+        $targetTotalWajib = (int) ($stats->target_total_wajib ?? 0);
+
+        $totalBelumLunas = (int) ($stats->total_belum_lunas ?? 0);
+        $nominalBelumLunas = (int) ($stats->nominal_belum_lunas ?? 0);
+        $plnBelumLunas = (int) ($stats->pln_belum_lunas ?? 0);
+        $kasBelumLunas = (int) ($stats->kas_belum_lunas ?? 0);
+
+        $totalLunas = (int) ($stats->total_lunas ?? 0);
+        $nominalLunas = (int) ($stats->nominal_lunas ?? 0);
+        $plnTerkumpul = (int) ($stats->pln_terkumpul ?? 0);
+        $kasKartarTerkumpul = (int) ($stats->kas_kartar_terkumpul ?? 0);
+
+        $totalTitipan = (int) ($stats->total_titipan ?? 0);
+        $totalKurang = (int) ($stats->total_kurang ?? 0);
         $totalUangFisikTerkumpul = $nominalLunas + $totalTitipan;
 
         $persentaseLunas = $totalTagihan > 0 ? (int) round(($totalLunas / $totalTagihan) * 100) : 0;
@@ -82,8 +102,61 @@ class PembayaranListrikController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
+        // Kelompokkan tagihan gabungan agar kasir langsung melihat total gabungan
+        $grupTagihan = [];
+
+        foreach ($daftarTagihan as $item) {
+            if (! empty($item->kode_gabungan)) {
+                $kode = $item->kode_gabungan;
+                if (! isset($grupTagihan[$kode])) {
+                    $grupTagihan[$kode] = [
+                        'is_gabungan' => true,
+                        'kode_gabungan' => $kode,
+                        'nama_pembayar' => $item->nama_pembayar ?: $item->nama_warga,
+                        'items' => collect(),
+                        'total_tagihan' => 0,
+                        'tagihan_awal' => 0,
+                        'kas_karang_taruna' => 0,
+                        'saldo_periode_lalu' => 0,
+                        'selisih_bayar' => 0,
+                        'is_lunas' => (bool) $item->is_lunas,
+                        'tanggal_bayar' => $item->tanggal_bayar,
+                        'min_struk' => (int) $item->nomor_struk,
+                        'rt' => $item->rt,
+                    ];
+                }
+                $grupTagihan[$kode]['items']->push($item);
+                $grupTagihan[$kode]['total_tagihan'] += $item->total_tagihan;
+                $grupTagihan[$kode]['tagihan_awal'] += $item->tagihan_awal;
+                $grupTagihan[$kode]['kas_karang_taruna'] += $item->kas_karang_taruna;
+                $grupTagihan[$kode]['saldo_periode_lalu'] += $item->saldo_periode_lalu;
+                $grupTagihan[$kode]['selisih_bayar'] += $item->selisih_bayar;
+                $grupTagihan[$kode]['min_struk'] = min($grupTagihan[$kode]['min_struk'], (int) $item->nomor_struk);
+            } else {
+                $grupTagihan['single_'.$item->id] = [
+                    'is_gabungan' => false,
+                    'kode_gabungan' => null,
+                    'nama_pembayar' => $item->nama_pembayar,
+                    'items' => collect([$item]),
+                    'total_tagihan' => $item->total_tagihan,
+                    'tagihan_awal' => $item->tagihan_awal,
+                    'kas_karang_taruna' => $item->kas_karang_taruna,
+                    'saldo_periode_lalu' => $item->saldo_periode_lalu,
+                    'selisih_bayar' => $item->selisih_bayar,
+                    'is_lunas' => (bool) $item->is_lunas,
+                    'tanggal_bayar' => $item->tanggal_bayar,
+                    'min_struk' => (int) $item->nomor_struk,
+                    'rt' => $item->rt,
+                    'single_item' => $item,
+                ];
+            }
+        }
+
+        $daftarTampilan = collect($grupTagihan)->sortBy('min_struk')->values();
+
         return view('admin.pembayaran-listrik.index', compact(
             'daftarTagihan',
+            'daftarTampilan',
             'daftarPeriode',
             'periodeAktif',
             'rtAktif',
@@ -213,6 +286,22 @@ class PembayaranListrikController extends Controller
      */
     public function batalBayar(TagihanListrik $tagihanListrik): RedirectResponse
     {
+        if ($tagihanListrik->kode_gabungan) {
+            $anggota = TagihanListrik::where('kode_gabungan', $tagihanListrik->kode_gabungan)
+                ->where('periode', $tagihanListrik->periode)
+                ->get();
+
+            foreach ($anggota as $item) {
+                $item->update([
+                    'is_lunas' => false,
+                    'tanggal_bayar' => null,
+                    'selisih_bayar' => 0,
+                ]);
+            }
+
+            return back()->with('sukses', "Status pembayaran struk gabungan {$tagihanListrik->kode_gabungan} (".count($anggota).' warga) dikembalikan ke Belum Lunas.');
+        }
+
         $tagihanListrik->update([
             'is_lunas' => false,
             'tanggal_bayar' => null,
@@ -222,6 +311,101 @@ class PembayaranListrikController extends Controller
         $nama = $tagihanListrik->nama_warga ?: $tagihanListrik->nama_pelanggan;
 
         return back()->with('sukses', "Status pembayaran {$nama} dikembalikan ke Belum Lunas.");
+    }
+
+    /**
+     * Menggabungkan beberapa tagihan langsung dari kasir (dinamis jika lupa pada saat rekap).
+     */
+    public function gabungkan(Request $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'tagihan_ids' => ['required', 'array', 'min:2'],
+            'tagihan_ids.*' => ['required', 'integer', 'exists:tagihan_listrik,id'],
+            'nama_pembayar' => ['required', 'string', 'max:255'],
+            'kode_gabungan' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $tagihanList = TagihanListrik::whereIn('id', $validated['tagihan_ids'])->get();
+        $kodeGabungan = ! empty($validated['kode_gabungan'])
+            ? trim($validated['kode_gabungan'])
+            : 'GAB-'.Str::upper(Str::random(6));
+
+        $namaPembayar = trim($validated['nama_pembayar']);
+
+        foreach ($tagihanList as $tagihan) {
+            $tagihan->update([
+                'kode_gabungan' => $kodeGabungan,
+                'nama_pembayar' => $namaPembayar,
+            ]);
+        }
+
+        $totalWajib = (int) $tagihanList->sum('total_tagihan');
+        $pesan = count($tagihanList)." tagihan berhasil digabungkan atas nama {$namaPembayar} (Kode: {$kodeGabungan}, Total: Rp ".number_format($totalWajib, 0, ',', '.').').';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $pesan,
+                'kode_gabungan' => $kodeGabungan,
+                'nama_pembayar' => $namaPembayar,
+                'total_tagihan' => $totalWajib,
+            ]);
+        }
+
+        return back()->with('sukses', $pesan);
+    }
+
+    /**
+     * Memisahkan tagihan dari kelompok gabungan di kasir.
+     */
+    public function pisahkan(Request $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'tagihan_id' => ['nullable', 'integer', 'exists:tagihan_listrik,id'],
+            'kode_gabungan' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        if (! empty($validated['tagihan_id'])) {
+            $tagihan = TagihanListrik::findOrFail($validated['tagihan_id']);
+            $kodeLama = $tagihan->kode_gabungan;
+            $nama = $tagihan->nama_warga ?: $tagihan->nama_pelanggan;
+
+            $tagihan->update([
+                'kode_gabungan' => null,
+                'nama_pembayar' => null,
+            ]);
+
+            if ($kodeLama) {
+                $sisa = TagihanListrik::where('kode_gabungan', $kodeLama)->get();
+                if ($sisa->count() === 1) {
+                    $sisa->first()->update([
+                        'kode_gabungan' => null,
+                        'nama_pembayar' => null,
+                    ]);
+                }
+            }
+
+            $pesan = "Tagihan {$nama} berhasil dipisahkan menjadi tagihan mandiri.";
+        } elseif (! empty($validated['kode_gabungan'])) {
+            $affected = TagihanListrik::where('kode_gabungan', $validated['kode_gabungan'])
+                ->update([
+                    'kode_gabungan' => null,
+                    'nama_pembayar' => null,
+                ]);
+
+            $pesan = "Seluruh tagihan dalam kelompok {$validated['kode_gabungan']} ({$affected} tagihan) berhasil dipisahkan menjadi tagihan mandiri.";
+        } else {
+            return back()->withErrors(['error' => 'Data tagihan atau kode gabungan tidak ditemukan.']);
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $pesan,
+            ]);
+        }
+
+        return back()->with('sukses', $pesan);
     }
 
     /**

@@ -15,27 +15,40 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        $totalJenisBarang = Barang::count();
-        $totalUnitAset = Barang::sum('jumlah_total');
-        $totalUnitTersedia = Barang::sum('jumlah_tersedia');
+        // Statistik Barang Inventaris (1 Query Konsolidasi)
+        $barangStats = Barang::selectRaw('
+            COUNT(*) as total_jenis,
+            COALESCE(SUM(jumlah_total), 0) as total_aset,
+            COALESCE(SUM(jumlah_tersedia), 0) as total_tersedia
+        ')->first();
+        $totalJenisBarang = (int) ($barangStats->total_jenis ?? 0);
+        $totalUnitAset = (int) ($barangStats->total_aset ?? 0);
+        $totalUnitTersedia = (int) ($barangStats->total_tersedia ?? 0);
 
-        $pinjamanMenunggu = Peminjaman::where('status', 'menunggu')->count();
-        $pinjamanAktif = Peminjaman::where('status', 'disetujui')->count();
+        // Statistik Pinjaman (1 Query Konsolidasi)
+        $pinjamanStats = Peminjaman::selectRaw("
+            COUNT(CASE WHEN status = 'menunggu' THEN 1 END) as menunggu,
+            COUNT(CASE WHEN status = 'disetujui' THEN 1 END) as aktif
+        ")->first();
+        $pinjamanMenunggu = (int) ($pinjamanStats->menunggu ?? 0);
+        $pinjamanAktif = (int) ($pinjamanStats->aktif ?? 0);
 
-        // Keuangan
-        $totalMasuk = Keuangan::where('jenis', 'masuk')->sum('nominal');
-        $totalKeluar = Keuangan::where('jenis', 'keluar')->sum('nominal');
+        // Statistik Keuangan & Kas (1 Query Konsolidasi)
+        $currentMonth = (int) now()->month;
+        $currentYear = (int) now()->year;
+
+        $keuanganStats = Keuangan::selectRaw("
+            COALESCE(SUM(CASE WHEN jenis = 'masuk' THEN nominal ELSE 0 END), 0) as total_masuk,
+            COALESCE(SUM(CASE WHEN jenis = 'keluar' THEN nominal ELSE 0 END), 0) as total_keluar,
+            COALESCE(SUM(CASE WHEN jenis = 'masuk' AND MONTH(tanggal) = ? AND YEAR(tanggal) = ? THEN nominal ELSE 0 END), 0) as masuk_bulan_ini,
+            COALESCE(SUM(CASE WHEN jenis = 'keluar' AND MONTH(tanggal) = ? AND YEAR(tanggal) = ? THEN nominal ELSE 0 END), 0) as keluar_bulan_ini
+        ", [$currentMonth, $currentYear, $currentMonth, $currentYear])->first();
+
+        $totalMasuk = (int) ($keuanganStats->total_masuk ?? 0);
+        $totalKeluar = (int) ($keuanganStats->total_keluar ?? 0);
         $saldoKasSaatIni = $totalMasuk - $totalKeluar;
-
-        $pemasukanBulanIni = Keuangan::where('jenis', 'masuk')
-            ->whereMonth('tanggal', now()->month)
-            ->whereYear('tanggal', now()->year)
-            ->sum('nominal');
-
-        $pengeluaranBulanIni = Keuangan::where('jenis', 'keluar')
-            ->whereMonth('tanggal', now()->month)
-            ->whereYear('tanggal', now()->year)
-            ->sum('nominal');
+        $pemasukanBulanIni = (int) ($keuanganStats->masuk_bulan_ini ?? 0);
+        $pengeluaranBulanIni = (int) ($keuanganStats->keluar_bulan_ini ?? 0);
 
         // Antrean Pinjaman yang Butuh Tindakan Segera
         $antreanTerbaru = Peminjaman::with('barang')

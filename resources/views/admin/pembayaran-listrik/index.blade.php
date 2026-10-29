@@ -337,132 +337,381 @@
         </div>
     @else
         <div class="space-y-3 pb-24">
-            @foreach($daftarTagihan as $item)
-                <div class="bg-white rounded-2xl border border-gray-200/90 p-4 shadow-xs transition hover:border-[#CEA042] relative"
-                     x-show="cocokSearch('{{ addslashes($item->nama_warga) }}', '{{ addslashes($item->nama_pelanggan) }}', '{{ addslashes($item->nomor_struk) }}', '{{ addslashes($item->kode_gabungan ?? '') }}')"
-                     :class="selectedIds.includes({{ $item->id }}) ? 'border-[#CEA042] ring-2 ring-[#CEA042]/20 bg-amber-50/20' : ''">
-                    
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-start gap-2.5 min-w-0 flex-1">
-                            @if(! $item->is_lunas)
-                                <!-- Checkbox Bayar Gabungan -->
-                                <button type="button" @click="toggleSelect({{ $item->id }})"
-                                        class="mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition shrink-0 min-h-[32px] min-w-[32px]"
-                                        :class="selectedIds.includes({{ $item->id }}) ? 'bg-[#CEA042] border-[#CEA042] text-white' : 'border-gray-300 bg-white text-transparent'">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                                </button>
-                            @endif
-
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-1.5 flex-wrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-bold font-mono text-xs border border-amber-200">
-                                        [ {{ $item->nomor_struk }} ]
-                                    </span>
-                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[10px] font-bold">
-                                        RT {{ sprintf('%02d', $item->rt) }}
-                                    </span>
-                                    @if($item->kode_gabungan)
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-800 text-[10px] font-mono font-bold">
-                                            {{ $item->kode_gabungan }}
+            @foreach($daftarTampilan as $grup)
+                @if($grup['is_gabungan'])
+                    @php
+                        $searchString = $grup['nama_pembayar'].' '.$grup['kode_gabungan'].' '.$grup['items']->pluck('nama_warga')->implode(' ').' '.$grup['items']->pluck('nama_pelanggan')->implode(' ').' '.$grup['items']->pluck('nomor_struk')->implode(' ');
+                        $subStrukList = $grup['items']->pluck('nomor_struk')->map(fn($s) => '#'.$s)->implode(', ');
+                    @endphp
+                    <!-- KARTU TAGIHAN GABUNGAN (Hasil Rekapitulasi / Kasir) -->
+                    <div class="bg-gradient-to-br from-amber-50/50 via-white to-purple-50/30 rounded-2xl border-2 border-amber-300 p-4 shadow-sm transition hover:shadow-md relative space-y-3"
+                         x-data="{ rincianTerbuka: false }"
+                         x-show="cocokSearch('{{ addslashes($searchString) }}')">
+                        
+                        <!-- Header Struk Gabungan -->
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-start gap-2.5 min-w-0 flex-1">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[#CEA042] text-white font-bold shrink-0 shadow-2xs mt-0.5">
+                                    🔗
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-purple-100 text-purple-900 font-mono font-bold text-xs border border-purple-200">
+                                            {{ $grup['kode_gabungan'] }}
                                         </span>
-                                    @endif
-                                </div>
-
-                                <h2 class="text-sm font-bold text-gray-900 mt-1 leading-snug">
-                                    {{ $item->nama_warga }}
-                                </h2>
-                                @if(!empty($item->nama_pembayar))
-                                    <div class="inline-flex items-center gap-1 text-[11px] text-amber-900 font-bold bg-amber-100/80 px-2 py-0.5 rounded-md mt-1 border border-amber-300">
-                                        <svg class="w-3 h-3 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                        <span>Dibayar oleh: {{ $item->nama_pembayar }}</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 text-[10px] font-bold">
+                                            {{ count($grup['items']) }} Tagihan Gabungan
+                                        </span>
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[10px] font-bold">
+                                            RT {{ sprintf('%02d', $grup['rt']) }}
+                                        </span>
                                     </div>
-                                @endif
-                                <p class="text-[11px] text-gray-500 font-mono mt-0.5">
-                                    PLN: {{ $item->nama_pelanggan }}
-                                </p>
-                            </div>
-                        </div>
 
-                        <!-- Nominal Tagihan Bersih Besar -->
-                        <div class="text-right shrink-0">
-                            <div class="text-[10px] text-gray-400 uppercase font-semibold">Total Wajib</div>
-                            <div class="text-base sm:text-lg font-black text-gray-900">
-                                Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Breakdown Biaya & Potongan Saldo Titipan Bulan Lalu -->
-                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-end justify-between text-xs">
-                        <div class="space-y-1">
-                            <div class="text-[11px] text-gray-500">
-                                Struk: <span class="font-semibold text-gray-700">Rp {{ number_format($item->tagihan_awal, 0, ',', '.') }}</span> + Kartar: <span class="font-semibold text-[#CEA042]">Rp {{ number_format($item->kas_karang_taruna, 0, ',', '.') }}</span>
-                            </div>
-
-                            @if($item->saldo_periode_lalu > 0)
-                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
-                                    Potongan Titipan Bulan Lalu: -Rp {{ number_format($item->saldo_periode_lalu, 0, ',', '.') }}
+                                    <!-- Judul Atas Nama Siapa -->
+                                    <h2 class="text-base font-black text-gray-900 mt-1 leading-snug">
+                                        An. {{ $grup['nama_pembayar'] }}
+                                    </h2>
+                                    <p class="text-xs text-gray-500 font-medium mt-0.5">
+                                        Struk: <span class="font-mono font-bold text-gray-700">{{ $subStrukList }}</span>
+                                    </p>
                                 </div>
-                            @elseif($item->saldo_periode_lalu < 0)
-                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
-                                    Tunggakan Bulan Lalu: +Rp {{ number_format(abs($item->saldo_periode_lalu), 0, ',', '.') }}
+                            </div>
+
+                            <!-- Total Bersih Gabungan Besar & Jelas -->
+                            <div class="text-right shrink-0">
+                                <div class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Total Gabungan</div>
+                                <div class="text-base sm:text-xl font-black text-gray-900">
+                                    Rp {{ number_format($grup['total_tagihan'], 0, ',', '.') }}
                                 </div>
-                            @endif
+                            </div>
                         </div>
 
-                        @if(! $item->is_lunas)
-                            <!-- Tombol Bayar CTA (Konsisten Warna Brand #CEA042) -->
-                            <button type="button"
-                                    @click="bukaBayarTunggal({{ $item->id }}, '{{ addslashes($item->nama_warga) }}', '{{ addslashes($item->nomor_struk) }}', {{ $item->total_tagihan }}, {{ $item->saldo_periode_lalu }})"
-                                    class="px-4 py-2 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] active:scale-95 rounded-xl shadow-xs transition min-h-[46px] flex items-center gap-1.5">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                                Bayar
+                        <!-- Daftar Warga / Struk di Dalam Gabungan (Pills) -->
+                        <div class="flex flex-wrap gap-1.5 pt-1">
+                            @foreach($grup['items'] as $sub)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-xs text-gray-700 shadow-2xs">
+                                    <strong class="font-mono text-amber-900">#{{ $sub->nomor_struk }}</strong>
+                                    <span>{{ $sub->nama_warga }}</span>
+                                    <span class="text-gray-400 font-mono">Rp {{ number_format($sub->total_tagihan, 0, ',', '.') }}</span>
+                                </span>
+                            @endforeach
+                        </div>
+
+                        <!-- Accordion Toggle Rincian Lengkap Meter -->
+                        <div>
+                            <button type="button" @click="rincianTerbuka = !rincianTerbuka"
+                                    class="text-xs font-semibold text-[#CEA042] hover:underline flex items-center gap-1">
+                                <span x-text="rincianTerbuka ? '▲ Sembunyikan Rincian Meter' : '▼ Lihat Rincian Tiap Meter ({{ count($grup['items']) }} Warga)'"></span>
                             </button>
-                        @else
-                            <div class="flex items-center gap-2">
-                                @if($item->selisih_bayar > 0)
-                                    <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                                        Titipan: +Rp {{ number_format($item->selisih_bayar, 0, ',', '.') }}
-                                    </span>
-                                @elseif($item->selisih_bayar < 0)
-                                    <span class="text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">
-                                        Kurang: -Rp {{ number_format(abs($item->selisih_bayar), 0, ',', '.') }}
-                                    </span>
-                                @else
-                                    <span class="text-[11px] font-semibold text-gray-500">
-                                        Uang Pas
-                                    </span>
-                                @endif
 
-                                <form method="POST" action="{{ route('admin.pembayaran-listrik.batal', $item) }}"
-                                      onsubmit="return confirm('Batalkan status lunas warga {{ $item->nama_warga }}?')">
+                            <div x-show="rincianTerbuka" x-cloak class="mt-2 space-y-1.5 pt-2 border-t border-amber-100">
+                                @foreach($grup['items'] as $sub)
+                                    <div class="p-2.5 rounded-xl bg-white/80 border border-gray-200/70 text-xs flex items-center justify-between">
+                                        <div>
+                                            <span class="font-mono font-bold text-amber-900">[ #{{ $sub->nomor_struk }} ]</span>
+                                            <strong class="text-gray-900 ml-1">{{ $sub->nama_warga }}</strong>
+                                            <span class="text-gray-400 font-mono block text-[11px]">PLN: {{ $sub->nama_pelanggan }}</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-mono font-bold text-gray-800">Rp {{ number_format($sub->total_tagihan, 0, ',', '.') }}</div>
+                                            <div class="text-[10px] text-gray-400">PLN: {{ number_format($sub->tagihan_awal, 0, ',', '.') }} + Kartar: {{ number_format($sub->kas_karang_taruna, 0, ',', '.') }}</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Tombol Aksi Kasir -->
+                        <div class="pt-2.5 border-t border-amber-200/80 flex items-center justify-between gap-2 flex-wrap">
+                            @if(! $grup['is_lunas'])
+                                <!-- Tombol Pisahkan jika warga ingin bayar mandiri -->
+                                <form method="POST" action="{{ route('admin.pembayaran-listrik.pisahkan') }}"
+                                      onsubmit="return confirm('Pisahkan kelompok struk gabungan ini menjadi tagihan mandiri kembali?')">
                                     @csrf
-                                    @method('PATCH')
+                                    <input type="hidden" name="kode_gabungan" value="{{ $grup['kode_gabungan'] }}">
                                     <button type="submit"
-                                            class="px-2.5 py-1.5 text-[11px] font-semibold text-rose-600 hover:bg-rose-50 rounded-lg min-h-[44px] flex items-center">
-                                        Batal Lunas
+                                            class="px-3 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition min-h-[44px] flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                                        Pisahkan Struk
                                     </button>
                                 </form>
-                            </div>
-                        @endif
+
+                                <!-- Tombol Bayar Gabungan Langsung -->
+                                <button type="button"
+                                        @click="bukaBayarGrupItem({{ json_encode($grup['items']->pluck('id')) }}, '{{ addslashes($grup['nama_pembayar']) }}', '{{ addslashes($subStrukList) }}', {{ $grup['total_tagihan'] }}, {{ $grup['saldo_periode_lalu'] }}, '{{ $grup['kode_gabungan'] }}')"
+                                        class="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] active:scale-95 rounded-xl shadow-xs transition min-h-[46px] flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                    <span>Bayar Gabungan (Rp {{ number_format($grup['total_tagihan'], 0, ',', '.') }})</span>
+                                </button>
+                            @else
+                                <div class="flex items-center justify-between w-full">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                            Lunas Gabungan ({{ count($grup['items']) }} Tagihan)
+                                        </span>
+                                        @if($grup['selisih_bayar'] > 0)
+                                            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                                Titipan: +Rp {{ number_format($grup['selisih_bayar'], 0, ',', '.') }}
+                                            </span>
+                                        @elseif($grup['selisih_bayar'] < 0)
+                                            <span class="text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">
+                                                Kurang: -Rp {{ number_format(abs($grup['selisih_bayar']), 0, ',', '.') }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <form method="POST" action="{{ route('admin.pembayaran-listrik.batal', $grup['items']->first()) }}"
+                                          onsubmit="return confirm('Batalkan status lunas seluruh struk gabungan ini ({{ count($grup['items']) }} warga)?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                                class="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl min-h-[44px] flex items-center">
+                                            Batal Lunas Semua
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                </div>
+                @else
+                    @php
+                        $item = $grup['single_item'];
+                    @endphp
+                    <!-- KARTU TAGIHAN MANDIRI (Bisa Diclick Bayar / Dicentang untuk Gabung di Tempat) -->
+                    <div class="bg-white rounded-2xl border border-gray-200/90 p-4 shadow-xs transition hover:border-[#CEA042] relative"
+                         x-show="cocokSearch('{{ addslashes($item->nama_warga) }}', '{{ addslashes($item->nama_pelanggan) }}', '{{ addslashes($item->nomor_struk) }}', '{{ addslashes($item->nama_pembayar ?? '') }}')"
+                         :class="selectedIds.includes({{ $item->id }}) ? 'border-[#CEA042] ring-2 ring-[#CEA042]/20 bg-amber-50/20' : ''">
+                        
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-start gap-2.5 min-w-0 flex-1">
+                                @if(! $item->is_lunas)
+                                    <!-- Checkbox Bayar Gabungan Dinamis di Kasir -->
+                                    <button type="button" @click="toggleSelect({{ $item->id }})"
+                                            class="mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition shrink-0 min-h-[32px] min-w-[32px]"
+                                            :class="selectedIds.includes({{ $item->id }}) ? 'bg-[#CEA042] border-[#CEA042] text-white' : 'border-gray-300 bg-white text-transparent'">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                    </button>
+                                @endif
+
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-bold font-mono text-xs border border-amber-200">
+                                            [ {{ $item->nomor_struk }} ]
+                                        </span>
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[10px] font-bold">
+                                            RT {{ sprintf('%02d', $item->rt) }}
+                                        </span>
+                                    </div>
+
+                                    <h2 class="text-sm font-bold text-gray-900 mt-1 leading-snug">
+                                        {{ $item->nama_warga }}
+                                    </h2>
+                                    @if(!empty($item->nama_pembayar))
+                                        <div class="inline-flex items-center gap-1 text-[11px] text-amber-900 font-bold bg-amber-100/80 px-2 py-0.5 rounded-md mt-1 border border-amber-300">
+                                            <svg class="w-3 h-3 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                            <span>Dibayar oleh: {{ $item->nama_pembayar }}</span>
+                                        </div>
+                                    @endif
+                                    <p class="text-[11px] text-gray-500 font-mono mt-0.5">
+                                        PLN: {{ $item->nama_pelanggan }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Nominal Tagihan Bersih Besar -->
+                            <div class="text-right shrink-0">
+                                <div class="text-[10px] text-gray-400 uppercase font-semibold">Total Wajib</div>
+                                <div class="text-base sm:text-lg font-black text-gray-900">
+                                    Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Breakdown Biaya & Potongan Saldo Titipan Bulan Lalu -->
+                        <div class="mt-3 pt-3 border-t border-gray-100 flex items-end justify-between text-xs">
+                            <div class="space-y-1">
+                                <div class="text-[11px] text-gray-500">
+                                    Struk: <span class="font-semibold text-gray-700">Rp {{ number_format($item->tagihan_awal, 0, ',', '.') }}</span> + Kartar: <span class="font-semibold text-[#CEA042]">Rp {{ number_format($item->kas_karang_taruna, 0, ',', '.') }}</span>
+                                </div>
+
+                                @if($item->saldo_periode_lalu > 0)
+                                    <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                                        Potongan Titipan Bulan Lalu: -Rp {{ number_format($item->saldo_periode_lalu, 0, ',', '.') }}
+                                    </div>
+                                @elseif($item->saldo_periode_lalu < 0)
+                                    <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
+                                        Tunggakan Bulan Lalu: +Rp {{ number_format(abs($item->saldo_periode_lalu), 0, ',', '.') }}
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if(! $item->is_lunas)
+                                <!-- Tombol Bayar CTA -->
+                                <button type="button"
+                                        @click="bukaBayarTunggal({{ $item->id }}, '{{ addslashes($item->nama_warga) }}', '{{ addslashes($item->nomor_struk) }}', {{ $item->total_tagihan }}, {{ $item->saldo_periode_lalu }})"
+                                        class="px-4 py-2 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] active:scale-95 rounded-xl shadow-xs transition min-h-[46px] flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                    Bayar
+                                </button>
+                            @else
+                                <div class="flex items-center gap-2">
+                                    @if($item->selisih_bayar > 0)
+                                        <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                            Titipan: +Rp {{ number_format($item->selisih_bayar, 0, ',', '.') }}
+                                        </span>
+                                    @elseif($item->selisih_bayar < 0)
+                                        <span class="text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">
+                                            Kurang: -Rp {{ number_format(abs($item->selisih_bayar), 0, ',', '.') }}
+                                        </span>
+                                    @else
+                                        <span class="text-[11px] font-semibold text-gray-500">
+                                            Uang Pas
+                                        </span>
+                                    @endif
+
+                                    <form method="POST" action="{{ route('admin.pembayaran-listrik.batal', $item) }}"
+                                          onsubmit="return confirm('Batalkan status lunas warga {{ $item->nama_warga }}?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                                class="px-2.5 py-1.5 text-[11px] font-semibold text-rose-600 hover:bg-rose-50 rounded-lg min-h-[44px] flex items-center">
+                                            Batal Lunas
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             @endforeach
         </div>
     @endif
 
-    <!-- FLOATING ACTION BAR: BAYAR GABUNGAN (Warna Brand #CEA042) -->
+    <!-- FLOATING ACTION BAR: BAYAR / GABUNGKAN DINAMIS (Warna Brand #CEA042) -->
     <div x-show="selectedIds.length > 0" x-cloak
-         class="fixed bottom-16 lg:bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-40 bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-3 border border-gray-800 animate-slide-up">
+         class="fixed bottom-16 lg:bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-40 bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-2 border border-gray-800 animate-slide-up">
         <div>
             <div class="text-[11px] text-gray-400 font-semibold" x-text="selectedIds.length + ' Tagihan Dipilih'">0 Tagihan Dipilih</div>
             <div class="text-sm font-black text-white" x-text="'Total: Rp ' + formatRupiah(totalTerpilih)">Total: Rp 0</div>
         </div>
-        <button type="button" @click="bukaBayarGabungan()"
-                class="px-4 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition min-h-[46px] flex items-center gap-1.5 shrink-0 shadow-xs">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-            Bayar Gabungan
-        </button>
+        <div class="flex items-center gap-1.5">
+            <button type="button" @click="selectedIds = []" class="px-2 py-2 text-xs text-gray-400 hover:text-white transition">
+                Batal
+            </button>
+            <template x-if="selectedIds.length >= 2">
+                <button type="button" @click="bukaModalGabungkanDulu()"
+                        class="px-2.5 py-2 text-xs font-semibold text-amber-200 bg-gray-800 hover:bg-gray-700 rounded-xl transition min-h-[44px] flex items-center gap-1">
+                    🔗 Gabung Dulu
+                </button>
+            </template>
+            <button type="button" @click="selectedIds.length >= 2 ? bukaBayarGabungan() : bukaBayarTerpilihTunggal()"
+                    class="px-3.5 py-2 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition min-h-[44px] flex items-center gap-1 shrink-0 shadow-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                <span x-text="selectedIds.length >= 2 ? 'Bayar Gabungan' : 'Bayar'"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL GABUNGKAN TAGIHAN DINAMIS DI KASIR (Jika Lupa Waktu Rekap) -->
+    <div x-show="modalGabungkan" x-cloak
+         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div @click.away="modalGabungkan = false"
+             class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold text-sm">
+                        🔗
+                    </span>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900 leading-tight">Gabungkan Tagihan Warga</h3>
+                        <p class="text-xs text-gray-500">Kelompokkan menjadi satu struk gabungan di kasir</p>
+                    </div>
+                </div>
+                <button type="button" @click="modalGabungkan = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+            </div>
+
+            <form method="POST" action="{{ route('admin.pembayaran-listrik.gabungkan') }}" class="space-y-4 text-xs">
+                @csrf
+                <template x-for="id in selectedIds" :key="id">
+                    <input type="hidden" name="tagihan_ids[]" :value="id">
+                </template>
+
+                <!-- Daftar Tagihan Terpilih -->
+                <div class="bg-gray-50 rounded-2xl p-3.5 border border-gray-200/80 space-y-2">
+                    <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                        Tagihan Yang Akan Digabung (<span x-text="selectedItems.length"></span> Struk)
+                    </div>
+                    <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        <template x-for="item in selectedItems" :key="item.id">
+                            <div class="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-white border border-gray-100 shadow-2xs">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-mono font-bold text-[10px]" x-text="'[' + item.nomor_struk + ']'"></span>
+                                    <span class="font-bold text-gray-900 truncate" x-text="item.nama_warga"></span>
+                                </div>
+                                <span class="font-mono font-bold text-gray-800 shrink-0" x-text="'Rp ' + formatRupiah(item.total_tagihan)"></span>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="pt-2 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-gray-900">
+                        <span>Total Gabungan:</span>
+                        <span class="text-base font-black text-[#CEA042]" x-text="'Rp ' + formatRupiah(totalTerpilih)"></span>
+                    </div>
+                </div>
+
+                <!-- Input Atas Nama Siapa -->
+                <div class="space-y-2">
+                    <label class="block font-bold text-gray-700 uppercase">
+                        Atas Nama Siapa? *
+                    </label>
+                    <p class="text-[11px] text-gray-500">Pilih salah satu nama warga di atas atau ketik nama penanggung jawab / keluarga:</p>
+                    
+                    <!-- Quick chips nama warga -->
+                    <div class="flex flex-wrap gap-1.5">
+                        <template x-for="item in selectedItems" :key="item.id">
+                            <button type="button" @click="namaPembayarGabungan = item.nama_warga"
+                                    class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition border"
+                                    :class="namaPembayarGabungan === item.nama_warga ? 'bg-[#CEA042] text-white border-[#CEA042]' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200'">
+                                <span x-text="item.nama_warga"></span>
+                            </button>
+                        </template>
+                    </div>
+
+                    <input type="text"
+                           name="nama_pembayar"
+                           x-model="namaPembayarGabungan"
+                           placeholder="Contoh: Keluarga Pak Budi / Budi"
+                           required
+                           class="w-full text-base sm:text-xs rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-1 focus:ring-[#CEA042] py-2.5 px-3 min-h-[46px]">
+                </div>
+
+                <!-- Kode Gabungan (Opsional) -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">
+                        Kode Gabungan <span class="text-gray-400 font-normal lowercase">(opsional)</span>
+                    </label>
+                    <input type="text"
+                           name="kode_gabungan"
+                           x-model="kodeGabunganInput"
+                           placeholder="Otomatis digenerate sistem jika kosong"
+                           class="w-full font-mono text-base sm:text-xs rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-1 focus:ring-[#CEA042] py-2.5 px-3 min-h-[46px] bg-gray-50">
+                </div>
+
+                <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
+                    <button type="button" @click="modalGabungkan = false"
+                            class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[46px]">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            :disabled="!namaPembayarGabungan || selectedIds.length < 2"
+                            class="flex-1 px-4 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] disabled:opacity-50 rounded-xl shadow-xs min-h-[48px] flex items-center justify-center gap-2 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        Simpan Penggabungan
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- MODAL KASIR CEPAT / FAST POS (Bottom Sheet di HP) -->
@@ -662,7 +911,10 @@ function kasirListrik() {
         tabAktif: '{{ $tab }}',
         cari: '{{ addslashes($cari ?? "") }}',
         modalBayar: false,
+        modalGabungkan: false,
         selectedIds: [],
+        namaPembayarGabungan: '',
+        kodeGabunganInput: '',
         bayarItem: {
             id: null,
             nama: '',
@@ -675,15 +927,11 @@ function kasirListrik() {
         jadikanTitipan: false,
         kodeGabungan: '',
 
-        cocokSearch(warga, pln, struk, gab) {
+        cocokSearch(...args) {
             if (!this.cari || this.cari.trim() === '') return true;
             const q = this.cari.toLowerCase().trim();
-            const w = (warga || '').toLowerCase();
-            const p = (pln || '').toLowerCase();
-            const s = (struk || '').toLowerCase();
-            const g = (gab || '').toLowerCase();
-
-            return w.includes(q) || p.includes(q) || s.includes(q) || g.includes(q);
+            const combined = args.map(a => (a || '').toString().toLowerCase()).join(' ');
+            return combined.includes(q);
         },
 
         bukaBayarTunggal(id, nama, struk, total, saldoLalu) {
@@ -702,6 +950,30 @@ function kasirListrik() {
             this.modalBayar = true;
         },
 
+        bukaBayarTerpilihTunggal() {
+            if (this.selectedIds.length !== 1) return;
+            const item = allData.find(t => t.id === this.selectedIds[0]);
+            if (item) {
+                this.bukaBayarTunggal(item.id, item.nama_warga, item.nomor_struk, item.total_tagihan, item.saldo_periode_lalu);
+            }
+        },
+
+        bukaBayarGrupItem(ids, nama, struk, total, saldoLalu, kodeGabungan) {
+            this.selectedIds = ids;
+            this.bayarItem = {
+                id: null,
+                nama: 'An. ' + nama + ' (' + ids.length + ' Tagihan)',
+                struk: struk,
+                total: total,
+                saldoLalu: saldoLalu || 0
+            };
+            this.uangDibayar = total;
+            this.namaPembayar = nama;
+            this.jadikanTitipan = false;
+            this.kodeGabungan = kodeGabungan;
+            this.modalBayar = true;
+        },
+
         bukaBayarGabungan() {
             if (this.selectedIds.length === 0) return;
             const filtered = allData.filter(t => this.selectedIds.includes(t.id));
@@ -716,10 +988,18 @@ function kasirListrik() {
                 saldoLalu: 0
             };
             this.uangDibayar = total;
-            this.namaPembayar = '';
+            this.namaPembayar = filtered.length > 0 ? filtered[0].nama_warga : '';
             this.jadikanTitipan = false;
-            this.kodeGabungan = 'GAB-' + Math.floor(1000 + Math.random() * 9000);
+            this.kodeGabungan = 'GAB-' + Math.floor(100000 + Math.random() * 900000);
             this.modalBayar = true;
+        },
+
+        bukaModalGabungkanDulu() {
+            if (this.selectedIds.length < 2) return;
+            const filtered = this.selectedItems;
+            this.kodeGabunganInput = 'GAB-' + Math.floor(100000 + Math.random() * 900000);
+            this.namaPembayarGabungan = filtered.length > 0 ? filtered[0].nama_warga : '';
+            this.modalGabungkan = true;
         },
 
         toggleSelect(id) {
@@ -731,10 +1011,12 @@ function kasirListrik() {
             }
         },
 
+        get selectedItems() {
+            return allData.filter(t => this.selectedIds.includes(t.id));
+        },
+
         get totalTerpilih() {
-            return allData
-                .filter(t => this.selectedIds.includes(t.id))
-                .reduce((acc, curr) => acc + (curr.total_tagihan || 0), 0);
+            return this.selectedItems.reduce((acc, curr) => acc + (curr.total_tagihan || 0), 0);
         },
 
         get uangDibayar() {

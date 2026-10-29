@@ -1,6 +1,6 @@
 @extends('layouts.publik')
 
-@section('title', 'Katalog Inventaris & Transparansi Kas Dusun Demangan')
+@section('title', 'Dusun Demangan')
 
 @section('content')
 <div class="space-y-12 pb-16">
@@ -11,32 +11,32 @@
             <div class="max-w-3xl">
                 <div class="flex items-center gap-3.5 mb-5">
                     <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
-                         alt="Logo Karang Taruna Demangan"
+                         alt="Logo Dusun Demangan"
                          width="56" height="56"
                          fetchpriority="high"
                          class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover shadow-xs border-2 border-amber-300 bg-white shrink-0">
                     <div>
                         <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-[#CEA042] border border-amber-200/80">
-                            Karang Taruna Dusun Demangan
+                            Dusun Demangan
                         </span>
-                        <div class="text-xs text-gray-500 font-medium mt-0.5">Layanan Inventaris & Keuangan Transparan Warga</div>
+                        <div class="text-xs text-gray-500 font-medium mt-0.5">Portal Layanan & Informasi Warga</div>
                     </div>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight mb-4">
-                    Peminjaman Inventaris & Transparansi Keuangan Kas Dusun
+                    Dusun Demangan
                 </h1>
                 <p class="text-base text-gray-600 leading-relaxed mb-6">
-                    Mendigitalisasi pencatatan inventaris aset dusun, mempermudah warga meminjam perlengkapan acara dan gotong royong, serta membuka riwayat arus kas masuk dan keluar secara jujur dan transparan.
+                    Pusat keterbukaan informasi publik dan transparansi keuangan kas Dusun Demangan. Warga dapat memantau mutasi kas masuk dan keluar secara jujur, akuntabel, dan terbuka.
                 </p>
                 <div class="flex flex-wrap items-center gap-3">
-                    <a href="#katalog" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-lg shadow-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CEA042]">
-                        Lihat Katalog Barang
-                    </a>
-                    <a href="{{ route('peminjaman.cek-status') }}" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400">
-                        Lacak Status Pinjaman
+                    <a href="#transparansi-kas" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-lg shadow-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CEA042]">
+                        Transparansi Kas Dusun
                     </a>
                     <a href="{{ route('publik.buku-kas') }}" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition">
-                        Buku Kas Dusun
+                        Buku Kas Lengkap
+                    </a>
+                    <a href="#katalog" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400">
+                        Katalog Inventaris
                     </a>
                 </div>
             </div>
@@ -88,7 +88,112 @@
         </div>
     </section>
 
-    <!-- 3. Katalog Inventaris Barang -->
+    <!-- 3. Transparansi Riwayat Kas Dusun (Diletakkan di Atas) -->
+    <section id="transparansi-kas" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight leading-tight">
+                    Transparansi Buku Kas Terkini
+                </h2>
+                <p class="text-xs sm:text-sm text-gray-600 mt-1">
+                    Riwayat 10 catatan mutasi kas masuk dan keluar terbaru dusun.
+                </p>
+            </div>
+            <a href="{{ route('publik.buku-kas') }}" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#CEA042] hover:text-[#BA8832]">
+                Buka Buku Kas Selengkapnya
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+
+        <!-- TAMPILAN MOBILE KAS TERKINI (block md:hidden) -->
+        <div class="block md:hidden space-y-3">
+            @forelse($mutasiTerakhir as $kas)
+                <div class="bg-white rounded-xl border border-gray-200/90 p-4 shadow-xs space-y-2">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-gray-100">
+                        <span class="text-[11px] text-gray-500 font-medium">
+                            {{ $kas->tanggal->format('d/m/Y') }}
+                        </span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $kas->jenis === 'masuk' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
+                            {{ $kas->jenis === 'masuk' ? 'Kas Masuk' : 'Kas Keluar' }}
+                        </span>
+                    </div>
+
+                    <div class="flex items-baseline justify-between">
+                        <div class="text-xs font-bold text-gray-800">{{ $kas->kategori }}</div>
+                        <div class="text-sm font-extrabold {{ $kas->jenis === 'masuk' ? 'text-emerald-700' : 'text-rose-700' }}">
+                            {{ $kas->jenis === 'masuk' ? '+' : '-' }} Rp {{ number_format($kas->nominal, 0, ',', '.') }}
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-gray-600 bg-gray-50 p-2 rounded-lg leading-relaxed">
+                        {{ $kas->keterangan }}
+                    </p>
+                </div>
+            @empty
+                <div class="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-xs">
+                    Belum ada catatan mutasi kas.
+                </div>
+            @endforelse
+        </div>
+
+        <!-- TAMPILAN DESKTOP KAS TERKINI (hidden md:block) -->
+        <div class="hidden md:block bg-white rounded-xl border border-gray-200/90 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
+                    <thead class="bg-gray-50 text-gray-600 font-semibold uppercase tracking-wider">
+                        <tr>
+                            <th class="py-3 px-4">Tanggal</th>
+                            <th class="py-3 px-4">Kode</th>
+                            <th class="py-3 px-4">Jenis</th>
+                            <th class="py-3 px-4">Kategori / Sumber</th>
+                            <th class="py-3 px-4">Uraian Keterangan</th>
+                            <th class="py-3 px-4 text-right">Nominal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($mutasiTerakhir as $kas)
+                            <tr class="hover:bg-gray-50/80 transition">
+                                <td class="py-3 px-4 whitespace-nowrap text-gray-700 font-medium">
+                                    {{ $kas->tanggal->format('d/m/Y') }}
+                                </td>
+                                <td class="py-3 px-4 whitespace-nowrap text-gray-500 font-mono text-[11px]">
+                                    {{ $kas->kode_transaksi }}
+                                </td>
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    @if($kas->jenis === 'masuk')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            Kas Masuk
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                            Kas Keluar
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4 font-medium text-gray-800 whitespace-nowrap">
+                                    {{ $kas->kategori }}
+                                </td>
+                                <td class="py-3 px-4 text-gray-600 max-w-xs truncate">
+                                    {{ $kas->keterangan }}
+                                </td>
+                                <td class="py-3 px-4 text-right font-semibold whitespace-nowrap {{ $kas->jenis === 'masuk' ? 'text-emerald-700' : 'text-rose-700' }}">
+                                    {{ $kas->jenis === 'masuk' ? '+' : '-' }} Rp {{ number_format($kas->nominal, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="py-8 text-center text-gray-400">
+                                    Belum ada catatan mutasi kas.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Katalog Inventaris Barang -->
     <section id="katalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
             <div>
@@ -212,111 +317,6 @@
                 </a>
             </div>
         @endif
-    </section>
-
-    <!-- 4. Transparansi Riwayat Kas Dusun -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-            <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight leading-tight">
-                    Transparansi Buku Kas Terkini
-                </h2>
-                <p class="text-xs sm:text-sm text-gray-600 mt-1">
-                    Riwayat 10 catatan mutasi kas masuk dan keluar terbaru dusun.
-                </p>
-            </div>
-            <a href="{{ route('publik.buku-kas') }}" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#CEA042] hover:text-[#BA8832]">
-                Buka Buku Kas Selengkapnya
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </a>
-        </div>
-
-        <!-- TAMPILAN MOBILE KAS TERKINI (block md:hidden) -->
-        <div class="block md:hidden space-y-3">
-            @forelse($mutasiTerakhir as $kas)
-                <div class="bg-white rounded-xl border border-gray-200/90 p-4 shadow-xs space-y-2">
-                    <div class="flex items-center justify-between pb-1.5 border-b border-gray-100">
-                        <span class="text-[11px] text-gray-500 font-medium">
-                            {{ $kas->tanggal->format('d/m/Y') }}
-                        </span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $kas->jenis === 'masuk' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
-                            {{ $kas->jenis === 'masuk' ? 'Kas Masuk' : 'Kas Keluar' }}
-                        </span>
-                    </div>
-
-                    <div class="flex items-baseline justify-between">
-                        <div class="text-xs font-bold text-gray-800">{{ $kas->kategori }}</div>
-                        <div class="text-sm font-extrabold {{ $kas->jenis === 'masuk' ? 'text-emerald-700' : 'text-rose-700' }}">
-                            {{ $kas->jenis === 'masuk' ? '+' : '-' }} Rp {{ number_format($kas->nominal, 0, ',', '.') }}
-                        </div>
-                    </div>
-
-                    <p class="text-xs text-gray-600 bg-gray-50 p-2 rounded-lg leading-relaxed">
-                        {{ $kas->keterangan }}
-                    </p>
-                </div>
-            @empty
-                <div class="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-xs">
-                    Belum ada catatan mutasi kas.
-                </div>
-            @endforelse
-        </div>
-
-        <!-- TAMPILAN DESKTOP KAS TERKINI (hidden md:block) -->
-        <div class="hidden md:block bg-white rounded-xl border border-gray-200/90 shadow-xs overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
-                    <thead class="bg-gray-50 text-gray-600 font-semibold uppercase tracking-wider">
-                        <tr>
-                            <th class="py-3 px-4">Tanggal</th>
-                            <th class="py-3 px-4">Kode</th>
-                            <th class="py-3 px-4">Jenis</th>
-                            <th class="py-3 px-4">Kategori / Sumber</th>
-                            <th class="py-3 px-4">Uraian Keterangan</th>
-                            <th class="py-3 px-4 text-right">Nominal</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($mutasiTerakhir as $kas)
-                            <tr class="hover:bg-gray-50/80 transition">
-                                <td class="py-3 px-4 whitespace-nowrap text-gray-700 font-medium">
-                                    {{ $kas->tanggal->format('d/m/Y') }}
-                                </td>
-                                <td class="py-3 px-4 whitespace-nowrap text-gray-500 font-mono text-[11px]">
-                                    {{ $kas->kode_transaksi }}
-                                </td>
-                                <td class="py-3 px-4 whitespace-nowrap">
-                                    @if($kas->jenis === 'masuk')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            Kas Masuk
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                                            Kas Keluar
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="py-3 px-4 font-medium text-gray-800 whitespace-nowrap">
-                                    {{ $kas->kategori }}
-                                </td>
-                                <td class="py-3 px-4 text-gray-600 max-w-xs truncate">
-                                    {{ $kas->keterangan }}
-                                </td>
-                                <td class="py-3 px-4 text-right font-semibold whitespace-nowrap {{ $kas->jenis === 'masuk' ? 'text-emerald-700' : 'text-rose-700' }}">
-                                    {{ $kas->jenis === 'masuk' ? '+' : '-' }} Rp {{ number_format($kas->nominal, 0, ',', '.') }}
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="py-8 text-center text-gray-400">
-                                    Belum ada catatan mutasi kas.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </section>
 
 </div>

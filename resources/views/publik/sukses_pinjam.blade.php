@@ -9,9 +9,9 @@
         <!-- Brand Organization Badge -->
         <div class="inline-flex items-center gap-2 mb-3 bg-gray-50 border border-gray-200 px-3 py-1 rounded-full">
             <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
-                 alt="Logo Karang Taruna Demangan"
+                 alt="Logo Dusun Demangan"
                  class="w-6 h-6 rounded-full object-cover">
-            <span class="text-[11px] font-bold text-gray-700 tracking-wide">Karang Taruna Dusun Demangan</span>
+            <span class="text-[11px] font-bold text-gray-700 tracking-wide">Dusun Demangan</span>
         </div>
 
         <!-- Success Icon -->

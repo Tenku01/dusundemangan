@@ -221,16 +221,37 @@
         <!-- Mode Kartu untuk Layar HP & Tablet (Nyaman diakses dengan jempol) -->
         <div class="space-y-3 pb-8">
             @foreach($daftarRekap as $item)
-                <div class="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs transition hover:border-[#CEA042]"
-                     x-show="cocokSearch('{{ addslashes($item->nama_warga) }}', '{{ addslashes($item->nama_pelanggan) }}', '{{ addslashes($item->nomor_struk) }}')">
-                    <div class="flex items-start justify-between gap-2">
-                        <!-- Nomor Struk & Info Warga -->
-                        <div class="flex items-start gap-2.5 min-w-0">
-                            <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 font-bold font-mono text-xs shrink-0 border border-amber-200">
-                                [ {{ $item->nomor_struk }} ]
-                            </span>
-                            <div class="min-w-0">
-                                <h2 class="text-sm font-bold text-gray-900 leading-snug truncate">
+                <div class="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs transition hover:border-[#CEA042] relative"
+                     x-show="cocokSearch('{{ addslashes($item->nama_warga) }}', '{{ addslashes($item->nama_pelanggan) }}', '{{ addslashes($item->nomor_struk) }}', '{{ addslashes($item->kode_gabungan ?? '') }}', '{{ addslashes($item->nama_pembayar ?? '') }}')"
+                     :class="selectedIds.includes({{ $item->id }}) ? 'border-[#CEA042] ring-2 ring-[#CEA042]/20 bg-amber-50/20' : ''">
+                    <div class="flex items-start justify-between gap-2.5">
+                        <div class="flex items-start gap-2.5 min-w-0 flex-1">
+                            @if(! $item->is_lunas)
+                                <!-- Checkbox Pilihan Tagihan Gabungan -->
+                                <button type="button" @click="toggleSelect({{ $item->id }})"
+                                        class="mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition shrink-0 min-h-[32px] min-w-[32px]"
+                                        :class="selectedIds.includes({{ $item->id }}) ? 'bg-[#CEA042] border-[#CEA042] text-white' : 'border-gray-300 bg-white text-transparent'">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                </button>
+                            @endif
+
+                            <!-- Nomor Struk & Info Warga -->
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 font-bold font-mono text-xs shrink-0 border border-amber-200">
+                                        [ {{ $item->nomor_struk }} ]
+                                    </span>
+                                    @if($item->kode_gabungan)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 text-[10px] font-mono font-bold border border-purple-200">
+                                            <span>🔗 {{ $item->kode_gabungan }}</span>
+                                            @if($item->nama_pembayar)
+                                                <span class="font-sans font-semibold">An. {{ $item->nama_pembayar }}</span>
+                                            @endif
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <h2 class="text-sm font-bold text-gray-900 leading-snug truncate mt-1">
                                     {{ $item->nama_warga }}
                                 </h2>
                                 <p class="text-[11px] text-gray-500 font-mono mt-0.5 truncate">
@@ -281,7 +302,20 @@
                     </div>
 
                     <!-- Tombol Aksi HP (Tinggi minimal 44px, nyaman disentuh) -->
-                    <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-end gap-2">
+                    <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-end gap-2 flex-wrap">
+                        @if($item->kode_gabungan && ! $item->is_lunas)
+                            <form method="POST" action="{{ route('admin.rekap-listrik.pisahkan') }}"
+                                  onsubmit="return confirm('Pisahkan {{ $item->nama_warga }} dari tagihan gabungan {{ $item->kode_gabungan }}?')">
+                                @csrf
+                                <input type="hidden" name="tagihan_id" value="{{ $item->id }}">
+                                <button type="submit"
+                                        class="px-3 py-2 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl transition min-h-[44px] flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                                    Pisahkan
+                                </button>
+                            </form>
+                        @endif
+
                         <a href="{{ route('admin.rekap-listrik.edit', $item) }}"
                            class="px-3.5 py-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition min-h-[44px] flex items-center gap-1">
                             <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -300,6 +334,127 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+
+        <!-- FLOATING ACTION BAR: GABUNGKAN TAGIHAN DI REKAP -->
+        <div x-show="selectedIds.length >= 2" x-cloak
+             class="fixed bottom-16 lg:bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-40 bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-3 border border-gray-800 animate-slide-up">
+            <div>
+                <div class="text-[11px] text-gray-400 font-semibold" x-text="selectedIds.length + ' Tagihan Dipilih'">0 Tagihan Dipilih</div>
+                <div class="text-sm font-black text-white" x-text="'Total: Rp ' + formatRupiah(totalTerpilih)">Total: Rp 0</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button type="button" @click="selectedIds = []" class="px-2.5 py-2 text-xs text-gray-400 hover:text-white transition">
+                    Batal
+                </button>
+                <button type="button" @click="bukaModalGabungkan()"
+                        class="px-4 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition min-h-[46px] flex items-center gap-1.5 shrink-0 shadow-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    Gabungkan
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL GABUNGKAN TAGIHAN REKAP (Bottom Sheet di HP) -->
+        <div x-show="modalGabungkan" x-cloak
+             class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div @click.away="modalGabungkan = false"
+                 class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
+                
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold text-sm">
+                            🔗
+                        </span>
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">Gabungkan Tagihan Warga</h3>
+                            <p class="text-xs text-gray-500">Satu struk pembayaran untuk beberapa warga / meteran</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="modalGabungkan = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+                </div>
+
+                <form method="POST" action="{{ route('admin.rekap-listrik.gabungkan') }}" class="space-y-4 text-xs">
+                    @csrf
+                    <template x-for="id in selectedIds" :key="id">
+                        <input type="hidden" name="tagihan_ids[]" :value="id">
+                    </template>
+
+                    <!-- Daftar Tagihan Terpilih -->
+                    <div class="bg-gray-50 rounded-2xl p-3.5 border border-gray-200/80 space-y-2">
+                        <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            Rincian Tagihan Yang Digabung (<span x-text="selectedItems.length"></span> Struk)
+                        </div>
+                        <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                            <template x-for="item in selectedItems" :key="item.id">
+                                <div class="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-white border border-gray-100 shadow-2xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-mono font-bold text-[10px]" x-text="'[' + item.nomor_struk + ']'"></span>
+                                        <span class="font-bold text-gray-900 truncate" x-text="item.nama_warga"></span>
+                                    </div>
+                                    <span class="font-mono font-bold text-gray-800 shrink-0" x-text="'Rp ' + formatRupiah(item.total_tagihan)"></span>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="pt-2 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-gray-900">
+                            <span>Total Gabungan:</span>
+                            <span class="text-base font-black text-[#CEA042]" x-text="'Rp ' + formatRupiah(totalTerpilih)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Input Atas Nama Siapa -->
+                    <div class="space-y-2">
+                        <label class="block font-bold text-gray-700 uppercase">
+                            Atas Nama Siapa? *
+                        </label>
+                        <p class="text-[11px] text-gray-500">Pilih salah satu nama warga di atas atau ketik nama penanggung jawab / keluarga:</p>
+                        
+                        <!-- Quick chips nama warga -->
+                        <div class="flex flex-wrap gap-1.5">
+                            <template x-for="item in selectedItems" :key="item.id">
+                                <button type="button" @click="namaPembayarGabungan = item.nama_warga"
+                                        class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition border"
+                                        :class="namaPembayarGabungan === item.nama_warga ? 'bg-[#CEA042] text-white border-[#CEA042]' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200'">
+                                    <span x-text="item.nama_warga"></span>
+                                </button>
+                            </template>
+                        </div>
+
+                        <input type="text"
+                               name="nama_pembayar"
+                               x-model="namaPembayarGabungan"
+                               placeholder="Contoh: Keluarga Pak Budi / Budi"
+                               required
+                               class="w-full text-base sm:text-xs rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-1 focus:ring-[#CEA042] py-2.5 px-3 min-h-[46px]">
+                    </div>
+
+                    <!-- Kode Gabungan (Opsional) -->
+                    <div>
+                        <label class="block font-bold text-gray-700 uppercase mb-1">
+                            Kode Gabungan <span class="text-gray-400 font-normal lowercase">(opsional)</span>
+                        </label>
+                        <input type="text"
+                               name="kode_gabungan"
+                               x-model="kodeGabunganInput"
+                               placeholder="Otomatis digenerate sistem jika kosong"
+                               class="w-full font-mono text-base sm:text-xs rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-1 focus:ring-[#CEA042] py-2.5 px-3 min-h-[46px] bg-gray-50">
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
+                        <button type="button" @click="modalGabungkan = false"
+                                class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[46px]">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                :disabled="!namaPembayarGabungan || selectedIds.length < 2"
+                                class="flex-1 px-4 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] disabled:opacity-50 rounded-xl shadow-xs min-h-[48px] flex items-center justify-center gap-2 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            Simpan Penggabungan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
         </div>
     @endif
 
@@ -754,6 +909,11 @@
     {!! json_encode($wargaRtAktif) !!}
 </script>
 
+<!-- Data Rekap Aktif untuk Fitur Penggabungan Tagihan -->
+<script id="daftar-rekap-json" type="application/json">
+    {!! json_encode($daftarRekap) !!}
+</script>
+
 @push('scripts')
 <!-- Library CDN untuk OCR Gambar, Pembaca Excel, dan PDF -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -763,13 +923,18 @@
 <script>
 function rekapListrik() {
     let masterWarga = [];
+    let allRekap = [];
     try {
         const elJson = document.getElementById('warga-rt-json');
         if (elJson) {
             masterWarga = JSON.parse(elJson.textContent);
         }
+        const elRekap = document.getElementById('daftar-rekap-json');
+        if (elRekap) {
+            allRekap = JSON.parse(elRekap.textContent);
+        }
     } catch (e) {
-        console.error('Error parsing warga master', e);
+        console.error('Error parsing warga master / rekap', e);
     }
 
     return {
@@ -777,6 +942,11 @@ function rekapListrik() {
         modalTambah: false,
         modalDuplikasi: false,
         modalScan: false,
+        modalGabungkan: false,
+        selectedIds: [],
+        namaPembayarGabungan: '',
+        kodeGabunganInput: '',
+        allRekap: allRekap,
         stepScan: 'upload', // 'upload', 'processing', 'crosscheck'
         statusScanText: 'Membaca Dokumen...',
         progressScan: 0,
@@ -822,14 +992,41 @@ function rekapListrik() {
             this.tagihanAwalDisplay = this.formatRupiah(parseInt(clean));
         },
 
-        cocokSearch(warga, pln, struk) {
+        toggleSelect(id) {
+            const index = this.selectedIds.indexOf(id);
+            if (index > -1) {
+                this.selectedIds.splice(index, 1);
+            } else {
+                this.selectedIds.push(id);
+            }
+        },
+
+        get selectedItems() {
+            return this.allRekap.filter(item => this.selectedIds.includes(item.id));
+        },
+
+        get totalTerpilih() {
+            return this.selectedItems.reduce((acc, curr) => acc + (curr.total_tagihan || 0), 0);
+        },
+
+        bukaModalGabungkan() {
+            if (this.selectedIds.length < 2) return;
+            const items = this.selectedItems;
+            this.kodeGabunganInput = 'GAB-' + Math.floor(100000 + Math.random() * 900000);
+            this.namaPembayarGabungan = items.length > 0 ? items[0].nama_warga : '';
+            this.modalGabungkan = true;
+        },
+
+        cocokSearch(warga, pln, struk, gab, pembayar) {
             if (!this.cari || this.cari.trim() === '') return true;
             const q = this.cari.toLowerCase().trim();
             const w = (warga || '').toLowerCase();
             const p = (pln || '').toLowerCase();
             const s = (struk || '').toLowerCase();
+            const g = (gab || '').toLowerCase();
+            const b = (pembayar || '').toLowerCase();
 
-            return w.includes(q) || p.includes(q) || s.includes(q);
+            return w.includes(q) || p.includes(q) || s.includes(q) || g.includes(q) || b.includes(q);
         },
 
         get totalTagihan() {

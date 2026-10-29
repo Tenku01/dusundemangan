@@ -433,4 +433,159 @@ class TagihanListrikTest extends TestCase
         $this->assertEquals(3000, $t2->kas_karang_taruna);
         $this->assertEquals(63000, $t2->total_tagihan);
     }
+
+    public function test_admin_dapat_menggabungkan_tagihan_pada_waktu_rekap(): void
+    {
+        $t1 = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Pak Budi Gabung Uji',
+            'nama_pelanggan' => 'PLN BUDI UJI',
+            'nomor_struk' => 'STR-REKAP-GAB-1',
+            'tagihan_awal' => 50000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 53000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $t1->id;
+
+        $t2 = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Ibu Siti Gabung Uji',
+            'nama_pelanggan' => 'PLN SITI UJI',
+            'nomor_struk' => 'STR-REKAP-GAB-2',
+            'tagihan_awal' => 40000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 43000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $t2->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.rekap-listrik.gabungkan'), [
+                'tagihan_ids' => [$t1->id, $t2->id],
+                'nama_pembayar' => 'Keluarga Pak Budi',
+                'kode_gabungan' => 'GAB-REKAP-999',
+            ]);
+
+        $response->assertSessionHas('sukses');
+
+        $t1Fresh = $t1->fresh();
+        $t2Fresh = $t2->fresh();
+
+        $this->assertEquals('GAB-REKAP-999', $t1Fresh->kode_gabungan);
+        $this->assertEquals('GAB-REKAP-999', $t2Fresh->kode_gabungan);
+        $this->assertEquals('Keluarga Pak Budi', $t1Fresh->nama_pembayar);
+        $this->assertEquals('Keluarga Pak Budi', $t2Fresh->nama_pembayar);
+    }
+
+    public function test_admin_dapat_memisahkan_tagihan_gabungan_pada_waktu_rekap(): void
+    {
+        $t1 = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Warga Pisah 1 Uji',
+            'nama_pelanggan' => 'PLN PISAH 1',
+            'nomor_struk' => 'STR-PISAH-1',
+            'tagihan_awal' => 30000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 33000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+            'kode_gabungan' => 'GAB-PISAH-123',
+            'nama_pembayar' => 'Pak Ahmad',
+        ]);
+        $this->createdTagihanIds[] = $t1->id;
+
+        $t2 = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Warga Pisah 2 Uji',
+            'nama_pelanggan' => 'PLN PISAH 2',
+            'nomor_struk' => 'STR-PISAH-2',
+            'tagihan_awal' => 35000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 38000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+            'kode_gabungan' => 'GAB-PISAH-123',
+            'nama_pembayar' => 'Pak Ahmad',
+        ]);
+        $this->createdTagihanIds[] = $t2->id;
+
+        // Pisahkan salah satu tagihan
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.rekap-listrik.pisahkan'), [
+                'tagihan_id' => $t1->id,
+            ]);
+
+        $response->assertSessionHas('sukses');
+
+        $t1Fresh = $t1->fresh();
+        $t2Fresh = $t2->fresh();
+
+        $this->assertNull($t1Fresh->kode_gabungan);
+        $this->assertNull($t1Fresh->nama_pembayar);
+        // Tagihan sisa yang tinggal 1 juga otomatis lepas dari kode_gabungan
+        $this->assertNull($t2Fresh->kode_gabungan);
+    }
+
+    public function test_kasir_dapat_menggabungkan_dan_membayar_tagihan_hasil_rekap(): void
+    {
+        $t1 = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Pak Joko Uji 1',
+            'nama_pelanggan' => 'PLN JOKO 1',
+            'nomor_struk' => 'STR-KASIR-GAB-1',
+            'tagihan_awal' => 45000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 48000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+            'kode_gabungan' => 'GAB-KASIR-TEST',
+            'nama_pembayar' => 'Pak Joko',
+        ]);
+        $this->createdTagihanIds[] = $t1->id;
+
+        $t2 = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Pak Joko Uji 2 (Warung)',
+            'nama_pelanggan' => 'PLN JOKO 2',
+            'nomor_struk' => 'STR-KASIR-GAB-2',
+            'tagihan_awal' => 50000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 53000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+            'kode_gabungan' => 'GAB-KASIR-TEST',
+            'nama_pembayar' => 'Pak Joko',
+        ]);
+        $this->createdTagihanIds[] = $t2->id;
+
+        // Total 48.000 + 53.000 = 101.000. Bayar 105.000 tanpa titipan -> kembalian 4.000
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.pembayaran-listrik.bayar'), [
+                'tagihan_ids' => [$t1->id, $t2->id],
+                'uang_dibayar' => 105000,
+                'jadikan_titipan' => 0,
+                'kode_gabungan' => 'GAB-KASIR-TEST',
+                'nama_pembayar' => 'Pak Joko',
+            ]);
+
+        $response->assertSessionHas('sukses');
+
+        $t1Fresh = $t1->fresh();
+        $t2Fresh = $t2->fresh();
+
+        $this->assertTrue($t1Fresh->is_lunas);
+        $this->assertTrue($t2Fresh->is_lunas);
+        $this->assertEquals('GAB-KASIR-TEST', $t1Fresh->kode_gabungan);
+        $this->assertEquals('GAB-KASIR-TEST', $t2Fresh->kode_gabungan);
+        $this->assertEquals(0, $t1Fresh->selisih_bayar); // Tanpa titipan, kembalian 4rb diserahkan ke warga
+    }
 }
