@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckMenuAkses;
 use App\Http\Middleware\PeranMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->alias([
             'peran' => PeranMiddleware::class,
+            'menu.akses' => CheckMenuAkses::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

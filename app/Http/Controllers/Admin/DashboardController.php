@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\Keuangan;
 use App\Models\Peminjaman;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -13,8 +14,11 @@ class DashboardController extends Controller
     /**
      * Menampilkan dashboard utama pengurus dan superadmin.
      */
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
+        if (! auth()->user()->hasMenuAkses('beranda')) {
+            return redirect()->route(auth()->user()->getFirstAccessibleRoute());
+        }
         // Statistik Barang Inventaris (1 Query Konsolidasi)
         $barangStats = Barang::selectRaw('
             COUNT(*) as total_jenis,

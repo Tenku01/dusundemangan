@@ -35,11 +35,20 @@ class PenggunaController extends Controller
             'no_hp' => 'nullable|string|max:30',
             'password' => ['required', 'confirmed', Password::defaults()],
             'peran' => 'required|in:admin,warga',
+            'menu_akses' => 'nullable|array',
+            'menu_akses.*' => 'in:beranda,rekap,bayar,barang,kas,warga',
         ], [
             'name.required' => 'Nama lengkap pengurus wajib diisi.',
             'email.unique' => 'Email ini sudah terdaftar di sistem.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ]);
+
+        $menuAkses = null;
+        if ($validated['peran'] === 'admin') {
+            $menuAkses = ! empty($validated['menu_akses'])
+                ? $validated['menu_akses']
+                : array_keys(User::DAFTAR_MENU);
+        }
 
         User::create([
             'name' => $validated['name'],
@@ -48,9 +57,36 @@ class PenggunaController extends Controller
             'password' => Hash::make($validated['password']),
             'peran' => $validated['peran'],
             'status' => 'aktif',
+            'menu_akses' => $menuAkses,
         ]);
 
         return redirect()->route('admin.pengguna.index')->with('sukses', "Akun pengurus {$validated['name']} berhasil dibuat!");
+    }
+
+    /**
+     * Mengubah konfigurasi hak akses menu untuk akun pengurus (khusus Superadmin).
+     */
+    public function updateMenuAkses(Request $request, User $user): RedirectResponse
+    {
+        if ($user->isSuperadmin()) {
+            return back()->withErrors(['akses' => 'Hak akses Superadmin selalu penuh dan tidak dapat dibatasi.']);
+        }
+
+        $validated = $request->validate([
+            'menu_akses' => 'nullable|array',
+            'menu_akses.*' => 'in:beranda,rekap,bayar,barang,kas,warga',
+        ]);
+
+        $menuAkses = $validated['menu_akses'] ?? [];
+        if ($user->isAdmin() && empty($menuAkses)) {
+            return back()->withErrors(['akses' => 'Pengurus minimal harus diberikan hak akses ke 1 menu.']);
+        }
+
+        $user->update([
+            'menu_akses' => $menuAkses,
+        ]);
+
+        return back()->with('sukses', "Hak akses menu untuk {$user->name} berhasil disimpan.");
     }
 
     /**

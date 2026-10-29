@@ -29,65 +29,80 @@ Route::get('/transparansi-kas', [KatalogController::class, 'bukuKas'])->name('pu
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'peran:admin,superadmin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    // Dashboard Utama
+    Route::middleware('menu.akses:beranda')->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index']);
+    });
 
-    // Manajemen Inventaris Barang
-    Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
-    Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
-    Route::put('/barang/{barang}', [BarangController::class, 'update'])->name('barang.update');
-    Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
+    // Manajemen Inventaris Barang & Approval Peminjaman
+    Route::middleware('menu.akses:barang')->group(function () {
+        Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
+        Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
+        Route::put('/barang/{barang}', [BarangController::class, 'update'])->name('barang.update');
+        Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
 
-    // Manajemen Approval Peminjaman
-    Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
-    Route::patch('/peminjaman/{peminjaman}/setujui', [PeminjamanController::class, 'setujui'])->name('peminjaman.setujui');
-    Route::patch('/peminjaman/{peminjaman}/tolak', [PeminjamanController::class, 'tolak'])->name('peminjaman.tolak');
-    Route::patch('/peminjaman/{peminjaman}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
+        Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
+        Route::patch('/peminjaman/{peminjaman}/setujui', [PeminjamanController::class, 'setujui'])->name('peminjaman.setujui');
+        Route::patch('/peminjaman/{peminjaman}/tolak', [PeminjamanController::class, 'tolak'])->name('peminjaman.tolak');
+        Route::patch('/peminjaman/{peminjaman}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
+    });
 
     // Manajemen Buku Kas & Laporan Keuangan
-    Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
-    Route::post('/keuangan', [KeuanganController::class, 'store'])->name('keuangan.store');
-    Route::get('/keuangan/laporan', [KeuanganController::class, 'laporan'])->name('keuangan.laporan');
-    Route::delete('/keuangan/{keuangan}', [KeuanganController::class, 'destroy'])->name('keuangan.destroy');
+    Route::middleware('menu.akses:kas')->group(function () {
+        Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
+        Route::post('/keuangan', [KeuanganController::class, 'store'])->name('keuangan.store');
+        Route::get('/keuangan/laporan', [KeuanganController::class, 'laporan'])->name('keuangan.laporan');
+        Route::delete('/keuangan/{keuangan}', [KeuanganController::class, 'destroy'])->name('keuangan.destroy');
+    });
 
     // Master Data Warga Pelanggan Listrik
-    Route::get('/warga/search-json', [WargaController::class, 'searchJson'])->name('warga.search-json');
-    Route::resource('warga', WargaController::class)->except(['create', 'show', 'edit']);
+    Route::middleware('menu.akses:warga')->group(function () {
+        Route::get('/warga/search-json', [WargaController::class, 'searchJson'])->name('warga.search-json');
+        Route::resource('warga', WargaController::class)->except(['create', 'show', 'edit']);
+    });
 
     // Rekapitulasi Tagihan Listrik Warga per Periode & RT
-    Route::post('/rekap-listrik/batch-store', [RekapListrikController::class, 'batchStore'])->name('rekap-listrik.batch-store');
-    Route::post('/rekap-listrik/duplikasi-siklus', [RekapListrikController::class, 'duplikasiSiklus'])->name('rekap-listrik.duplikasi-siklus');
-    Route::post('/rekap-listrik/siklus/rename', [RekapListrikController::class, 'renameSiklus'])->name('rekap-listrik.siklus.rename');
-    Route::post('/rekap-listrik/siklus/hapus', [RekapListrikController::class, 'hapusSiklus'])->name('rekap-listrik.siklus.hapus');
-    Route::delete('/rekap-listrik/siklus/hapus', [RekapListrikController::class, 'hapusSiklus'])->name('rekap-listrik.siklus.hapus.delete');
-    Route::post('/rekap-listrik/gabungkan', [RekapListrikController::class, 'gabungkan'])->name('rekap-listrik.gabungkan');
-    Route::post('/rekap-listrik/pisahkan', [RekapListrikController::class, 'pisahkan'])->name('rekap-listrik.pisahkan');
-    Route::resource('rekap-listrik', RekapListrikController::class)
-        ->parameters(['rekap-listrik' => 'tagihanListrik'])
-        ->except(['show']);
+    Route::middleware('menu.akses:rekap')->group(function () {
+        Route::post('/rekap-listrik/batch-store', [RekapListrikController::class, 'batchStore'])->name('rekap-listrik.batch-store');
+        Route::post('/rekap-listrik/duplikasi-siklus', [RekapListrikController::class, 'duplikasiSiklus'])->name('rekap-listrik.duplikasi-siklus');
+        Route::post('/rekap-listrik/siklus/rename', [RekapListrikController::class, 'renameSiklus'])->name('rekap-listrik.siklus.rename');
+        Route::post('/rekap-listrik/siklus/hapus', [RekapListrikController::class, 'hapusSiklus'])->name('rekap-listrik.siklus.hapus');
+        Route::delete('/rekap-listrik/siklus/hapus', [RekapListrikController::class, 'hapusSiklus'])->name('rekap-listrik.siklus.hapus.delete');
+        Route::post('/rekap-listrik/gabungkan', [RekapListrikController::class, 'gabungkan'])->name('rekap-listrik.gabungkan');
+        Route::post('/rekap-listrik/pisahkan', [RekapListrikController::class, 'pisahkan'])->name('rekap-listrik.pisahkan');
+        Route::resource('rekap-listrik', RekapListrikController::class)
+            ->parameters(['rekap-listrik' => 'tagihanListrik'])
+            ->except(['show']);
+    });
 
     // Kasir Pembayaran Listrik Warga
-    Route::get('/pembayaran-listrik', [PembayaranListrikController::class, 'index'])->name('pembayaran-listrik.index');
-    Route::post('/pembayaran-listrik/bayar', [PembayaranListrikController::class, 'bayar'])->name('pembayaran-listrik.bayar');
-    Route::post('/pembayaran-listrik/gabungkan', [PembayaranListrikController::class, 'gabungkan'])->name('pembayaran-listrik.gabungkan');
-    Route::post('/pembayaran-listrik/pisahkan', [PembayaranListrikController::class, 'pisahkan'])->name('pembayaran-listrik.pisahkan');
-    Route::patch('/pembayaran-listrik/{tagihanListrik}/batal', [PembayaranListrikController::class, 'batalBayar'])->name('pembayaran-listrik.batal');
-    Route::post('/pembayaran-listrik/bukukan-kas', [PembayaranListrikController::class, 'bukukanKas'])->name('pembayaran-listrik.bukukan-kas');
+    Route::middleware('menu.akses:bayar')->group(function () {
+        Route::get('/pembayaran-listrik', [PembayaranListrikController::class, 'index'])->name('pembayaran-listrik.index');
+        Route::post('/pembayaran-listrik/bayar', [PembayaranListrikController::class, 'bayar'])->name('pembayaran-listrik.bayar');
+        Route::post('/pembayaran-listrik/gabungkan', [PembayaranListrikController::class, 'gabungkan'])->name('pembayaran-listrik.gabungkan');
+        Route::post('/pembayaran-listrik/pisahkan', [PembayaranListrikController::class, 'pisahkan'])->name('pembayaran-listrik.pisahkan');
+        Route::patch('/pembayaran-listrik/{tagihanListrik}/batal', [PembayaranListrikController::class, 'batalBayar'])->name('pembayaran-listrik.batal');
+        Route::post('/pembayaran-listrik/bukukan-kas', [PembayaranListrikController::class, 'bukukanKas'])->name('pembayaran-listrik.bukukan-kas');
+    });
 
     // Kompatibilitas Menu Tagihan Listrik sebelumnya (redirect ke rekap-listrik)
-    Route::get('/tagihan-listrik', function () {
-        return redirect()->route('admin.rekap-listrik.index');
-    })->name('tagihan-listrik.index');
-    Route::post('/tagihan-listrik/proses-bayar', [PembayaranListrikController::class, 'bayar'])->name('tagihan-listrik.proses-bayar');
-    Route::resource('tagihan-listrik', RekapListrikController::class)
-        ->parameters(['tagihan-listrik' => 'tagihanListrik'])
-        ->except(['show', 'index']);
+    Route::middleware('menu.akses:rekap')->group(function () {
+        Route::get('/tagihan-listrik', function () {
+            return redirect()->route('admin.rekap-listrik.index');
+        })->name('tagihan-listrik.index');
+        Route::post('/tagihan-listrik/proses-bayar', [PembayaranListrikController::class, 'bayar'])->name('tagihan-listrik.proses-bayar');
+        Route::resource('tagihan-listrik', RekapListrikController::class)
+            ->parameters(['tagihan-listrik' => 'tagihanListrik'])
+            ->except(['show', 'index']);
+    });
 
-    // Khusus Superadmin: Manajemen Akun Admin
+    // Khusus Superadmin: Manajemen Akun Admin & Hak Akses
     Route::middleware('peran:superadmin')->group(function () {
         Route::get('/pengguna', [PenggunaController::class, 'index'])->name('pengguna.index');
         Route::post('/pengguna', [PenggunaController::class, 'store'])->name('pengguna.store');
         Route::patch('/pengguna/{user}/status', [PenggunaController::class, 'toggleStatus'])->name('pengguna.status');
+        Route::patch('/pengguna/{user}/menu-akses', [PenggunaController::class, 'updateMenuAkses'])->name('pengguna.menu-akses');
         Route::delete('/pengguna/{user}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
     });
 });
