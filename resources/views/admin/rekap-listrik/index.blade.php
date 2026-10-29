@@ -31,7 +31,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                     </svg>
-                    + Catat Tagihan Struk
+                    Catat Tagihan Struk
                 </button>
             </div>
         </div>
@@ -915,11 +915,6 @@
 </script>
 
 @push('scripts')
-<!-- Library CDN untuk OCR Gambar, Pembaca Excel, dan PDF -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.mini.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
 <script>
 function rekapListrik() {
     let masterWarga = [];
@@ -947,6 +942,7 @@ function rekapListrik() {
         namaPembayarGabungan: '',
         kodeGabunganInput: '',
         allRekap: allRekap,
+        hasilScan: [],
         stepScan: 'upload', // 'upload', 'processing', 'crosscheck'
         statusScanText: 'Membaca Dokumen...',
         progressScan: 0,
@@ -1536,5 +1532,9 @@ function rekapListrik() {
     };
 }
 </script>
+<!-- Library CDN untuk OCR Gambar, Pembaca Excel, dan PDF (Deferred agar tidak memblokir inisialisasi Alpine) -->
+<script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.mini.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 @endpush
 @endsection

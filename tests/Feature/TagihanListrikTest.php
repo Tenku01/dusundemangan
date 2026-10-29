@@ -302,6 +302,40 @@ class TagihanListrikTest extends TestCase
         $this->assertTrue($fresh->isPas());
     }
 
+    public function test_kasir_input_kembalian_lebih_besar_dari_seharusnya_maka_menjadi_kurang_bayar(): void
+    {
+        // Contoh use-case user: Tagihan 43.000, bayar 50.000 (semestinya kembalian 7.000).
+        // Tapi kasir punyanya uang 10.000 dan mengembalikan 10.000 ke warga.
+        // Maka warga tercatat kurang bayar/ninggal Rp 3.000 (selisih_bayar = -3000) untuk tagihan bulan depan.
+        $tagihan = TagihanListrik::create([
+            'periode' => 'September 2026',
+            'rt' => 1,
+            'nama_warga' => 'Eko Uji',
+            'nama_pelanggan' => 'EKO PLN UJI',
+            'nomor_struk' => 'STR-KEMBALIAN-10K',
+            'tagihan_awal' => 40000,
+            'kas_karang_taruna' => 3000,
+            'total_tagihan' => 43000,
+            'selisih_bayar' => 0,
+            'is_lunas' => false,
+        ]);
+        $this->createdTagihanIds[] = $tagihan->id;
+
+        $response = $this->actingAs($this->admin)
+            ->post(route('admin.pembayaran-listrik.bayar'), [
+                'tagihan_ids' => [$tagihan->id],
+                'uang_dibayar' => '50.000',
+                'uang_kembalian' => '10.000',
+            ]);
+
+        $response->assertSessionHas('sukses');
+
+        $fresh = $tagihan->fresh();
+        $this->assertTrue($fresh->is_lunas);
+        $this->assertEquals(-3000, $fresh->selisih_bayar);
+        $this->assertTrue($fresh->isKurang());
+    }
+
     public function test_proses_kasir_bayar_gabungan_beberapa_warga_dalam_satu_struk(): void
     {
         $tagihan1 = TagihanListrik::create([

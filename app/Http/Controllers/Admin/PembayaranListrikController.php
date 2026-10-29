@@ -217,17 +217,18 @@ class PembayaranListrikController extends Controller
         $kembalianSemestinya = 0;
         $kembalianDiserahkan = 0;
 
-        // Logika Penentuan Kembalian & Saldo Titipan:
+        // Logika Penentuan Kembalian & Saldo Titipan / Kurang:
         // Misal tagihan 43.000, uang bayar 50.000 -> kembalian semestinya 7.000.
-        // Jika kasir input kembalian diserahkan 5.000, maka sisa 2.000 otomatis menjadi saldo titipan bulan depan.
-        // Jika kasir input kembalian 0 (tidak ada pecahan), seluruh 7.000 menjadi titipan.
-        // Jika kasir menyerahkan penuh 7.000, maka sisa titipan adalah 0 (tanpa titipan).
+        // 1. Jika kasir input kembalian diserahkan 5.000, maka sisa 2.000 otomatis menjadi saldo titipan bulan depan.
+        // 2. Jika kasir input kembalian 0 (tidak ada pecahan), seluruh 7.000 menjadi titipan.
+        // 3. Jika kasir menyerahkan penuh 7.000, maka sisa titipan adalah 0 (tanpa titipan).
+        // 4. Jika kasir malah punya uang kembalian 10.000 (lebih dari 7.000), maka selisih -3.000 otomatis dicatat sebagai KURANG BAYAR / NINGGAL (tunggakan bulan depan).
         if ($uangDibayar > $totalWajib) {
             $kembalianSemestinya = $uangDibayar - $totalWajib;
 
             if ($request->filled('uang_kembalian') || ($request->has('uang_kembalian') && $request->input('uang_kembalian') === 0)) {
-                $kembalianDiserahkan = max(0, min((int) $request->input('uang_kembalian'), $kembalianSemestinya));
-                $selisihTotal = $kembalianSemestinya - $kembalianDiserahkan;
+                $kembalianDiserahkan = max(0, (int) $request->input('uang_kembalian'));
+                $selisihTotal = ($uangDibayar - $kembalianDiserahkan) - $totalWajib;
             } else {
                 // Fallback kompatibilitas: jika form lama menggunakan checkbox jadikan_titipan
                 $jadikanTitipan = $request->boolean('jadikan_titipan');
@@ -266,7 +267,10 @@ class PembayaranListrikController extends Controller
                 $pesan .= " (Dibayar oleh: {$namaPembayar})";
             }
             if ($uangDibayar > $totalWajib) {
-                if ($selisihTotal > 0 && $kembalianDiserahkan > 0) {
+                if ($selisihTotal < 0) {
+                    $kurang = abs($selisihTotal);
+                    $pesan .= ' Kembalian diserahkan Rp '.number_format($kembalianDiserahkan, 0, ',', '.').' (lebih Rp '.number_format($kembalianDiserahkan - $kembalianSemestinya, 0, ',', '.').' dari semestinya). Warga dicatat kurang bayar Rp '.number_format($kurang, 0, ',', '.').' sebagai tunggakan bulan depan.';
+                } elseif ($selisihTotal > 0 && $kembalianDiserahkan > 0) {
                     $pesan .= ' Kembalian Rp '.number_format($kembalianDiserahkan, 0, ',', '.').' diserahkan. Sisa kembalian Rp '.number_format($selisihTotal, 0, ',', '.').' disimpan sebagai titipan bulan depan.';
                 } elseif ($selisihTotal > 0 && $kembalianDiserahkan === 0) {
                     $pesan .= ' Sisa Rp '.number_format($selisihTotal, 0, ',', '.').' disimpan sebagai titipan bulan depan (karena tidak ada uang kembalian).';
@@ -297,7 +301,10 @@ class PembayaranListrikController extends Controller
             $pesan .= " (Dibayar oleh: {$namaPembayar})";
         }
         if ($uangDibayar > $totalWajib) {
-            if ($selisihTotal > 0 && $kembalianDiserahkan > 0) {
+            if ($selisihTotal < 0) {
+                $kurang = abs($selisihTotal);
+                $pesan .= ' Kembalian diserahkan Rp '.number_format($kembalianDiserahkan, 0, ',', '.').' (lebih Rp '.number_format($kembalianDiserahkan - $kembalianSemestinya, 0, ',', '.').'). Warga dicatat kurang bayar Rp '.number_format($kurang, 0, ',', '.').' sebagai tunggakan bulan depan.';
+            } elseif ($selisihTotal > 0 && $kembalianDiserahkan > 0) {
                 $pesan .= ' Kembalian Rp '.number_format($kembalianDiserahkan, 0, ',', '.').' diserahkan. Sisa kembalian Rp '.number_format($selisihTotal, 0, ',', '.').' disimpan sebagai titipan bulan depan.';
             } elseif ($selisihTotal > 0 && $kembalianDiserahkan === 0) {
                 $pesan .= ' Sisa Rp '.number_format($selisihTotal, 0, ',', '.').' disimpan sebagai titipan bulan depan (karena tidak ada uang kembalian).';

@@ -862,6 +862,13 @@
                                     class="py-1.5 px-2 bg-amber-50 hover:bg-amber-100 text-[#CEA042] rounded-lg font-bold text-[11px] min-h-[38px] border border-amber-200/70 transition whitespace-nowrap">
                                 Gada Kembalian (Rp 0)
                             </button>
+                            <template x-if="kembalianSemestinya >= 1000 && kembalianSemestinya < 10000">
+                                <button type="button" @click="setKembalianNominal(10000)"
+                                        class="py-1.5 px-2.5 bg-rose-50 hover:bg-rose-100 text-rose-800 rounded-lg font-bold text-[11px] min-h-[38px] border border-rose-200 transition"
+                                        title="Kembalikan selembar 10.000 (warga jadi kurang bayar)">
+                                    10.000
+                                </button>
+                            </template>
                             <template x-if="kembalianSemestinya >= 5000">
                                 <button type="button" @click="setKembalianNominal(5000)"
                                         class="py-1.5 px-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-semibold text-[11px] min-h-[38px] transition">
@@ -880,12 +887,18 @@
                                     10.000
                                 </button>
                             </template>
+                            <template x-if="kembalianSemestinya >= 20000">
+                                <button type="button" @click="setKembalianNominal(20000)"
+                                        class="py-1.5 px-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-semibold text-[11px] min-h-[38px] transition">
+                                    20.000
+                                </button>
+                            </template>
                         </div>
                     </div>
 
-                    <!-- Live Penentuan Sistem Terhadap Sisa Kembalian -->
-                    <!-- Sub-kondisi 1: Kembalian Pas Diserahkan Penuh (sisaKembalian === 0) -->
-                    <div x-show="sisaKembalian === 0" class="rounded-xl p-3 bg-emerald-50 border border-emerald-200 text-emerald-950">
+                    <!-- Live Penentuan Sistem Terhadap Sisa Kembalian & Saldo Titipan / Kurang -->
+                    <!-- Sub-kondisi 1: Kembalian Pas Diserahkan Penuh (selisihKembalian === 0) -->
+                    <div x-show="selisihKembalian === 0" class="rounded-xl p-3 bg-emerald-50 border border-emerald-200 text-emerald-950">
                         <div class="flex items-center justify-between font-bold">
                             <span class="text-xs uppercase tracking-wider text-emerald-800">Status Kembalian:</span>
                             <span class="text-sm font-black text-emerald-700">Pas Diserahkan Semua</span>
@@ -895,8 +908,8 @@
                         </p>
                     </div>
 
-                    <!-- Sub-kondisi 2: Kembalian Sebagian (uangKembalian > 0 && sisaKembalian > 0) -->
-                    <div x-show="uangKembalian > 0 && sisaKembalian > 0" class="rounded-xl p-3 bg-amber-50 border border-amber-300 text-amber-950 space-y-1.5">
+                    <!-- Sub-kondisi 2: Kembalian Sebagian (uangKembalian > 0 && selisihKembalian > 0) -->
+                    <div x-show="uangKembalian > 0 && selisihKembalian > 0" class="rounded-xl p-3 bg-amber-50 border border-amber-300 text-amber-950 space-y-1.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-semibold uppercase tracking-wider text-amber-900">Kembalian Diserahkan:</span>
                             <span class="text-sm font-bold text-gray-800" x-text="'Rp ' + formatRupiah(uangKembalian)"></span>
@@ -922,6 +935,21 @@
                         </div>
                         <p class="text-[11px] text-amber-900 leading-relaxed pt-1">
                             Tidak ada uang kembalian diserahkan. Seluruh <strong class="text-amber-950" x-text="'Rp ' + formatRupiah(sisaKembalian)"></strong> otomatis disimpan sebagai <strong>saldo titipan warga</strong> bulan depan.
+                        </p>
+                    </div>
+
+                    <!-- Sub-kondisi 4: Petugas Kembalikan Lebih Banyak / Warga Jadi Kurang Bayar (selisihKembalian < 0) -->
+                    <div x-show="selisihKembalian < 0" class="rounded-xl p-3 bg-rose-50 border border-rose-300 text-rose-950 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-rose-900">Kembalian Diserahkan:</span>
+                            <span class="text-sm font-black text-rose-800" x-text="'Rp ' + formatRupiah(uangKembalian)"></span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-rose-200">
+                            <span class="text-xs font-bold uppercase tracking-wider text-rose-900">Kelebihan Kembalian (Warga Kurang Bayar):</span>
+                            <span class="text-base font-black text-rose-700" x-text="'-Rp ' + formatRupiah(kelebihanKembalian)"></span>
+                        </div>
+                        <p class="text-[11px] text-rose-800 leading-relaxed pt-1">
+                            Petugas menyerahkan kembalian <strong x-text="'Rp ' + formatRupiah(uangKembalian)"></strong> (lebih <strong x-text="'Rp ' + formatRupiah(kelebihanKembalian)"></strong> dari semestinya <span x-text="'Rp ' + formatRupiah(kembalianSemestinya)"></span>). Maka kekurangan <strong x-text="'Rp ' + formatRupiah(kelebihanKembalian)"></strong> otomatis dicatat sebagai <strong>tunggakan warga</strong> di tagihan bulan depan.
                         </p>
                     </div>
                 </div>
@@ -1110,9 +1138,7 @@ function kasirListrik() {
 
         set uangKembalian(val) {
             let num = parseInt(val) || 0;
-            let max = Math.max(0, this.kembalianSemestinya);
-            let clamped = Math.min(num, max);
-            this.uangKembalianInput = clamped > 0 ? this.formatRupiah(clamped) : '0';
+            this.uangKembalianInput = num > 0 ? this.formatRupiah(num) : '0';
         },
 
         get selisihUang() {
@@ -1123,8 +1149,16 @@ function kasirListrik() {
             return Math.max(0, this.selisihUang);
         },
 
+        get selisihKembalian() {
+            return this.kembalianSemestinya - this.uangKembalian;
+        },
+
         get sisaKembalian() {
-            return Math.max(0, this.kembalianSemestinya - this.uangKembalian);
+            return Math.max(0, this.selisihKembalian);
+        },
+
+        get kelebihanKembalian() {
+            return Math.max(0, -this.selisihKembalian);
         },
 
         get kurang() {
@@ -1158,10 +1192,6 @@ function kasirListrik() {
                 return;
             }
             let val = parseInt(clean);
-            let max = this.kembalianSemestinya;
-            if (val > max) {
-                val = max;
-            }
             this.uangKembalianInput = this.formatRupiah(val);
         },
 
