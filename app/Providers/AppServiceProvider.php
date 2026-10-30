@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -36,8 +37,13 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        if (isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL']) || getenv('VERCEL') !== false) {
+        $isVercel = isset($_SERVER['VERCEL'])
+            || isset($_ENV['VERCEL'])
+            || getenv('VERCEL') !== false;
+
+        if ($isVercel || app()->isProduction()) {
             config(['view.compiled' => '/tmp/views']);
+            Vite::useHotFile('/tmp/storage/framework/nonexistent-hot-file');
         }
     }
 }

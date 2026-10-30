@@ -5,3 +5,6 @@
 tests
 bootstrap/cache/*.php
 .env*
+public/hot
+hot
+

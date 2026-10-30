@@ -3,7 +3,7 @@
   "regions": ["sin1"],
   "framework": null,
   "outputDirectory": "public",
-  "buildCommand": "npm run build",
+  "buildCommand": "rm -f public/hot && npm run build",
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.9.0"
