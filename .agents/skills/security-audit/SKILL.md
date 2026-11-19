@@ -87,3 +87,4 @@ When conducting a security audit:
      - SQL wildcard/metacharacters are safely treated as literal search strings.
 3. **Execution**:
    - Run `vendor/bin/phpunit` and ensure 100% of security tests pass.
+

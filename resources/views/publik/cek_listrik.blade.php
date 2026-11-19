@@ -127,7 +127,7 @@
                 <ul class="list-disc list-inside space-y-0.5 text-gray-600">
                     <li>Periksa kembali penulisan nama di struk PLN Anda (coba gunakan nama panggilan atau sebagian kata nama).</li>
                     <li>Pastikan memilih pilihan <strong>"Semua Periode"</strong> jika mencari riwayat bulan-bulan lalu.</li>
-                    <li>Jika nama meter baru saja dipasang atau dialihkan, silakan tanyakan kepada pengurus RT / kasir Karang Taruna.</li>
+                    <li>Jika nama meter baru saja dipasang atau dialihkan, silakan tanyakan kepada pengurus RT atau petugas di Balai RW.</li>
                 </ul>
             </div>
         </div>
@@ -146,13 +146,13 @@
                             Ditemukan {{ $hasilTagihan->count() }} data tagihan untuk <span class="text-[#CEA042]">"{{ $keyword }}"</span>
                         </div>
                         <div class="text-[11px] text-gray-500">
-                            Data diurutkan dari periode tagihan paling mutakhir.
+                            Data diurutkan dari periode tagihan yang paling terbaru.
                         </div>
                     </div>
                 </div>
 
                 <div class="text-xs text-gray-500">
-                    Pembayaran dilayani di Posko Kasir Karang Taruna
+                    Pembayaran dilayani di Balai RW
                 </div>
             </div>
 
@@ -250,7 +250,7 @@
                                 </span>
                             @else
                                 <span class="text-amber-800 font-medium">
-                                    Mohon selesaikan di kasir Karang Taruna
+                                    Mohon selesaikan pembayaran di Balai RW
                                 </span>
                             @endif
 
@@ -268,3 +268,4 @@
 
 </div>
 @endsection
+
