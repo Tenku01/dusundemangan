@@ -18,7 +18,23 @@
       "dest": "/build/$1"
     },
     {
-      "src": "/(favicon.*\\.(ico|png)|logo-kartar.*\\.(png|jpeg|jpg)|robots\\.txt|promo-video\\.html)",
+      "src": "/sw\\.js",
+      "headers": {
+        "cache-control": "no-cache, no-store, must-revalidate",
+        "content-type": "application/javascript; charset=utf-8"
+      },
+      "dest": "/sw.js"
+    },
+    {
+      "src": "/(manifest\\.webmanifest|manifest\\.json)",
+      "headers": {
+        "cache-control": "public, max-age=86400",
+        "content-type": "application/manifest+json; charset=utf-8"
+      },
+      "dest": "/$1"
+    },
+    {
+      "src": "/(favicon.*\\.(ico|png)|logo-kartar.*\\.(png|jpeg|jpg)|icon-.*\\.png|robots\\.txt|promo-video\\.html)",
       "headers": {
         "cache-control": "public, max-age=86400, stale-while-revalidate=604800"
       },

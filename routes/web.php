@@ -66,6 +66,8 @@ Route::middleware(['auth', 'peran:admin,superadmin'])->prefix('admin')->name('ad
 
     // Rekapitulasi Tagihan Listrik Warga per Periode & RT
     Route::middleware('menu.akses:rekap')->group(function () {
+        Route::get('/rekap-listrik/cetak', [RekapListrikController::class, 'cetak'])->name('rekap-listrik.cetak');
+        Route::get('/rekap-listrik/export-csv', [RekapListrikController::class, 'exportCsv'])->name('rekap-listrik.export-csv');
         Route::post('/rekap-listrik/batch-store', [RekapListrikController::class, 'batchStore'])->name('rekap-listrik.batch-store');
         Route::post('/rekap-listrik/duplikasi-siklus', [RekapListrikController::class, 'duplikasiSiklus'])->name('rekap-listrik.duplikasi-siklus');
         Route::post('/rekap-listrik/siklus/rename', [RekapListrikController::class, 'renameSiklus'])->name('rekap-listrik.siklus.rename');

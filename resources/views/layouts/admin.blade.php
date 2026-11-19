@@ -12,7 +12,15 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
     <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon-64.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('logo-kartar-dmg-circle.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icon-apple-touch.png') }}">
+
+    <!-- PWA Web App Manifest & Meta Tags -->
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <meta name="theme-color" content="#CEA042">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Dusun Demangan">
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
@@ -288,6 +296,15 @@
 
         <!-- Drawer Footer Actions -->
         <div class="p-3 border-t border-gray-100 bg-gray-50/70 space-y-2">
+            <!-- Tombol Instal Aplikasi PWA -->
+            <button type="button"
+                    id="btn-install-pwa-drawer"
+                    onclick="triggerPwaInstall()"
+                    class="w-full hidden items-center justify-center gap-2 px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl transition min-h-[44px]">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Instal Aplikasi di HP</span>
+            </button>
+
             <a href="{{ route('beranda') }}" target="_blank"
                class="w-full flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold text-[#CEA042] bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition min-h-[44px]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -613,6 +630,43 @@
                     el.setSelectionRange(newCursor, newCursor);
                 }
             }
+        });
+        // PWA Service Worker Registration & Install Prompt
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+
+        let deferredPwaPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPwaPrompt = e;
+            const btnDrawer = document.getElementById('btn-install-pwa-drawer');
+            if (btnDrawer) {
+                btnDrawer.classList.remove('hidden');
+                btnDrawer.classList.add('flex');
+            }
+        });
+
+        window.triggerPwaInstall = async () => {
+            if (deferredPwaPrompt) {
+                deferredPwaPrompt.prompt();
+                const choice = await deferredPwaPrompt.userChoice;
+                if (choice.outcome === 'accepted') {
+                    const btnDrawer = document.getElementById('btn-install-pwa-drawer');
+                    if (btnDrawer) btnDrawer.classList.add('hidden');
+                }
+                deferredPwaPrompt = null;
+            } else {
+                alert('Untuk memasang di iPhone/iPad:\n1. Buka Safari\n2. Tekan tombol Bagikan (Share) di bagian bawah\n3. Pilih "Tambah ke Layar Utama" (Add to Home Screen).');
+            }
+        };
+
+        window.addEventListener('appinstalled', () => {
+            const btnDrawer = document.getElementById('btn-install-pwa-drawer');
+            if (btnDrawer) btnDrawer.classList.add('hidden');
+            deferredPwaPrompt = null;
         });
     </script>
 

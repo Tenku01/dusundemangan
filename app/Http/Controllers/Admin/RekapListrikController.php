@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RekapListrikController extends Controller
 {
@@ -178,6 +179,141 @@ class RekapListrikController extends Controller
             'saranTahun',
             'daftarBulan'
         ));
+    }
+
+    /**
+     * Menampilkan lembar cetak siap print (A4) untuk pertemuan RT/RW atau arsip LPJ.
+     */
+    public function cetak(Request $request): View
+    {
+        $daftarPeriode = collect(TagihanListrik::getDaftarPeriodeKronologis());
+        $periodeAktif = $request->query('periode', $daftarPeriode->first());
+        $rtParam = $request->query('rt', 'semua');
+        $statusParam = $request->query('status', 'semua');
+
+        $query = TagihanListrik::where('periode', $periodeAktif);
+
+        if ($rtParam !== 'semua' && in_array((int) $rtParam, [1, 2, 3], true)) {
+            $query->where('rt', (int) $rtParam);
+        }
+
+        if ($statusParam === 'lunas') {
+            $query->where('is_lunas', true);
+        } elseif ($statusParam === 'belum_lunas') {
+            $query->where('is_lunas', false);
+        }
+
+        $daftarRekap = $query->orderBy('rt', 'asc')
+            ->orderByRaw('CAST(nomor_struk AS UNSIGNED) ASC')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // Rekapitulasi ringkasan
+        $totalStruk = $daftarRekap->count();
+        $totalLunas = $daftarRekap->where('is_lunas', true)->count();
+        $totalBelumLunas = $totalStruk - $totalLunas;
+        $totalTagihanAwal = (int) $daftarRekap->sum('tagihan_awal');
+        $totalKasKartar = (int) $daftarRekap->where('tagihan_awal', '>', 0)->count() * 3000;
+        $grandTotalWajib = (int) $daftarRekap->sum('total_tagihan');
+        $totalTerbayar = (int) $daftarRekap->where('is_lunas', true)->sum('total_tagihan');
+
+        return view('admin.rekap-listrik.cetak', compact(
+            'daftarPeriode',
+            'periodeAktif',
+            'rtParam',
+            'statusParam',
+            'daftarRekap',
+            'totalStruk',
+            'totalLunas',
+            'totalBelumLunas',
+            'totalTagihanAwal',
+            'totalKasKartar',
+            'grandTotalWajib',
+            'totalTerbayar'
+        ));
+    }
+
+    /**
+     * Mengunduh data rekap tagihan listrik ke file CSV / Excel kompatibel UTF-8 BOM.
+     */
+    public function exportCsv(Request $request): StreamedResponse
+    {
+        $daftarPeriode = collect(TagihanListrik::getDaftarPeriodeKronologis());
+        $periodeAktif = $request->query('periode', $daftarPeriode->first());
+        $rtParam = $request->query('rt', 'semua');
+        $statusParam = $request->query('status', 'semua');
+
+        $query = TagihanListrik::where('periode', $periodeAktif);
+
+        if ($rtParam !== 'semua' && in_array((int) $rtParam, [1, 2, 3], true)) {
+            $query->where('rt', (int) $rtParam);
+        }
+
+        if ($statusParam === 'lunas') {
+            $query->where('is_lunas', true);
+        } elseif ($statusParam === 'belum_lunas') {
+            $query->where('is_lunas', false);
+        }
+
+        $daftarRekap = $query->orderBy('rt', 'asc')
+            ->orderByRaw('CAST(nomor_struk AS UNSIGNED) ASC')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $filename = 'rekap-listrik-'.Str::slug($periodeAktif).($rtParam !== 'semua' ? '-rt'.$rtParam : '-semua-rt').'.csv';
+
+        return response()->streamDownload(function () use ($daftarRekap, $periodeAktif) {
+            $handle = fopen('php://output', 'w');
+            // Tulis UTF-8 BOM agar Excel membuka huruf dan angka dengan benar
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // Baris Judul
+            fputcsv($handle, ['REKAPITULASI PEMBAYARAN LISTRIK WARGA DUSUN DEMANGAN']);
+            fputcsv($handle, ['Periode:', $periodeAktif]);
+            fputcsv($handle, ['Dicetak pada:', now()->format('d/m/Y H:i:s')]);
+            fputcsv($handle, []);
+
+            // Header Kolom
+            fputcsv($handle, [
+                'No',
+                'No. Struk',
+                'Nama di Struk PLN',
+                'Nama Warga',
+                'RT',
+                'Tagihan Awal PLN (Rp)',
+                'Kas Karang Taruna (Rp)',
+                'Saldo Periode Lalu (Rp)',
+                'Total Wajib Bayar (Rp)',
+                'Status Bayar',
+                'Tanggal Bayar',
+                'Nama Pembayar',
+                'Kode Gabungan',
+            ]);
+
+            $no = 1;
+            foreach ($daftarRekap as $item) {
+                fputcsv($handle, [
+                    $no++,
+                    $item->nomor_struk ?: '-',
+                    $item->nama_pelanggan ?: '-',
+                    $item->nama_warga ?: '-',
+                    'RT '.str_pad((string) $item->rt, 2, '0', STR_PAD_LEFT),
+                    $item->tagihan_awal,
+                    $item->kas_karang_taruna ?: 3000,
+                    $item->saldo_periode_lalu,
+                    $item->total_tagihan,
+                    $item->is_lunas ? 'LUNAS' : 'BELUM LUNAS',
+                    $item->tanggal_bayar ? $item->tanggal_bayar->format('d/m/Y') : '-',
+                    $item->nama_pembayar ?: '-',
+                    $item->kode_gabungan ?: '-',
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'no-store, no-cache',
+        ]);
     }
 
     /**

@@ -12,7 +12,15 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
     <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon-64.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('logo-kartar-dmg-circle.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icon-apple-touch.png') }}">
+
+    <!-- PWA Web App Manifest & Meta Tags -->
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <meta name="theme-color" content="#CEA042">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Dusun Demangan">
 
     <!-- Font Figtree -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -70,8 +78,17 @@
                     </a>
                 </nav>
 
-                <!-- Auth Action -->
+                <!-- Auth Action & PWA -->
                 <div class="flex items-center gap-2">
+                    <!-- PWA Install Button (Dynamic) -->
+                    <button type="button"
+                            id="btn-install-pwa-publik"
+                            onclick="triggerPwaInstallPublik()"
+                            class="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-lg shadow-2xs transition min-h-[44px]">
+                        <svg class="w-4 h-4 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <span>Pasang App</span>
+                    </button>
+
                     @auth
                         <a href="{{ route('admin.dashboard') }}"
                            class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-lg shadow-xs transition min-h-[44px]">
@@ -175,6 +192,45 @@
             <span class="text-[9px] leading-tight">{{ auth()->check() ? 'Admin' : 'Masuk' }}</span>
         </a>
     </nav>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+
+        let deferredPwaPromptPublik = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPwaPromptPublik = e;
+            const btn = document.getElementById('btn-install-pwa-publik');
+            if (btn) {
+                btn.classList.remove('hidden');
+                btn.classList.add('inline-flex');
+            }
+        });
+
+        window.triggerPwaInstallPublik = async () => {
+            if (deferredPwaPromptPublik) {
+                deferredPwaPromptPublik.prompt();
+                const choice = await deferredPwaPromptPublik.userChoice;
+                if (choice.outcome === 'accepted') {
+                    const btn = document.getElementById('btn-install-pwa-publik');
+                    if (btn) btn.classList.add('hidden');
+                }
+                deferredPwaPromptPublik = null;
+            } else {
+                alert('Untuk memasang di iPhone/iPad:\n1. Buka Safari\n2. Tekan tombol Bagikan (Share) di bawah layar\n3. Pilih "Tambah ke Layar Utama" (Add to Home Screen).');
+            }
+        };
+
+        window.addEventListener('appinstalled', () => {
+            const btn = document.getElementById('btn-install-pwa-publik');
+            if (btn) btn.classList.add('hidden');
+            deferredPwaPromptPublik = null;
+        });
+    </script>
 
     @stack('scripts')
 </body>

@@ -934,4 +934,54 @@ class TagihanListrikTest extends TestCase
         $this->assertEquals(0, $tagihanBaru->saldo_periode_lalu);
         $this->assertEquals(0, $tagihanBaru->tagihan_awal);
     }
+
+    public function test_admin_dapat_mengakses_halaman_cetak_rekap_listrik_a4(): void
+    {
+        $admin = User::where('peran', 'superadmin')->first();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.rekap-listrik.cetak', [
+                'periode' => 'November 2026',
+                'rt' => 'semua',
+            ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Lembar Rekap Siap Cetak (A4)');
+        $response->assertSee('Rekapitulasi Pembayaran Listrik Warga');
+        $response->assertSee('Total Struk');
+    }
+
+    public function test_admin_dapat_mengunduh_file_csv_rekap_listrik(): void
+    {
+        $admin = User::where('peran', 'superadmin')->first();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.rekap-listrik.export-csv', [
+                'periode' => 'November 2026',
+                'rt' => 'semua',
+            ]));
+
+        $response->assertStatus(200);
+        $this->assertStringContainsString('text/csv', (string) $response->headers->get('content-type'));
+        $content = $response->streamedContent();
+        $this->assertStringContainsString('REKAPITULASI PEMBAYARAN LISTRIK WARGA DUSUN DEMANGAN', $content);
+        $this->assertStringContainsString('No. Struk', $content);
+    }
+
+    public function test_pwa_manifest_dan_service_worker_tersedia_secara_valid(): void
+    {
+        $this->assertFileExists(public_path('manifest.webmanifest'));
+        $this->assertFileExists(public_path('manifest.json'));
+        $this->assertFileExists(public_path('sw.js'));
+        $this->assertFileExists(public_path('icon-192.png'));
+        $this->assertFileExists(public_path('icon-512.png'));
+
+        $manifestContent = file_get_contents(public_path('manifest.webmanifest'));
+        $manifestJson = json_decode($manifestContent, true);
+
+        $this->assertIsArray($manifestJson);
+        $this->assertEquals('Dusun Demangan', $manifestJson['short_name']);
+        $this->assertEquals('#CEA042', $manifestJson['theme_color']);
+        $this->assertEquals('standalone', $manifestJson['display']);
+    }
 }
