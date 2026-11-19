@@ -22,6 +22,7 @@ Route::post('/peminjaman/ajukan', [KatalogController::class, 'ajukanPinjam'])->n
 Route::get('/peminjaman/sukses/{kode}', [KatalogController::class, 'suksesPinjam'])->name('peminjaman.sukses');
 Route::get('/cek-status', [KatalogController::class, 'cekStatus'])->name('peminjaman.cek-status');
 Route::get('/transparansi-kas', [KatalogController::class, 'bukuKas'])->name('publik.buku-kas');
+Route::get('/cek-listrik', [KatalogController::class, 'cekListrik'])->name('publik.cek-listrik');
 
 /*
 |--------------------------------------------------------------------------

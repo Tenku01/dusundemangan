@@ -52,6 +52,10 @@
 
                 <!-- Desktop Navigation Menu -->
                 <nav class="hidden md:flex items-center gap-1 sm:gap-2">
+                    <a href="{{ route('publik.cek-listrik') }}"
+                       class="px-3.5 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('publik.cek-listrik') ? 'text-[#CEA042] bg-amber-50 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100' }}">
+                        ⚡ Cek Tagihan Listrik
+                    </a>
                     <a href="{{ route('publik.buku-kas') }}"
                        class="px-3.5 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('publik.buku-kas') ? 'text-[#CEA042] bg-amber-50 font-semibold' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100' }}">
                         Transparansi Kas
@@ -135,33 +139,40 @@
     </footer>
 
     <!-- MOBILE STICKY BOTTOM NAVIGATION BAR (Khusus Pengguna HP) -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg px-2 py-1.5 flex justify-around items-center">
-        <!-- Tab 1: Transparansi Kas -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg px-1.5 py-1.5 flex justify-around items-center">
+        <!-- Tab 1: Cek Tagihan Listrik -->
+        <a href="{{ route('publik.cek-listrik') }}"
+           class="flex flex-col items-center justify-center w-14 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('publik.cek-listrik') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
+            <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <span class="text-[9px] leading-tight">Cek Listrik</span>
+        </a>
+
+        <!-- Tab 2: Transparansi Kas -->
         <a href="{{ route('publik.buku-kas') }}"
-           class="flex flex-col items-center justify-center w-16 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('publik.buku-kas') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
+           class="flex flex-col items-center justify-center w-14 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('publik.buku-kas') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
             <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="text-[10px] leading-tight">Buku Kas</span>
+            <span class="text-[9px] leading-tight">Buku Kas</span>
         </a>
 
-        <!-- Tab 2: Katalog -->
+        <!-- Tab 3: Katalog -->
         <a href="{{ route('beranda') }}"
-           class="flex flex-col items-center justify-center w-16 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('beranda') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
+           class="flex flex-col items-center justify-center w-14 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('beranda') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
             <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-            <span class="text-[10px] leading-tight">Katalog</span>
+            <span class="text-[9px] leading-tight">Katalog</span>
         </a>
 
-        <!-- Tab 3: Lacak Status Tiket -->
+        <!-- Tab 4: Lacak Status Tiket -->
         <a href="{{ route('peminjaman.cek-status') }}"
-           class="flex flex-col items-center justify-center w-16 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('peminjaman.cek-status') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
+           class="flex flex-col items-center justify-center w-14 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('peminjaman.cek-status') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
             <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-            <span class="text-[10px] leading-tight">Cek Resi</span>
+            <span class="text-[9px] leading-tight">Cek Resi</span>
         </a>
 
-        <!-- Tab 4: Pengurus / Bantuan -->
-        <a href="{{ route('login') }}"
-           class="flex flex-col items-center justify-center w-16 py-1 rounded-lg transition min-h-[44px] text-gray-500 hover:text-gray-800">
+        <!-- Tab 5: Pengurus / Bantuan -->
+        <a href="{{ auth()->check() ? route('admin.dashboard') : route('login') }}"
+           class="flex flex-col items-center justify-center w-14 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('admin.*') || request()->routeIs('login') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
             <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            <span class="text-[10px] leading-tight">Pengurus</span>
+            <span class="text-[9px] leading-tight">{{ auth()->check() ? 'Admin' : 'Masuk' }}</span>
         </a>
     </nav>
 

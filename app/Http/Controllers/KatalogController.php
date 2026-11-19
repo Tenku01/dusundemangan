@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Keuangan;
 use App\Models\Peminjaman;
+use App\Models\TagihanListrik;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -235,6 +236,54 @@ class KatalogController extends Controller
             'jenis',
             'bulan',
             'tahun'
+        ));
+    }
+
+    /**
+     * Halaman cek tagihan listrik warga.
+     * Sesuai ketentuan: Tidak langsung menampilkan seluruh data tagihan,
+     * wajib mencari berdasarkan nama di struk / nama warga.
+     */
+    public function cekListrik(Request $request): View
+    {
+        $rawKeyword = (string) $request->query('q', '');
+        $keyword = trim($rawKeyword);
+        $periodeTerpilih = (string) $request->query('periode', '');
+
+        $daftarPeriode = TagihanListrik::getDaftarPeriodeKronologis();
+
+        $hasilTagihan = collect();
+        $sudahCari = false;
+
+        // Validasi: hanya lakukan pencarian jika kata kunci minimal 2 karakter
+        if (mb_strlen($keyword) >= 2) {
+            $sudahCari = true;
+
+            $query = TagihanListrik::with('warga');
+
+            $query->where(function ($sub) use ($keyword) {
+                $sub->where('nama_pelanggan', 'like', "%{$keyword}%")
+                    ->orWhere('nama_warga', 'like', "%{$keyword}%")
+                    ->orWhere('nama_pembayar', 'like', "%{$keyword}%")
+                    ->orWhere('nomor_struk', 'like', "%{$keyword}%");
+            });
+
+            if ($periodeTerpilih !== '' && $periodeTerpilih !== 'semua') {
+                $query->where('periode', $periodeTerpilih);
+            }
+
+            // Urutkan dari periode paling baru
+            $hasilTagihan = $query->orderBy('created_at', 'desc')
+                ->take(30)
+                ->get();
+        }
+
+        return view('publik.cek_listrik', compact(
+            'hasilTagihan',
+            'keyword',
+            'sudahCari',
+            'daftarPeriode',
+            'periodeTerpilih'
         ));
     }
 }

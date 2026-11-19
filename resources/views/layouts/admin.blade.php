@@ -34,8 +34,19 @@
     <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Brand -->
-                <div class="flex items-center gap-2.5">
+                <!-- Hamburger Button (Mobile) & Brand -->
+                <div class="flex items-center gap-2 sm:gap-2.5">
+                    <button type="button"
+                            onclick="toggleMobileMenu()"
+                            aria-label="Buka menu navigasi pengurus"
+                            aria-expanded="false"
+                            id="btn-hamburger-mobile"
+                            class="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition min-h-[44px] min-w-[44px] flex items-center justify-center -ml-1 focus:outline-none focus:ring-2 focus:ring-[#CEA042]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 focus:outline-none">
                         <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
                              alt="Logo Karang Taruna Demangan"
@@ -79,6 +90,220 @@
             </div>
         </div>
     </header>
+
+    <!-- MOBILE DRAWER / SLIDE-OVER NAVIGATION (Akses Semua Menu untuk Superadmin & Admin di HP) -->
+    <div id="mobile-drawer-backdrop"
+         onclick="closeMobileMenu()"
+         class="fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-xs transition-opacity duration-300 opacity-0 pointer-events-none lg:hidden"
+         aria-hidden="true"></div>
+
+    <aside id="mobile-drawer-panel"
+           class="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden"
+           role="dialog"
+           aria-modal="true"
+           aria-label="Navigasi Menu Mobile">
+        <!-- Drawer Header -->
+        <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/70">
+            <div class="flex items-center gap-2.5">
+                <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
+                     alt="Logo Karang Taruna Demangan"
+                     width="36" height="36"
+                     class="w-9 h-9 rounded-full object-cover shadow-xs border border-amber-200 shrink-0 bg-white">
+                <div>
+                    <span class="font-bold text-gray-900 text-sm leading-tight block">Dusun Demangan</span>
+                    <span class="text-[10px] text-gray-500 font-semibold uppercase">Menu Lengkap Pengurus</span>
+                </div>
+            </div>
+            <button type="button"
+                    onclick="closeMobileMenu()"
+                    aria-label="Tutup menu navigasi"
+                    class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 rounded-xl transition min-h-[44px] min-w-[44px] flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <!-- User Profile Card in Drawer -->
+        <div class="p-4 border-b border-gray-100 bg-linear-to-br from-amber-50/40 via-white to-purple-50/30">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl {{ auth()->user()->isSuperadmin() ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-amber-100 text-amber-800 border border-amber-200' }} flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-bold text-gray-900 truncate">{{ auth()->user()->name }}</div>
+                    <div class="text-[11px] text-gray-500 truncate">{{ auth()->user()->email }}</div>
+                    <div class="mt-1 flex items-center gap-1.5">
+                        <span class="inline-block px-1.5 py-0.5 text-[9px] font-bold uppercase rounded {{ auth()->user()->isSuperadmin() ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-amber-100 text-amber-800 border border-amber-200' }}">
+                            {{ auth()->user()->isSuperadmin() ? '⚡ Superadmin' : 'Pengurus Admin' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drawer Menu Items (Scrollable) -->
+        <div class="flex-1 overflow-y-auto p-3 space-y-4">
+            <!-- Navigasi Dashboard -->
+            @if(auth()->user()->hasMenuAkses('beranda'))
+                <div>
+                    <a href="{{ route('admin.dashboard') }}"
+                       onclick="closeMobileMenu()"
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition min-h-[44px] {{ request()->routeIs('admin.dashboard') ? 'bg-amber-50 text-[#CEA042] border border-amber-200/80 shadow-xs' : 'text-gray-700 hover:bg-gray-100' }}">
+                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.dashboard') ? 'text-[#CEA042]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span>Dashboard Ringkasan</span>
+                    </a>
+                </div>
+            @endif
+
+            <!-- Navigasi Khusus Superadmin: CRUD USER / KONTROL PENGURUS -->
+            @if(auth()->user()->isSuperadmin())
+                <div class="space-y-1">
+                    <div class="px-3 text-[10px] font-extrabold uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
+                        <span>👑 Kontrol Superadmin</span>
+                    </div>
+                    <a href="{{ route('admin.pengguna.index') }}"
+                       onclick="closeMobileMenu()"
+                       class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition min-h-[44px] {{ request()->routeIs('admin.pengguna.*') ? 'bg-purple-100 text-purple-800 border border-purple-200 shadow-xs' : 'bg-purple-50/60 text-purple-900 border border-purple-100 hover:bg-purple-100/80' }}">
+                        <span class="flex items-center gap-3">
+                            <svg class="w-5 h-5 shrink-0 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                            <span>Kelola Akun Admin (CRUD)</span>
+                        </span>
+                        <span class="text-[10px] bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full font-extrabold">
+                            {{ \App\Models\User::count() }}
+                        </span>
+                    </a>
+                </div>
+            @endif
+
+            <!-- Navigasi Kelistrikan Warga -->
+            @if(auth()->user()->hasMenuAkses('rekap') || auth()->user()->hasMenuAkses('bayar') || auth()->user()->hasMenuAkses('warga'))
+                <div class="space-y-1">
+                    <div class="px-3 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+                        Kelistrikan Warga
+                    </div>
+
+                    @if(auth()->user()->hasMenuAkses('rekap'))
+                        <a href="{{ route('admin.rekap-listrik.index') }}"
+                           onclick="closeMobileMenu()"
+                           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition min-h-[44px] {{ request()->routeIs('admin.rekap-listrik.*') ? 'bg-amber-50 text-[#CEA042] font-bold border border-amber-200/80' : 'text-gray-700 hover:bg-gray-100' }}">
+                            <span class="flex items-center gap-3">
+                                <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.rekap-listrik.*') ? 'text-[#CEA042]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                                <span>Rekap Tagihan Listrik</span>
+                            </span>
+                        </a>
+                    @endif
+
+                    @if(auth()->user()->hasMenuAkses('bayar'))
+                        @php
+                            $drawerBelumLunas = \App\Models\TagihanListrik::where('is_lunas', false)->count();
+                        @endphp
+                        <a href="{{ route('admin.pembayaran-listrik.index') }}"
+                           onclick="closeMobileMenu()"
+                           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition min-h-[44px] {{ request()->routeIs('admin.pembayaran-listrik.*') ? 'bg-amber-50 text-[#CEA042] font-bold border border-amber-200/80' : 'text-gray-700 hover:bg-gray-100' }}">
+                            <span class="flex items-center gap-3">
+                                <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.pembayaran-listrik.*') ? 'text-[#CEA042]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                <span>Kasir Bayar Listrik</span>
+                            </span>
+                            @if($drawerBelumLunas > 0)
+                                <span class="text-[10px] bg-rose-500 text-white px-2 py-0.5 rounded-full font-bold">
+                                    {{ $drawerBelumLunas }}
+                                </span>
+                            @endif
+                        </a>
+                    @endif
+
+                    @if(auth()->user()->hasMenuAkses('warga'))
+                        <a href="{{ route('admin.warga.index') }}"
+                           onclick="closeMobileMenu()"
+                           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition min-h-[44px] {{ request()->routeIs('admin.warga.*') ? 'bg-amber-50 text-[#CEA042] font-bold border border-amber-200/80' : 'text-gray-700 hover:bg-gray-100' }}">
+                            <span class="flex items-center gap-3">
+                                <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.warga.*') ? 'text-[#CEA042]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                <span>Master Warga PLN</span>
+                            </span>
+                            <span class="text-[10px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full font-semibold">
+                                {{ \App\Models\Warga::count() }}
+                            </span>
+                        </a>
+                    @endif
+                </div>
+            @endif
+
+            <!-- Navigasi Inventaris -->
+            @if(auth()->user()->hasMenuAkses('barang'))
+                <div class="space-y-1">
+                    <div class="px-3 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+                        Inventaris Dusun
+                    </div>
+                    <a href="{{ route('admin.barang.index') }}"
+                       onclick="closeMobileMenu()"
+                       class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition min-h-[44px] {{ request()->routeIs('admin.barang.*') ? 'bg-amber-50 text-[#CEA042] font-bold border border-amber-200/80' : 'text-gray-700 hover:bg-gray-100' }}">
+                        <span class="flex items-center gap-3">
+                            <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.barang.*') ? 'text-[#CEA042]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            <span>Data Inventaris</span>
+                        </span>
+                        <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold">
+                            {{ \App\Models\Barang::count() }}
+                        </span>
+                    </a>
+
+                    @php
+                        $drawerPendingPinjam = \App\Models\Peminjaman::where('status', 'menunggu')->count();
+                    @endphp
+                    <a href="{{ route('admin.peminjaman.index') }}"
+                       onclick="closeMobileMenu()"
+                       class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition min-h-[44px] {{ request()->routeIs('admin.peminjaman.*') ? 'bg-amber-50 text-[#CEA042] font-bold border border-amber-200/80' : 'text-gray-700 hover:bg-gray-100' }}">
+                        <span class="flex items-center gap-3">
+                            <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.peminjaman.*') ? 'text-[#CEA042]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            <span>Peminjaman Barang</span>
+                        </span>
+                        @if($drawerPendingPinjam > 0)
+                            <span class="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold">
+                                {{ $drawerPendingPinjam }}
+                            </span>
+                        @endif
+                    </a>
+                </div>
+            @endif
+
+            <!-- Navigasi Keuangan -->
+            @if(auth()->user()->hasMenuAkses('kas'))
+                <div class="space-y-1">
+                    <div class="px-3 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+                        Keuangan & Kas
+                    </div>
+                    <a href="{{ route('admin.keuangan.index') }}"
+                       onclick="closeMobileMenu()"
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition min-h-[44px] {{ request()->routeIs('admin.keuangan.index') ? 'bg-amber-50 text-[#CEA042] font-bold border border-amber-200/80' : 'text-gray-700 hover:bg-gray-100' }}">
+                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.keuangan.index') ? 'text-[#CEA042]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Buku Kas Utama</span>
+                    </a>
+                    <a href="{{ route('admin.keuangan.laporan') }}"
+                       onclick="closeMobileMenu()"
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition min-h-[44px] {{ request()->routeIs('admin.keuangan.laporan') ? 'bg-amber-50 text-[#CEA042] font-bold border border-amber-200/80' : 'text-gray-700 hover:bg-gray-100' }}">
+                        <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.keuangan.laporan') ? 'text-[#CEA042]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span>Laporan Ringkas Kas</span>
+                    </a>
+                </div>
+            @endif
+        </div>
+
+        <!-- Drawer Footer Actions -->
+        <div class="p-3 border-t border-gray-100 bg-gray-50/70 space-y-2">
+            <a href="{{ route('beranda') }}" target="_blank"
+               class="w-full flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold text-[#CEA042] bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition min-h-[44px]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <span>Buka Web Publik Warga</span>
+            </a>
+
+            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                @csrf
+                <button type="submit"
+                        class="w-full flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition min-h-[44px]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span>Keluar dari Akun</span>
+                </button>
+            </form>
+        </div>
+    </aside>
 
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1 flex flex-col lg:flex-row gap-5">
         <!-- Desktop Sidebar Navigation (Hidden on mobile) -->
@@ -278,15 +503,6 @@
             </a>
         @endif
 
-        @if(auth()->user()->hasMenuAkses('barang'))
-            <!-- Barang / Inventaris -->
-            <a href="{{ route('admin.barang.index') }}"
-               class="flex flex-col items-center justify-center w-14 py-1 rounded-lg transition min-h-[44px] {{ request()->routeIs('admin.barang.*') ? 'text-[#CEA042] font-bold' : 'text-gray-500 hover:text-gray-800' }}">
-                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                <span class="text-[9px] leading-tight">Barang</span>
-            </a>
-        @endif
-
         @if(auth()->user()->hasMenuAkses('kas'))
             <!-- Kas Dusun -->
             <a href="{{ route('admin.keuangan.index') }}"
@@ -295,9 +511,78 @@
                 <span class="text-[9px] leading-tight">Kas</span>
             </a>
         @endif
+
+        <!-- Tombol Menu Lengkap / Kontrol (Buka Drawer) -->
+        <button type="button"
+                onclick="toggleMobileMenu()"
+                aria-label="Buka semua menu navigasi"
+                class="flex flex-col items-center justify-center w-14 py-1 rounded-lg transition min-h-[44px] relative {{ request()->routeIs('admin.pengguna.*') || request()->routeIs('admin.warga.*') || request()->routeIs('admin.barang.*') || request()->routeIs('admin.peminjaman.*') ? 'text-purple-700 font-bold' : 'text-gray-600 hover:text-gray-900' }}">
+            <div class="relative">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                @if(auth()->user()->isSuperadmin())
+                    <span class="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-purple-600 ring-2 ring-white"></span>
+                @elseif($antreanBadge > 0)
+                    <span class="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white"></span>
+                @endif
+            </div>
+            <span class="text-[9px] leading-tight {{ auth()->user()->isSuperadmin() ? 'font-extrabold text-purple-700' : '' }}">
+                {{ auth()->user()->isSuperadmin() ? 'Super' : 'Menu' }}
+            </span>
+        </button>
     </nav>
 
     <script>
+        // Drawer Navigasi Mobile
+        window.toggleMobileMenu = function() {
+            const backdrop = document.getElementById('mobile-drawer-backdrop');
+            const panel = document.getElementById('mobile-drawer-panel');
+            const btn = document.getElementById('btn-hamburger-mobile');
+            if (!backdrop || !panel) return;
+
+            const isOpen = !backdrop.classList.contains('pointer-events-none');
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        };
+
+        window.openMobileMenu = function() {
+            const backdrop = document.getElementById('mobile-drawer-backdrop');
+            const panel = document.getElementById('mobile-drawer-panel');
+            const btn = document.getElementById('btn-hamburger-mobile');
+            if (!backdrop || !panel) return;
+
+            backdrop.classList.remove('pointer-events-none', 'opacity-0');
+            backdrop.classList.add('opacity-100');
+            panel.classList.remove('-translate-x-full');
+            panel.classList.add('translate-x-0');
+            if (btn) btn.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeMobileMenu = function() {
+            const backdrop = document.getElementById('mobile-drawer-backdrop');
+            const panel = document.getElementById('mobile-drawer-panel');
+            const btn = document.getElementById('btn-hamburger-mobile');
+            if (!backdrop || !panel) return;
+
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0', 'pointer-events-none');
+            panel.classList.remove('translate-x-0');
+            panel.classList.add('-translate-x-full');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        };
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+
         // Global Format Rupiah Real-time untuk semua input nominal
         window.formatRupiahString = function(angka) {
             if (angka === null || angka === undefined || angka === '') return '';
