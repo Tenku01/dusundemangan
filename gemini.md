@@ -6,7 +6,8 @@ Dokumen ini adalah ringkasan konteks teknis, status sistem, arsitektur, dan riwa
 
 ## 1. Identitas & Lingkungan Sistem
 - **Nama Aplikasi**: Sistem Monitoring Dusun & Kasir Listrik Warga Karang Taruna Demangan
-- **Framework**: Laravel 12 (PHP 8.3 lokal / PHP 8.5 di Vercel) + Blade + TailwindCSS + Alpine.js
+- **Organisasi**: Karang Taruna Dusun Demangan, Desa Candimulyo (Ketua: **Anggun Fatchurrohman**)
+- **Framework**: Laravel 13 (`^13.17`, PHP 8.3 lokal / PHP 8.5 di Vercel) + Blade + Tailwind CSS `3.4.19` + Alpine.js + Vite `8`
 - **GitHub Repository**: `https://github.com/Tenku01/dusundemangan.git` (Branch `main`)
 - **Cloud Hosting & Serverless**: **Vercel** (`https://dusundemangan.vercel.app`)
 - **Database Produksi**: **TiDB Cloud Serverless** (MySQL 8.0 kompatibel, AWS Singapura)
@@ -127,6 +128,25 @@ Aplikasi berjalan sebagai serverless function di Vercel dengan integrasi CI/CD d
 ### C. Master Data Warga (`WargaController`)
 1. **Label Kolom**: Diubah menjadi **Nomor Struk [ # ]** (menggantikan "No. IDPEL / Meter PLN").
 2. **Tipografi**: Menggunakan Title Case bersih, menghilangkan huruf kapital berlebih dan font monospace yang kaku.
+
+### D. Pembaruan UI/UX, PWA iOS, Transparansi Kas & Laporan Resmi (Sesi 20 Nov 2026)
+1. **Audit Menyeluruh UI/UX & Tema Emas WCAG AA (`resources/css/app.css`)**:
+   - Membersihkan utilitas Tailwind v4 yang tidak aktif pada Tailwind v3 (`shadow-xs`, `shadow-2xs`, `backdrop-blur-xs`, `bg-linear-to`), menghapus warna off-theme (`indigo-*`, `purple-*`) dan emoji dekoratif, menggantinya dengan token terpusat `.btn-primary` (teks espresso solid `#1F1406` di atas `#CEA042` / hover `#BA8832`), `.btn-secondary`, `.btn-subtle`, `.btn-gold-soft`, `.input-field`, `.select-field`, `.card-surface`, `.modal-backdrop`, `.modal-panel`, dan `.tabular-money`.
+   - Menambahkan tampilan kartu responsif mobile pada `publik/buku_kas.blade.php` dan `admin/warga/index.blade.php`, aksesibilitas modal (`Escape`, klik backdrop, `aria-label`), serta menyamakan penamaan resmi `Karang Taruna Dusun Demangan, Desa Candimulyo`.
+2. **Custom Select Dropdown Global (`resources/js/app.js` & `resources/css/app.css`)**:
+   - Menambahkan `setupCustomSelects()` untuk menggantikan seluruh popup `<select>` native (biru OS) dengan dropdown mengambang bertema emas (border `#EAD199`, hover `#FAF4E4` + `#674620`, opsi aktif `#CEA042` + `#1F1406` dengan centang), lengkap dengan navigasi keyboard dan sinkronisasi `x-model` / Alpine `x-for`.
+   - Menambahkan `'./resources/**/*.js'` di `tailwind.config.js` dan meletakkan class `.custom-select-*` di luar `@layer components` agar selalu ikut terkompilasi.
+3. **Panduan & Tombol Instalasi PWA Khusus iPhone / iOS (`resources/views/components/pwa-install-ios.blade.php`)**:
+   - Mengatasi keterbatasan iOS Safari yang tidak memicu `beforeinstallprompt` dengan deteksi perangkat iOS non-standalone untuk langsung menampilkan tombol **Pasang App** / **Instal Aplikasi di HP**, banner ringkas yang dapat ditutup (tersimpan 7 hari di `localStorage`), dan modal bottom-sheet 3 langkah Safari Share (*Tambahkan ke Layar Utama*) + tombol salin link bila dibuka dari in-app browser.
+   - Memperbarui `<link rel="apple-touch-icon" sizes="180x180">` di seluruh layout utama dan bump cache Service Worker `public/sw.js` ke `demangan-pwa-v2`.
+4. **Transparansi Kas & Penyeragaman Istilah "Kas" (`KatalogController@bukuKas` & `publik/buku_kas.blade.php`)**:
+   - Mengubah istilah "Kas Dusun" menjadi "Kas" di halaman publik, admin, dan test terkait.
+   - Menambahkan filter dropdown **Pilih Kas** (`kategori_kas`), kolom/badge **Kas** di tabel desktop & kartu mobile `/transparansi-kas` serta beranda, dan helper terpusat `Keuangan::getDaftarKategoriKas()`, `labelKategoriKas()`, dan `badgeClassesKategoriKas()`.
+5. **Laporan PDF Resmi Format Surat & Tabel Dokumen Word (`admin/keuangan/laporan.blade.php` & `layouts/admin.blade.php`)**:
+   - Menambahkan `print:hidden` pada header, sidebar, bottom navigation bar admin, dan banner PWA agar hasil cetak/PDF bebas dari elemen UI web.
+   - Mendesain ulang `admin/keuangan/laporan.blade.php` sebagai terbitan surat resmi A4 (`Times New Roman` / `Georgia`, Kop Surat resmi bergaris ganda, tabel identitas surat tanpa garis, paragraf pembuka & penutup formal, tabel akuntansi bergaya dokumen Word dengan header berulang di tiap halaman dan anti-potong baris `break-inside: avoid`), filter jenis kas + bulan berbahasa Indonesia, serta **satu blok tanda tangan Ketua Karang Taruna Dusun Demangan (`Anggun Fatchurrohman`)** tanpa tanda tangan superadmin.
+6. **Dokumentasi Repositori (`README.md`)**:
+   - Mengganti `README.md` bawaan Laravel dengan ringkasan project, daftar fitur publik/pengurus/PWA, stack teknologi aktual, struktur berkas, panduan lokal, dan deployment Vercel.
 
 ---
 

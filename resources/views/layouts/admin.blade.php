@@ -36,10 +36,10 @@
         }
     </style>
 </head>
-<body class="min-h-full flex flex-col font-sans text-gray-900 bg-[#F5F4F0] antialiased selection:bg-emas-100 selection:text-emas-950 pb-20 lg:pb-0">
+<body class="min-h-full flex flex-col font-sans text-gray-900 bg-[#F5F4F0] antialiased selection:bg-emas-100 selection:text-emas-950 pb-20 lg:pb-0 print:bg-white print:pb-0 print:block">
 
     <!-- Top Admin Bar -->
-    <header class="bg-white/95 backdrop-blur-sm border-b border-emas-200/70 sticky top-0 z-30 shadow-sm">
+    <header class="bg-white/95 backdrop-blur-sm border-b border-emas-200/70 sticky top-0 z-30 shadow-sm print:hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Hamburger Button (Mobile) & Brand -->
@@ -103,11 +103,11 @@
     <!-- MOBILE DRAWER / SLIDE-OVER NAVIGATION -->
     <div id="mobile-drawer-backdrop"
          onclick="closeMobileMenu()"
-         class="fixed inset-0 z-50 bg-gray-900/55 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none lg:hidden"
+         class="fixed inset-0 z-50 bg-gray-900/55 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none lg:hidden print:hidden"
          aria-hidden="true"></div>
 
     <aside id="mobile-drawer-panel"
-           class="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden"
+           class="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden print:hidden"
            role="dialog"
            aria-modal="true"
            aria-label="Navigasi Menu Mobile">
@@ -322,9 +322,9 @@
         </div>
     </aside>
 
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1 flex flex-col lg:flex-row gap-5">
-        <!-- Desktop Sidebar Navigation (Hidden on mobile) -->
-        <aside class="w-64 shrink-0 hidden lg:block">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1 flex flex-col lg:flex-row gap-5 print:max-w-none print:p-0 print:m-0 print:block">
+        <!-- Desktop Sidebar Navigation (Hidden on mobile & print) -->
+        <aside class="w-64 shrink-0 hidden lg:block print:hidden">
             <nav aria-label="Navigasi Sidebar Pengurus" class="bg-white rounded-2xl border border-gray-200/90 p-3 shadow-sm space-y-1 sticky top-20">
                 @if(auth()->user()->hasMenuAkses('beranda'))
                     <a href="{{ route('admin.dashboard') }}"
@@ -485,7 +485,7 @@
         $antreanBadge = \App\Models\Peminjaman::where('status', 'menunggu')->count();
         $belumLunasBadge = \App\Models\TagihanListrik::where('is_lunas', false)->count();
     @endphp
-    <nav aria-label="Navigasi Cepat Pengurus" class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg px-2 py-1.5 flex justify-around items-center">
+    <nav aria-label="Navigasi Cepat Pengurus" class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg px-2 py-1.5 flex justify-around items-center print:hidden">
         @if(auth()->user()->hasMenuAkses('beranda'))
             <a href="{{ route('admin.dashboard') }}"
                class="flex flex-col items-center justify-center flex-1 max-w-[70px] py-1.5 px-1 rounded-xl transition min-h-[44px] {{ request()->routeIs('admin.dashboard') ? 'bg-emas-50 text-emas-800 font-bold' : 'text-gray-600 hover:text-gray-900 font-medium' }}">

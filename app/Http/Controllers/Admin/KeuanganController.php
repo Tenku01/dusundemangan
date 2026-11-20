@@ -243,9 +243,13 @@ class KeuanganController extends Controller
      */
     public function laporan(Request $request): View
     {
-        $bulanMulai = $request->query('bulan_mulai', 1);
-        $bulanSelesai = $request->query('bulan_selesai', 12);
-        $tahun = $request->query('tahun', date('Y'));
+        $bulanMulai = (int) $request->query('bulan_mulai', 1);
+        $bulanSelesai = (int) $request->query('bulan_selesai', 12);
+        $tahun = (int) $request->query('tahun', (int) date('Y'));
+        $kategoriKas = $request->query('kategori_kas');
+
+        $bulanMulai = max(1, min(12, $bulanMulai));
+        $bulanSelesai = max($bulanMulai, min(12, $bulanSelesai));
 
         $tanggalAwal = sprintf('%04d-%02d-01', $tahun, $bulanMulai);
         $hariTerakhirBulanSelesai = date('t', strtotime(sprintf('%04d-%02d-01', $tahun, $bulanSelesai)));
@@ -253,7 +257,14 @@ class KeuanganController extends Controller
 
         $query = Keuangan::whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
 
-        $transaksi = (clone $query)->orderBy('tanggal', 'asc')->get();
+        if ($kategoriKas) {
+            $query->where('kategori_kas', $kategoriKas);
+        }
+
+        $transaksi = (clone $query)
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
 
         $totalMasuk = (clone $query)->where('jenis', 'masuk')->sum('nominal');
         $totalKeluar = (clone $query)->where('jenis', 'keluar')->sum('nominal');
@@ -263,12 +274,36 @@ class KeuanganController extends Controller
         $rekapKategoriMasuk = (clone $query)->where('jenis', 'masuk')
             ->selectRaw('kategori, sum(nominal) as total')
             ->groupBy('kategori')
+            ->orderByDesc('total')
             ->get();
 
         $rekapKategoriKeluar = (clone $query)->where('jenis', 'keluar')
             ->selectRaw('kategori, sum(nominal) as total')
             ->groupBy('kategori')
+            ->orderByDesc('total')
             ->get();
+
+        $daftarKategoriKas = Keuangan::getDaftarKategoriKas();
+
+        $namaBulanIndo = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+
+        $namaBulanMulai = $namaBulanIndo[$bulanMulai] ?? 'Januari';
+        $namaBulanSelesai = $namaBulanIndo[$bulanSelesai] ?? 'Desember';
+        $tanggalCetakId = sprintf('%d %s %d', (int) date('j'), $namaBulanIndo[(int) date('n')] ?? date('F'), (int) date('Y'));
+        $namaKetua = 'Anggun Fatchurrohman';
 
         return view('admin.keuangan.laporan', compact(
             'transaksi',
@@ -280,6 +315,13 @@ class KeuanganController extends Controller
             'bulanMulai',
             'bulanSelesai',
             'tahun',
+            'kategoriKas',
+            'daftarKategoriKas',
+            'namaBulanIndo',
+            'namaBulanMulai',
+            'namaBulanSelesai',
+            'tanggalCetakId',
+            'namaKetua',
             'tanggalAwal',
             'tanggalAkhir'
         ));

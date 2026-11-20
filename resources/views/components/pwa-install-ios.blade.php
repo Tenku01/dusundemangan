@@ -2,7 +2,7 @@
 
 <!-- Banner Tip Instalasi Khusus iPhone / iPad (Non-Standalone) -->
 <div id="ios-pwa-banner"
-     class="hidden fixed bottom-20 lg:bottom-4 left-3 right-3 sm:left-auto sm:right-5 sm:w-96 z-40 bg-white border border-emas-300 rounded-2xl shadow-xl p-3.5 items-center justify-between gap-3">
+     class="hidden fixed bottom-20 lg:bottom-4 left-3 right-3 sm:left-auto sm:right-5 sm:w-96 z-40 bg-white border border-emas-300 rounded-2xl shadow-xl p-3.5 items-center justify-between gap-3 print:hidden">
     <div class="flex items-center gap-3 min-w-0">
         <img src="{{ asset('icon-apple-touch.png') }}"
              alt="Ikon Aplikasi Dusun Demangan"
@@ -36,7 +36,7 @@
      aria-modal="true"
      aria-labelledby="modal-pwa-ios-title"
      onclick="if (event.target === this) closeIosInstallModal()"
-     class="hidden fixed inset-0 z-[60] overflow-y-auto bg-slate-900/60 backdrop-blur-sm items-end sm:items-center justify-center p-0 sm:p-4">
+     class="hidden fixed inset-0 z-[60] overflow-y-auto bg-slate-900/60 backdrop-blur-sm items-end sm:items-center justify-center p-0 sm:p-4 print:hidden">
     <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
         <div class="w-10 h-1 rounded-full bg-slate-200 mx-auto sm:hidden"></div>
 

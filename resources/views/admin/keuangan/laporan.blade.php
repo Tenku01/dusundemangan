@@ -1,57 +1,199 @@
 @extends('layouts.admin')
 
-@section('title', 'Laporan Ringkas Keuangan Dusun')
+@section('title', 'Laporan Resmi Keuangan Kas')
 
 @section('content')
-<div class="space-y-6">
+<style>
+    .official-doc-sheet {
+        font-family: 'Times New Roman', Georgia, Cambria, serif;
+        color: #111827;
+        line-height: 1.45;
+    }
 
-    <!-- Header & Print Action -->
+    .official-doc-sheet .tabular-num {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .official-kop-rule {
+        border-top: 3px solid #111827;
+        border-bottom: 1px solid #111827;
+        height: 4px;
+        margin-top: 10px;
+        margin-bottom: 18px;
+    }
+
+    .word-meta-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10.5pt;
+        margin-bottom: 14px;
+    }
+
+    .word-meta-table td {
+        padding: 2px 4px;
+        vertical-align: top;
+        border: none;
+    }
+
+    .word-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9.5pt;
+        color: #111827;
+    }
+
+    .word-table thead {
+        display: table-header-group;
+    }
+
+    .word-table th,
+    .word-table td {
+        border: 1px solid #1f2937;
+        padding: 6px 8px;
+        vertical-align: top;
+    }
+
+    .word-table thead th {
+        background-color: #f3f4f6;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 8.5pt;
+        letter-spacing: 0.03em;
+        color: #111827;
+        vertical-align: middle;
+    }
+
+    .word-table tbody tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .word-table tfoot td {
+        background-color: #f9fafb;
+        font-weight: 700;
+    }
+
+    .doc-section-heading {
+        font-size: 10.5pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        margin-top: 18px;
+        margin-bottom: 8px;
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .signature-block {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    @media print {
+        @page {
+            size: A4 portrait;
+            margin: 15mm 18mm 18mm 18mm;
+        }
+
+        html,
+        body {
+            background: #ffffff !important;
+            color: #111827 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .official-doc-sheet {
+            width: 100% !important;
+            max-width: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .word-table thead th {
+            background-color: #f3f4f6 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .word-table tfoot td {
+            background-color: #f9fafb !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<div class="space-y-6 print:space-y-0">
+
+    <!-- Header & Print Action (Web Only) -->
     <div class="card-surface p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
                 Laporan Ringkas Keuangan Kas
             </h1>
             <p class="text-xs text-gray-600 mt-1">
-                Rekapitulasi penerimaan dan pengeluaran kas berdasarkan rentang bulan dan tahun.
+                Pratinjau surat laporan keuangan resmi format A4 siap cetak atau simpan sebagai PDF.
             </p>
         </div>
 
-        <button type="button" onclick="window.print()" class="btn-secondary px-4 text-xs self-start sm:self-auto">
-            <svg class="w-4 h-4 text-gray-600" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            <span>Cetak / Unduh PDF</span>
-        </button>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+            <a href="{{ route('admin.keuangan.index') }}" class="btn-secondary px-3.5 text-xs">
+                Kembali ke Buku Kas
+            </a>
+            <button type="button" onclick="window.print()" class="btn-primary px-4 text-xs">
+                <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                <span>Cetak / Unduh PDF Resmi</span>
+            </button>
+        </div>
     </div>
 
-    <!-- Filter Rentang Periode -->
+    <!-- Filter Rentang Periode & Jenis Kas (Web Only) -->
     <div class="card-surface p-4 print:hidden">
-        <form method="GET" action="{{ route('admin.keuangan.laporan') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+        <form method="GET" action="{{ route('admin.keuangan.laporan') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+            <div>
+                <label for="laporan-kategori-kas" class="block text-xs font-semibold text-gray-700 mb-1">Jenis Kas</label>
+                <select id="laporan-kategori-kas" name="kategori_kas" class="select-field">
+                    <option value="">Seluruh Jenis Kas</option>
+                    @foreach($daftarKategoriKas as $kKas)
+                        <option value="{{ $kKas }}" {{ ($kategoriKas ?? '') === $kKas ? 'selected' : '' }}>
+                            {{ $kKas }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <div>
                 <label for="laporan-bulan-mulai" class="block text-xs font-semibold text-gray-700 mb-1">Bulan Mulai</label>
                 <select id="laporan-bulan-mulai" name="bulan_mulai" class="select-field">
-                    @for($m = 1; $m <= 12; $m++)
-                        <option value="{{ $m }}" {{ $bulanMulai == $m ? 'selected' : '' }}>
-                            {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                    @foreach($namaBulanIndo as $m => $nmBulan)
+                        <option value="{{ $m }}" {{ (int) $bulanMulai === $m ? 'selected' : '' }}>
+                            {{ $nmBulan }}
                         </option>
-                    @endfor
+                    @endforeach
                 </select>
             </div>
 
             <div>
                 <label for="laporan-bulan-selesai" class="block text-xs font-semibold text-gray-700 mb-1">Bulan Selesai</label>
                 <select id="laporan-bulan-selesai" name="bulan_selesai" class="select-field">
-                    @for($m = 1; $m <= 12; $m++)
-                        <option value="{{ $m }}" {{ $bulanSelesai == $m ? 'selected' : '' }}>
-                            {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                    @foreach($namaBulanIndo as $m => $nmBulan)
+                        <option value="{{ $m }}" {{ (int) $bulanSelesai === $m ? 'selected' : '' }}>
+                            {{ $nmBulan }}
                         </option>
-                    @endfor
+                    @endforeach
                 </select>
             </div>
 
             <div>
                 <label for="laporan-tahun" class="block text-xs font-semibold text-gray-700 mb-1">Tahun</label>
                 <select id="laporan-tahun" name="tahun" class="select-field">
-                    @for($y = date('Y'); $y >= date('Y') - 3; $y--)
-                        <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @for($y = (int) date('Y'); $y >= (int) date('Y') - 3; $y--)
+                        <option value="{{ $y }}" {{ (int) $tahun === $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
                 </select>
             </div>
@@ -62,174 +204,261 @@
         </form>
     </div>
 
-    <!-- Printable Report Container -->
-    <div class="card-surface p-6 sm:p-8 space-y-6">
+    <!-- Lembar Dokumen Resmi A4 (Terbitan Surat / Dokumen Word) -->
+    <div class="official-doc-sheet max-w-[210mm] mx-auto bg-white border border-gray-300 shadow-md p-6 sm:p-12 print:border-0 print:shadow-none print:p-0">
 
-        <!-- Kop Laporan Resmi -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pb-5 border-b-2 border-gray-800 text-center sm:text-left">
+        <!-- KOP SURAT RESMI -->
+        <div class="flex items-center gap-4">
             <img src="{{ asset('logo-kartar-dmg-circle.png') }}"
-                 alt="Logo Karang Taruna Demangan"
-                 width="64" height="64"
-                 class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shadow-sm border border-emas-300 bg-white shrink-0">
-            <div>
-                <h2 class="text-base sm:text-lg font-bold text-gray-900 uppercase tracking-wide">
-                    Laporan Arus Kas Keuangan Dusun Demangan
-                </h2>
-                <div class="text-xs font-semibold text-gray-800 mt-0.5">
-                    Periode: {{ DateTime::createFromFormat('!m', $bulanMulai)->format('F') }} s/d {{ DateTime::createFromFormat('!m', $bulanSelesai)->format('F') }} {{ $tahun }}
+                 alt="Logo Karang Taruna Dusun Demangan"
+                 width="68" height="68"
+                 class="w-16 h-16 sm:w-[68px] sm:h-[68px] object-contain shrink-0">
+            <div class="flex-1 text-center pr-0 sm:pr-12">
+                <div class="text-base sm:text-lg font-bold uppercase tracking-wider text-gray-900 leading-tight">
+                    Karang Taruna Dusun Demangan
                 </div>
-                <div class="text-xs text-gray-600 mt-0.5">
-                    Karang Taruna Dusun Demangan, Desa Candimulyo
+                <div class="text-sm font-bold uppercase tracking-wide text-gray-900 mt-0.5">
+                    Desa Candimulyo
                 </div>
-            </div>
-        </div>
-
-        <!-- 3 Ringkasan Angka Utama -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 print:grid-cols-3">
-            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-                <div class="text-xs font-bold text-emerald-900 uppercase">Total Pemasukan</div>
-                <div class="text-xl sm:text-2xl font-extrabold text-emerald-800 mt-1 tabular-money">
-                    Rp {{ number_format($totalMasuk, 0, ',', '.') }}
-                </div>
-            </div>
-
-            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-center">
-                <div class="text-xs font-bold text-rose-900 uppercase">Total Pengeluaran</div>
-                <div class="text-xl sm:text-2xl font-extrabold text-rose-800 mt-1 tabular-money">
-                    Rp {{ number_format($totalKeluar, 0, ',', '.') }}
-                </div>
-            </div>
-
-            <div class="p-4 rounded-xl bg-emas-50 border border-emas-200 text-center">
-                <div class="text-xs font-bold text-emas-900 uppercase">Surplus / Defisit Periode</div>
-                <div class="text-xl sm:text-2xl font-extrabold tabular-money {{ $surplusDefisit >= 0 ? 'text-emerald-800' : 'text-rose-800' }} mt-1">
-                    Rp {{ number_format($surplusDefisit, 0, ',', '.') }}
+                <div class="text-xs text-gray-700 mt-0.5">
+                    Sekretariat: Dusun Demangan, Desa Candimulyo
                 </div>
             </div>
         </div>
+        <div class="official-kop-rule" aria-hidden="true"></div>
 
-        <!-- Breakdown per Kategori -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            <div class="border border-gray-200 rounded-xl p-4">
-                <h3 class="text-xs font-bold text-emerald-900 uppercase tracking-wide pb-2 border-b border-gray-100 mb-2">
-                    Rincian Kategori Pemasukan
-                </h3>
-                <div class="space-y-1.5 text-xs">
-                    @forelse($rekapKategoriMasuk as $rm)
-                        <div class="flex justify-between py-1.5 border-b border-gray-50">
-                            <span class="text-gray-700">{{ $rm->kategori }}</span>
-                            <span class="font-bold text-emerald-700 tabular-money">Rp {{ number_format($rm->total, 0, ',', '.') }}</span>
-                        </div>
-                    @empty
-                        <div class="text-gray-500 italic py-2">Tidak ada pemasukan pada periode ini.</div>
-                    @endforelse
-                </div>
-            </div>
-
-            <div class="border border-gray-200 rounded-xl p-4">
-                <h3 class="text-xs font-bold text-rose-900 uppercase tracking-wide pb-2 border-b border-gray-100 mb-2">
-                    Rincian Kategori Pengeluaran
-                </h3>
-                <div class="space-y-1.5 text-xs">
-                    @forelse($rekapKategoriKeluar as $rk)
-                        <div class="flex justify-between py-1.5 border-b border-gray-50">
-                            <span class="text-gray-700">{{ $rk->kategori }}</span>
-                            <span class="font-bold text-rose-700 tabular-money">Rp {{ number_format($rk->total, 0, ',', '.') }}</span>
-                        </div>
-                    @empty
-                        <div class="text-gray-500 italic py-2">Tidak ada pengeluaran pada periode ini.</div>
-                    @endforelse
-                </div>
+        <!-- JUDUL DOKUMEN -->
+        <div class="text-center mb-5">
+            <h2 class="text-sm sm:text-base font-bold uppercase tracking-wide underline underline-offset-4 text-gray-900">
+                Laporan Pertanggungjawaban Keuangan Kas
+            </h2>
+            <div class="text-xs text-gray-800 mt-1 tabular-num">
+                Nomor: LAP-KAS/{{ $tahun }}/{{ str_pad((string) $bulanMulai, 2, '0', STR_PAD_LEFT) }}-{{ str_pad((string) $bulanSelesai, 2, '0', STR_PAD_LEFT) }}
             </div>
         </div>
 
-        <!-- Riwayat Mutasi Periode -->
-        <div>
-            <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wide mb-3">
-                Daftar Lengkap Transaksi Periode Ini (<span class="tabular-money">{{ $transaksi->count() }}</span> Transaksi)
-            </h3>
+        <!-- IDENTITAS SURAT (RATA TABEL WORD TANPA GARIS) -->
+        <table class="word-meta-table">
+            <tbody>
+                <tr>
+                    <td style="width: 140px; font-weight: 700;">Organisasi</td>
+                    <td style="width: 14px;">:</td>
+                    <td>Karang Taruna Dusun Demangan, Desa Candimulyo</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 700;">Perihal</td>
+                    <td>:</td>
+                    <td>Laporan Arus Kas Keuangan ({{ !empty($kategoriKas) ? $kategoriKas : 'Seluruh Jenis Kas' }})</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 700;">Periode Laporan</td>
+                    <td>:</td>
+                    <td>{{ $namaBulanMulai }} s.d. {{ $namaBulanSelesai }} {{ $tahun }}</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 700;">Tanggal Terbit</td>
+                    <td>:</td>
+                    <td>{{ $tanggalCetakId }}</td>
+                </tr>
+            </tbody>
+        </table>
 
-            <!-- TAMPILAN MOBILE -->
-            <div class="block md:hidden print:hidden space-y-3">
-                @forelse($transaksi as $t)
-                    <div class="bg-[#F8F7F4] rounded-xl p-3.5 border border-gray-200 space-y-2">
-                        <div class="flex items-center justify-between pb-1.5 border-b border-gray-200/70">
-                            <span class="text-xs text-gray-600 font-medium tabular-money">
-                                {{ $t->tanggal->format('d/m/Y') }} &bull; <span class="font-mono text-[11px]">{{ $t->kode_transaksi }}</span>
-                            </span>
-                            <span class="px-2 py-0.5 rounded-md text-[11px] font-bold {{ $t->jenis === 'masuk' ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900' }}">
-                                {{ $t->jenis === 'masuk' ? 'Masuk' : 'Keluar' }}
-                            </span>
-                        </div>
-                        <div class="flex items-baseline justify-between gap-2">
-                            <div class="text-xs font-bold text-gray-900">{{ $t->kategori }}</div>
-                            <div class="text-sm font-extrabold tabular-money {{ $t->jenis === 'masuk' ? 'text-emerald-700' : 'text-rose-700' }}">
-                                {{ $t->jenis === 'masuk' ? '+' : '-' }} Rp {{ number_format($t->nominal, 0, ',', '.') }}
-                            </div>
-                        </div>
-                        <p class="text-xs text-gray-600 bg-white p-2.5 rounded-lg border border-gray-100">
-                            {{ $t->keterangan }}
-                        </p>
-                    </div>
-                @empty
-                    <div class="p-6 text-center text-gray-500 text-xs">
-                        Tidak ada data transaksi pada rentang periode yang dipilih.
-                    </div>
-                @endforelse
-            </div>
+        <!-- PARAGRAF PENGANTAR SURAT RESMI -->
+        <p class="text-[10.5pt] text-justify mb-4">
+            Dengan hormat, bersama surat laporan ini kami sampaikan pertanggungjawaban posisi pemasukan, pengeluaran, serta rincian mutasi transaksi keuangan
+            Karang Taruna Dusun Demangan, Desa Candimulyo untuk periode <strong>{{ $namaBulanMulai }}</strong> sampai dengan <strong>{{ $namaBulanSelesai }} {{ $tahun }}</strong>
+            ({{ !empty($kategoriKas) ? 'cakupan ' . $kategoriKas : 'cakupan seluruh jenis kas' }}) sebagai bentuk transparansi dan akuntabilitas administrasi organisasi.
+        </p>
 
-            <!-- TAMPILAN DESKTOP & PRINT -->
-            <div class="hidden md:block print:block border border-gray-200 rounded-xl overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
-                    <thead class="bg-[#F8F7F4] text-gray-700 font-bold uppercase text-[11px]">
+        <!-- BAGIAN I: IKHTISAR ARUS KAS -->
+        <h3 class="doc-section-heading">I. Ikhtisar Arus Kas</h3>
+        <div class="overflow-x-auto print:overflow-visible">
+            <table class="word-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px; text-align: center;">No.</th>
+                        <th style="width: 210px; text-align: left;">Komponen Rekapitulasi</th>
+                        <th style="text-align: left;">Keterangan</th>
+                        <th style="width: 150px; text-align: right;">Jumlah (Rp)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align: center;" class="tabular-num">1</td>
+                        <td style="font-weight: 700;">Total Pemasukan Kas</td>
+                        <td>Akumulasi penerimaan kas tercatat selama periode berjalan</td>
+                        <td style="text-align: right; font-weight: 700;" class="tabular-num">
+                            Rp {{ number_format($totalMasuk, 0, ',', '.') }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;" class="tabular-num">2</td>
+                        <td style="font-weight: 700;">Total Pengeluaran Kas</td>
+                        <td>Akumulasi belanja dan pengeluaran kas selama periode berjalan</td>
+                        <td style="text-align: right; font-weight: 700;" class="tabular-num">
+                            Rp {{ number_format($totalKeluar, 0, ',', '.') }}
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="text-align: right; text-transform: uppercase;">
+                            Surplus / (Defisit) Bersih Periode
+                        </td>
+                        <td style="text-align: right;" class="tabular-num">
+                            {{ $surplusDefisit < 0 ? '-' : '' }}Rp {{ number_format(abs($surplusDefisit), 0, ',', '.') }}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- BAGIAN II: REKAPITULASI PER POS / KATEGORI -->
+        <h3 class="doc-section-heading">II. Rincian per Pos Kategori</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-4">
+            <div class="overflow-x-auto print:overflow-visible">
+                <div class="text-[9.5pt] font-bold mb-1.5">A. Rincian Pos Pemasukan</div>
+                <table class="word-table">
+                    <thead>
                         <tr>
-                            <th class="py-3 px-3">Tanggal</th>
-                            <th class="py-3 px-3">Kode</th>
-                            <th class="py-3 px-3">Pos Kategori</th>
-                            <th class="py-3 px-3">Keterangan</th>
-                            <th class="py-3 px-3 text-right">Pemasukan</th>
-                            <th class="py-3 px-3 text-right">Pengeluaran</th>
+                            <th style="width: 36px; text-align: center;">No.</th>
+                            <th style="text-align: left;">Pos / Kategori</th>
+                            <th style="width: 130px; text-align: right;">Jumlah (Rp)</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($transaksi as $t)
+                    <tbody>
+                        @forelse($rekapKategoriMasuk as $idx => $rm)
                             <tr>
-                                <td class="py-2.5 px-3 whitespace-nowrap tabular-money">{{ $t->tanggal->format('d/m/Y') }}</td>
-                                <td class="py-2.5 px-3 font-mono text-[11px]">{{ $t->kode_transaksi }}</td>
-                                <td class="py-2.5 px-3 font-semibold text-gray-900">{{ $t->kategori }}</td>
-                                <td class="py-2.5 px-3 text-gray-600">{{ $t->keterangan }}</td>
-                                <td class="py-2.5 px-3 text-right font-semibold text-emerald-700 whitespace-nowrap tabular-money">
-                                    {{ $t->jenis === 'masuk' ? 'Rp ' . number_format($t->nominal, 0, ',', '.') : '-' }}
-                                </td>
-                                <td class="py-2.5 px-3 text-right font-semibold text-rose-700 whitespace-nowrap tabular-money">
-                                    {{ $t->jenis === 'keluar' ? 'Rp ' . number_format($t->nominal, 0, ',', '.') : '-' }}
-                                </td>
+                                <td style="text-align: center;" class="tabular-num">{{ $idx + 1 }}</td>
+                                <td>{{ $rm->kategori }}</td>
+                                <td style="text-align: right;" class="tabular-num">Rp {{ number_format($rm->total, 0, ',', '.') }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-8 text-center text-gray-500">
-                                    Tidak ada data transaksi pada rentang periode yang dipilih.
+                                <td colspan="3" style="text-align: center; font-style: italic; color: #4b5563;">
+                                    Tidak ada catatan pemasukan pada periode ini.
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" style="text-align: right;">Jumlah Pemasukan</td>
+                            <td style="text-align: right;" class="tabular-num">Rp {{ number_format($totalMasuk, 0, ',', '.') }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="overflow-x-auto print:overflow-visible">
+                <div class="text-[9.5pt] font-bold mb-1.5">B. Rincian Pos Pengeluaran</div>
+                <table class="word-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 36px; text-align: center;">No.</th>
+                            <th style="text-align: left;">Pos / Kategori</th>
+                            <th style="width: 130px; text-align: right;">Jumlah (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($rekapKategoriKeluar as $idx => $rk)
+                            <tr>
+                                <td style="text-align: center;" class="tabular-num">{{ $idx + 1 }}</td>
+                                <td>{{ $rk->kategori }}</td>
+                                <td style="text-align: right;" class="tabular-num">Rp {{ number_format($rk->total, 0, ',', '.') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" style="text-align: center; font-style: italic; color: #4b5563;">
+                                    Tidak ada catatan pengeluaran pada periode ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" style="text-align: right;">Jumlah Pengeluaran</td>
+                            <td style="text-align: right;" class="tabular-num">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
 
-        <!-- Tanda Tangan Pengurus (Cetak) -->
-        <div class="hidden print:grid grid-cols-2 pt-10 text-xs text-center">
-            <div>
-                <div>Mengetahui,</div>
-                <div class="font-bold mt-1">Ketua Karang Taruna Demangan</div>
-                <div class="h-16"></div>
-                <div class="font-bold underline">( Budi Santoso )</div>
-            </div>
-            <div>
-                <div>Demangan, {{ date('d F Y') }}</div>
-                <div class="font-bold mt-1">Bendahara Dusun Demangan</div>
-                <div class="h-16"></div>
-                <div class="font-bold underline">( {{ auth()->user()->name }} )</div>
+        <!-- BAGIAN III: DAFTAR RINCIAN MUTASI TRANSAKSI -->
+        <h3 class="doc-section-heading">
+            III. Daftar Rincian Mutasi Transaksi Kas (<span class="tabular-num">{{ $transaksi->count() }}</span> Transaksi)
+        </h3>
+        <div class="overflow-x-auto print:overflow-visible">
+            <table class="word-table">
+                <thead>
+                    <tr>
+                        <th style="width: 34px; text-align: center;">No.</th>
+                        <th style="width: 78px; text-align: center;">Tanggal</th>
+                        <th style="width: 90px; text-align: left;">Kode</th>
+                        <th style="width: 112px; text-align: left;">Jenis Kas</th>
+                        <th style="width: 115px; text-align: left;">Pos / Kategori</th>
+                        <th style="text-align: left;">Uraian Transaksi</th>
+                        <th style="width: 105px; text-align: right;">Pemasukan (Rp)</th>
+                        <th style="width: 105px; text-align: right;">Pengeluaran (Rp)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($transaksi as $idx => $t)
+                        <tr>
+                            <td style="text-align: center;" class="tabular-num">{{ $idx + 1 }}</td>
+                            <td style="text-align: center; white-space: nowrap;" class="tabular-num">{{ $t->tanggal->format('d/m/Y') }}</td>
+                            <td style="white-space: nowrap; font-family: 'Courier New', monospace; font-size: 8.5pt;">{{ $t->kode_transaksi }}</td>
+                            <td>{{ $t->labelKategoriKas() }}</td>
+                            <td style="font-weight: 600;">{{ $t->kategori }}</td>
+                            <td>{{ $t->keterangan }}</td>
+                            <td style="text-align: right; white-space: nowrap;" class="tabular-num">
+                                {{ $t->jenis === 'masuk' ? 'Rp ' . number_format($t->nominal, 0, ',', '.') : '-' }}
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;" class="tabular-num">
+                                {{ $t->jenis === 'keluar' ? 'Rp ' . number_format($t->nominal, 0, ',', '.') : '-' }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" style="text-align: center; font-style: italic; padding: 18px; color: #4b5563;">
+                                Tidak ada data transaksi kas pada rentang periode yang dipilih.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" style="text-align: right; text-transform: uppercase;">Jumlah Total Mutasi</td>
+                        <td style="text-align: right; white-space: nowrap;" class="tabular-num">
+                            Rp {{ number_format($totalMasuk, 0, ',', '.') }}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;" class="tabular-num">
+                            Rp {{ number_format($totalKeluar, 0, ',', '.') }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" style="text-align: right; text-transform: uppercase;">Saldo / Selisih Bersih Periode</td>
+                        <td colspan="2" style="text-align: right; white-space: nowrap;" class="tabular-num">
+                            {{ $surplusDefisit < 0 ? '-' : '' }}Rp {{ number_format(abs($surplusDefisit), 0, ',', '.') }}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- PENUTUP & TANDA TANGAN KETUA SAJA -->
+        <p class="text-[10.5pt] text-justify mt-5">
+            Demikian laporan keuangan ini disusun secara objektif sesuai catatan pembukuan organisasi untuk diketahui dan dipergunakan sebagaimana mestinya.
+        </p>
+
+        <div class="signature-block flex justify-end mt-8">
+            <div class="text-center text-[10.5pt]" style="min-width: 240px;">
+                <div>Dusun Demangan, {{ $tanggalCetakId }}</div>
+                <div class="mt-0.5">Mengetahui dan Mengesahkan,</div>
+                <div class="font-bold">Ketua Karang Taruna Dusun Demangan</div>
+                <div style="height: 72px;"></div>
+                <div class="font-bold underline underline-offset-4">{{ $namaKetua }}</div>
             </div>
         </div>
 
