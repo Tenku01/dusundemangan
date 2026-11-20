@@ -6,8 +6,8 @@ function setupCustomSelects() {
     const enhanced = new WeakMap();
     let activeDropdown = null;
 
-    const chevronSvg = '<svg class="custom-select-chevron" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
-    const checkSvg = '<svg class="w-4 h-4 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
+    const chevronSvg = '<svg class="custom-select-chevron" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+    const checkSvg = '<svg width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
 
     function closeActiveDropdown(restoreFocus = false) {
         if (!activeDropdown) return;
@@ -85,14 +85,14 @@ function setupCustomSelects() {
         }
 
         const labelSpan = document.createElement('span');
-        labelSpan.className = 'truncate flex-1 text-left';
+        labelSpan.className = 'custom-select-label';
         trigger.appendChild(labelSpan);
         trigger.insertAdjacentHTML('beforeend', chevronSvg);
 
         wrap.appendChild(trigger);
 
         const menu = document.createElement('div');
-        menu.className = 'custom-select-menu space-y-0.5';
+        menu.className = 'custom-select-menu';
         menu.setAttribute('role', 'listbox');
         if (ariaLabel) {
             menu.setAttribute('aria-label', ariaLabel);
@@ -190,7 +190,7 @@ function setupCustomSelects() {
 
                 const checkSpan = document.createElement('span');
                 checkSpan.setAttribute('data-check', '1');
-                checkSpan.className = 'shrink-0';
+                checkSpan.className = 'custom-select-check';
                 checkSpan.innerHTML = isSelected ? checkSvg : '';
 
                 btn.appendChild(textSpan);

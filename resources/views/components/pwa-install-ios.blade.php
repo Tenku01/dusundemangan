@@ -83,7 +83,7 @@
         <!-- Langkah Visual Safari iOS -->
         <ol class="space-y-2.5 text-xs text-slate-700">
             <li class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <span class="w-6 h-6 rounded-full bg-emas-500 text-[#FAF4E4CC] font-extrabold flex items-center justify-center shrink-0 tabular-money">1</span>
+                <span class="w-6 h-6 rounded-full bg-emas-500 text-[#1F1406] font-extrabold flex items-center justify-center shrink-0 tabular-money">1</span>
                 <div class="flex-1 leading-relaxed">
                     <div class="font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
                         <span>Ketuk ikon Bagikan (Share)</span>
@@ -98,7 +98,7 @@
             </li>
 
             <li class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <span class="w-6 h-6 rounded-full bg-emas-500 text-[#FAF4E4CC] font-extrabold flex items-center justify-center shrink-0 tabular-money">2</span>
+                <span class="w-6 h-6 rounded-full bg-emas-500 text-[#1F1406] font-extrabold flex items-center justify-center shrink-0 tabular-money">2</span>
                 <div class="flex-1 leading-relaxed">
                     <div class="font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
                         <span>Pilih "Tambah ke Layar Utama"</span>
@@ -113,7 +113,7 @@
             </li>
 
             <li class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <span class="w-6 h-6 rounded-full bg-emas-500 text-[#FAF4E4CC] font-extrabold flex items-center justify-center shrink-0 tabular-money">3</span>
+                <span class="w-6 h-6 rounded-full bg-emas-500 text-[#1F1406] font-extrabold flex items-center justify-center shrink-0 tabular-money">3</span>
                 <div class="flex-1 leading-relaxed">
                     <div class="font-bold text-slate-900">Ketuk "Tambah" (Add) di pojok kanan atas</div>
                     <p class="text-[11px] text-slate-600 mt-0.5">Ikon <strong>Dusun Demangan</strong> akan langsung muncul di layar utama iPhone Anda.</p>

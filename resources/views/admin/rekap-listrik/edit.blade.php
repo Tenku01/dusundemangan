@@ -62,7 +62,7 @@
                 </div>
                 <div class="text-right shrink-0">
                     <span class="text-[11px] font-bold uppercase tracking-wider text-emas-800 block">Nomor Struk:</span>
-                    <span class="inline-block px-3 py-1 bg-[#CEA042] text-[#FAF4E4CC] font-mono font-bold text-sm rounded-xl mt-0.5 shadow-sm tabular-money">
+                    <span class="inline-block px-3 py-1 bg-[#CEA042] text-[#1F1406] font-mono font-bold text-sm rounded-xl mt-0.5 shadow-sm tabular-money">
                         [ #{{ $tagihanListrik->nomor_struk }} ]
                     </span>
                 </div>

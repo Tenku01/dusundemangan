@@ -15,7 +15,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <div class="flex items-center gap-2.5">
-                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emas-500 text-[#FAF4E4CC] font-bold shrink-0 shadow-sm">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emas-500 text-[#1F1406] font-bold shrink-0 shadow-sm">
                         <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
@@ -75,21 +75,21 @@
                                     $isAktif = ($periodeAktif === $p);
                                 @endphp
                                 <a href="{{ route('admin.pembayaran-listrik.index', ['periode' => $p, 'rt' => $rtAktif, 'tab' => $tab]) }}"
-                                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition min-h-[44px] group {{ $isAktif ? 'bg-emas-500 text-[#FAF4E4CC] shadow-sm' : 'text-slate-700 hover:bg-emas-50 hover:text-emas-900' }}">
+                                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition min-h-[44px] group {{ $isAktif ? 'bg-emas-500 text-[#1F1406] shadow-sm' : 'text-slate-700 hover:bg-emas-50 hover:text-emas-900' }}">
                                     <div class="flex items-center gap-2.5">
-                                        <svg class="w-4 h-4 {{ $isAktif ? 'text-[#FAF4E4CC]' : 'text-slate-400 group-hover:text-emas-800' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 {{ $isAktif ? 'text-[#1F1406]' : 'text-slate-400 group-hover:text-emas-800' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                         </svg>
                                         <span>{{ $p }}</span>
                                     </div>
 
                                     @if($isAktif)
-                                        <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-[#FAF4E4]/20 text-[#FAF4E4CC] font-extrabold">
+                                        <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-[#1F1406]/10 text-[#1F1406] font-extrabold">
                                             <svg class="w-3 h-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                             Aktif
                                         </span>
                                     @elseif($idx === 0)
-                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emas-100 text-emas-900 font-bold group-hover:bg-emas-500 group-hover:text-[#FAF4E4CC] transition">
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emas-100 text-emas-900 font-bold group-hover:bg-emas-500 group-hover:text-[#1F1406] transition">
                                             Terbaru
                                         </span>
                                     @endif
@@ -134,15 +134,15 @@
             Semua RT
         </a>
         <a href="{{ route('admin.pembayaran-listrik.index', ['periode' => $periodeAktif, 'rt' => '1', 'tab' => $tab]) }}"
-           class="px-3.5 py-2 rounded-xl font-bold whitespace-nowrap min-h-[44px] flex items-center transition {{ (string)$rtAktif === '1' ? 'bg-emas-500 text-[#FAF4E4CC] shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-emas-50 hover:border-emas-300' }}">
+           class="px-3.5 py-2 rounded-xl font-bold whitespace-nowrap min-h-[44px] flex items-center transition {{ (string)$rtAktif === '1' ? 'bg-emas-500 text-[#1F1406] shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-emas-50 hover:border-emas-300' }}">
             RT 01
         </a>
         <a href="{{ route('admin.pembayaran-listrik.index', ['periode' => $periodeAktif, 'rt' => '2', 'tab' => $tab]) }}"
-           class="px-3.5 py-2 rounded-xl font-bold whitespace-nowrap min-h-[44px] flex items-center transition {{ (string)$rtAktif === '2' ? 'bg-emas-500 text-[#FAF4E4CC] shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-emas-50 hover:border-emas-300' }}">
+           class="px-3.5 py-2 rounded-xl font-bold whitespace-nowrap min-h-[44px] flex items-center transition {{ (string)$rtAktif === '2' ? 'bg-emas-500 text-[#1F1406] shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-emas-50 hover:border-emas-300' }}">
             RT 02
         </a>
         <a href="{{ route('admin.pembayaran-listrik.index', ['periode' => $periodeAktif, 'rt' => '3', 'tab' => $tab]) }}"
-           class="px-3.5 py-2 rounded-xl font-bold whitespace-nowrap min-h-[44px] flex items-center transition {{ (string)$rtAktif === '3' ? 'bg-emas-500 text-[#FAF4E4CC] shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-emas-50 hover:border-emas-300' }}">
+           class="px-3.5 py-2 rounded-xl font-bold whitespace-nowrap min-h-[44px] flex items-center transition {{ (string)$rtAktif === '3' ? 'bg-emas-500 text-[#1F1406] shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-emas-50 hover:border-emas-300' }}">
             RT 03
         </a>
     </div>
@@ -358,7 +358,7 @@
                         <!-- Header Struk Gabungan -->
                         <div class="flex items-start justify-between gap-3">
                             <div class="flex items-start gap-2.5 min-w-0 flex-1">
-                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-emas-500 text-[#FAF4E4CC] font-bold shrink-0 shadow-sm mt-0.5">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-emas-500 text-[#1F1406] font-bold shrink-0 shadow-sm mt-0.5">
                                     <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                                 </span>
                                 <div class="min-w-0 flex-1">
@@ -502,7 +502,7 @@
                                             aria-label="Pilih tagihan {{ $item->nama_warga }} nomor struk {{ $item->nomor_struk }}"
                                             :aria-pressed="selectedIds.includes({{ $item->id }}).toString()"
                                             class="mt-0.5 w-9 h-9 rounded-xl border-2 flex items-center justify-center transition shrink-0"
-                                            :class="selectedIds.includes({{ $item->id }}) ? 'bg-emas-500 border-emas-500 text-[#FAF4E4CC]' : 'border-slate-300 bg-white text-transparent hover:border-emas-400'">
+                                            :class="selectedIds.includes({{ $item->id }}) ? 'bg-emas-500 border-emas-500 text-[#1F1406]' : 'border-slate-300 bg-white text-transparent hover:border-emas-400'">
                                         <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 @endif
@@ -695,7 +695,7 @@
                         <template x-for="item in selectedItems" :key="item.id">
                             <button type="button" @click="namaPembayarGabungan = item.nama_warga"
                                     class="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition border min-h-[36px]"
-                                    :class="namaPembayarGabungan === item.nama_warga ? 'bg-emas-500 text-[#FAF4E4CC] border-emas-500 font-bold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'">
+                                    :class="namaPembayarGabungan === item.nama_warga ? 'bg-emas-500 text-[#1F1406] border-emas-500 font-bold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'">
                                 <span x-text="item.nama_warga"></span>
                             </button>
                         </template>
