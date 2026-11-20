@@ -1,58 +1,141 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/logo-kartar-dmg-circle.png" width="110" alt="Logo Karang Taruna Dusun Demangan">
 </p>
 
-## About Laravel
+<h1 align="center">Sistem Informasi &amp; Kasir Listrik Dusun Demangan</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <strong>Karang Taruna Dusun Demangan, Desa Candimulyo</strong><br>
+  Portal layanan publik warga, transparansi kas dusun, inventaris barang, serta aplikasi rekap dan kasir pembayaran listrik berbasis web &amp; PWA.
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<p align="center">
+  <a href="https://dusundemangan.vercel.app">Demo Production (Vercel)</a>
+</p>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Ringkasan Project
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Aplikasi ini dibangun untuk membantu pengurus Karang Taruna Dusun Demangan mengelola administrasi dusun secara transparan, rapi, dan cepat langsung dari perangkat seluler maupun desktop.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Fitur Utama
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+#### 1. Portal Publik Warga
+- **Katalog & Peminjaman Inventaris**: Warga dapat melihat daftar barang inventaris dusun yang tersedia, mengajukan peminjaman, dan melacak status pengajuan via kode resi.
+- **Transparansi Kas Dusun**: Menampilkan saldo kas (Kas Karang Taruna, Kas Listrik, dan total kas) serta riwayat mutasi masuk/keluar yang dapat difilter berdasarkan arus kas, bulan, dan tahun.
+- **Cek Tagihan Listrik Warga**: Pencarian tagihan listrik bulanan berdasarkan nama pelanggan/warga atau nomor struk beserta riwayat status lunas.
 
-## Agentic Development
+#### 2. Panel Pengurus (Mobile-First & Kontrol Akses Menu)
+- **Rekap Listrik Warga**:
+  - Pencatatan cepat berurutan (*sequential entry*) sesuai urutan nomor meter/struk per RT (RT 01, RT 02, RT 03).
+  - Pengurutan siklus periode secara kronologis kalender dan duplikasi siklus bulan baru dengan penghitungan otomatis saldo titipan maupun tunggakan bulan sebelumnya.
+  - Penggabungan beberapa tagihan ke dalam satu struk kelompok (`GAB-XXXXXX`), ekspor CSV, dan lembar rekap siap cetak ukuran A4.
+- **Kasir Pembayaran Listrik**:
+  - Pencarian instan tanpa reload, dukungan bayar satuan maupun bayar gabungan, dan pembatalan/pemisahan struk jika diperlukan.
+  - Kalkulasi real-time uang diterima, nominal kembalian yang diserahkan, sisa titipan, atau kekurangan bayar, serta pembukuan langsung penerimaan kas Karang Taruna ke Buku Kas Utama.
+- **Master Data Warga**: Pengelolaan daftar pelanggan listrik per RT beserta nomor struk dan nama pelanggan PLN.
+- **Inventaris & Peminjaman**: Pendataan barang dusun serta alur persetujuan, penolakan, dan pencatatan pengembalian peminjaman.
+- **Keuangan & Laporan**: Pencatatan transaksi kas masuk/keluar serta penyusunan laporan arus kas dusun siap cetak.
+- **Manajemen Akun Admin**: Pengaturan akun pengurus dan hak akses per menu oleh Superadmin.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+#### 3. Progressive Web App (PWA)
+- Mendukung instalasi aplikasi ke layar utama perangkat Android, desktop, maupun iPhone/iPad (Safari iOS lengkap dengan panduan visual dan deteksi browser dalam aplikasi).
+- Dilengkapi `manifest.webmanifest`, ikon aplikasi multi-ukuran, dan Service Worker (`public/sw.js`).
 
-```bash
-composer require laravel/boost --dev
+---
 
-php artisan boost:install
+## Teknologi yang Digunakan
+
+| Lapisan | Teknologi |
+| --- | --- |
+| **Backend** | PHP `^8.3`, Laravel Framework (`^13.17`) |
+| **Frontend** | Blade Templates, Tailwind CSS (`^3.1.0`), Alpine.js (`^3.4.2`) |
+| **Build Tool** | Vite (`^8.0.0`) + Laravel Vite Plugin |
+| **Database** | MySQL / TiDB Cloud Serverless (dengan koneksi SSL) |
+| **Deployment** | Vercel Serverless (`vercel-php@0.9.0` via `api/index.php`) |
+
+---
+
+## Struktur Direktori Kunci
+
+```text
+├── api/index.php                     # Entrypoint serverless Vercel
+├── app/
+│   ├── Http/Controllers/Admin/       # Controller Rekap, Kasir, Warga, Inventaris, Kas, Akun
+│   └── Models/                       # TagihanListrik, Warga, Barang, Peminjaman, Keuangan, User
+├── public/
+│   ├── manifest.webmanifest          # Konfigurasi PWA Web App Manifest
+│   └── sw.js                         # Service Worker untuk aset statis & fallback offline
+├── resources/
+│   ├── css/app.css                   # Token tema emas (#CEA042), komponen UI & custom dropdown
+│   ├── js/app.js                     # Inisialisasi Alpine.js & custom select dropdown
+│   └── views/
+│       ├── admin/                    # Tampilan dashboard & modul operasional pengurus
+│       ├── layouts/                  # Layout publik, admin, guest & komponen PWA iOS
+│       └── publik/                   # Halaman beranda, buku kas, cek listrik & cek status
+├── routes/web.php                    # Definisi route publik dan panel admin
+└── vercel.json                       # Routing statis CDN & build command Vercel
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## Menjalankan Secara Lokal
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Prasyarat
+- PHP 8.3+ dan Composer
+- Node.js dan npm
+- MySQL (misal via Laragon) atau SQLite untuk pengembangan
 
-## Code of Conduct
+### Langkah Instalasi
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# 1. Clone repositori
+git clone https://github.com/Tenku01/dusundemangan.git
+cd dusundemangan
 
-## Security Vulnerabilities
+# 2. Install dependency PHP & JavaScript
+composer install
+npm ci
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 3. Siapkan file environment & key aplikasi
+cp .env.example .env
+php artisan key:generate
+```
 
-## License
+Sesuaikan koneksi database di `.env`, lalu jalankan migrasi dan build aset frontend:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan migrate
+npm run build
+php artisan serve
+```
+
+> [!IMPORTANT]
+> Jika terhubung ke database yang sudah berisi data warga maupun riwayat tagihan aktif, jangan menjalankan `php artisan migrate:fresh` atau `migrate:refresh`.
+
+Untuk pengembangan frontend secara live reload, jalankan `npm run dev` pada terminal terpisah.
+
+---
+
+## Pengujian & Kualitas Kode
+
+```bash
+# Menjalankan suite pengujian PHPUnit
+php artisan test --compact
+
+# Memeriksa & merapikan format kode PHP menggunakan Laravel Pint
+vendor/bin/pint --format agent
+```
+
+---
+
+## Deployment Production
+
+Repositori ini terintegrasi dengan CI/CD Vercel: setiap push ke branch `main` akan menjalankan `npm run build` dan men-deploy perubahan ke production di [dusundemangan.vercel.app](https://dusundemangan.vercel.app).
+
+---
+
+<p align="center">
+  <sub>&copy; Karang Taruna Dusun Demangan, Desa Candimulyo.</sub>
+</p>
