@@ -18,39 +18,39 @@
     <!-- Status Tabs -->
     <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs -mx-1 px-1">
         <a href="{{ route('admin.peminjaman.index', ['status' => 'menunggu']) }}"
-           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-2 min-h-[44px] {{ $status === 'menunggu' ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
+           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-2 min-h-[44px] {{ $status === 'menunggu' ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
             <span>Menunggu Approval</span>
-            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold tabular-money {{ $status === 'menunggu' ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-amber-100 text-amber-900' }}">
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold tabular-money {{ $status === 'menunggu' ? 'bg-[#FAF4E4]/20 text-[#FAF4E4CC]' : 'bg-amber-100 text-amber-900' }}">
                 {{ $jumlahMenunggu }}
             </span>
         </a>
 
         <a href="{{ route('admin.peminjaman.index', ['status' => 'disetujui']) }}"
-           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-2 min-h-[44px] {{ $status === 'disetujui' ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
+           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-2 min-h-[44px] {{ $status === 'disetujui' ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
             <span>Sedang Dipinjam</span>
-            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold tabular-money {{ $status === 'disetujui' ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-emerald-100 text-emerald-900' }}">
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold tabular-money {{ $status === 'disetujui' ? 'bg-[#FAF4E4]/20 text-[#FAF4E4CC]' : 'bg-emerald-100 text-emerald-900' }}">
                 {{ $jumlahDisetujui }}
             </span>
         </a>
 
         <a href="{{ route('admin.peminjaman.index', ['status' => 'dikembalikan']) }}"
-           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-2 min-h-[44px] {{ $status === 'dikembalikan' ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
+           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-2 min-h-[44px] {{ $status === 'dikembalikan' ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
             <span>Selesai (Kembali)</span>
-            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold tabular-money {{ $status === 'dikembalikan' ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-sky-100 text-sky-900' }}">
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold tabular-money {{ $status === 'dikembalikan' ? 'bg-[#FAF4E4]/20 text-[#FAF4E4CC]' : 'bg-sky-100 text-sky-900' }}">
                 {{ $jumlahDikembalikan }}
             </span>
         </a>
 
         <a href="{{ route('admin.peminjaman.index', ['status' => 'ditolak']) }}"
-           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-2 min-h-[44px] {{ $status === 'ditolak' ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
+           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-2 min-h-[44px] {{ $status === 'ditolak' ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
             <span>Ditolak</span>
-            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold tabular-money {{ $status === 'ditolak' ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-rose-100 text-rose-900' }}">
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold tabular-money {{ $status === 'ditolak' ? 'bg-[#FAF4E4]/20 text-[#FAF4E4CC]' : 'bg-rose-100 text-rose-900' }}">
                 {{ $jumlahDitolak }}
             </span>
         </a>
 
         <a href="{{ route('admin.peminjaman.index', ['status' => 'semua']) }}"
-           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center min-h-[44px] {{ $status === 'semua' ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
+           class="whitespace-nowrap px-3.5 py-2 rounded-xl font-bold transition flex items-center min-h-[44px] {{ $status === 'semua' ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm border border-[#BA8832]/50' : 'bg-white text-gray-700 hover:bg-emas-50 border border-gray-200' }}">
             Semua
         </a>
     </div>

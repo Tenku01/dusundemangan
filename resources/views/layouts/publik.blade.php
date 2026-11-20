@@ -156,7 +156,7 @@
                 </div>
 
                 <div class="text-xs text-gray-500">
-                    &copy; {{ date('Y') }} Karang Taruna Dusun Demangan.
+                    &copy; {{ date('Y') }} Karang Taruna Dusun Demangan, Desa Candimulyo.
                 </div>
             </div>
         </div>

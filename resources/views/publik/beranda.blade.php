@@ -16,7 +16,7 @@
                          fetchpriority="high"
                          class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover shadow-sm border-2 border-emas-300 bg-white shrink-0">
                     <div>
-                        <div class="text-xs font-bold text-emas-800 uppercase tracking-wider">Karang Taruna Dusun Demangan</div>
+                        <div class="text-xs font-bold text-emas-800 uppercase tracking-wider">Karang Taruna Dusun Demangan, Desa Candimulyo</div>
                         <div class="text-xs text-gray-500 font-medium mt-0.5">Portal Layanan &amp; Informasi Warga</div>
                     </div>
                 </div>

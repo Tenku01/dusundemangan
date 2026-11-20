@@ -7,7 +7,7 @@
         --color-primary: #CEA042;
         --color-primary-hover: #BA8832;
         --color-primary-active: #9B6C26;
-        --color-primary-ink: #1F1406;
+        --color-primary-ink: #FAF4E4CC;
         --color-gold-text: #7E5522;
         --color-surface: #FFFFFF;
         --color-canvas: #F8F7F4;
@@ -66,7 +66,7 @@
 
 @layer components {
     .btn-primary {
-        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold text-[#1F1406] bg-[#CEA042] hover:bg-[#BA8832] active:bg-[#9B6C26] border border-[#BA8832]/50 rounded-xl shadow-sm transition duration-150 ease-out min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CEA042] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none select-none;
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold text-[#FAF4E4CC] bg-[#CEA042] hover:bg-[#BA8832] active:bg-[#9B6C26] border border-[#BA8832]/50 rounded-xl shadow-sm transition duration-150 ease-out min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CEA042] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none select-none;
     }
 
     .btn-secondary {
@@ -115,5 +115,87 @@
 
     .tabular-money {
         font-variant-numeric: tabular-nums;
+    }
+
+    .custom-select-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .custom-select-native {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        margin: 0 !important;
+        z-index: -1 !important;
+    }
+
+    .custom-select-trigger {
+        @apply w-full inline-flex items-center justify-between gap-2 text-left text-base sm:text-sm font-medium text-gray-800 bg-white hover:bg-emas-50/60 border border-gray-300 hover:border-emas-400 rounded-xl shadow-sm transition duration-150 min-h-[44px] py-2 pl-3.5 pr-3 focus:outline-none focus-visible:border-[#CEA042] focus-visible:ring-2 focus-visible:ring-[#CEA042]/25;
+    }
+
+    .custom-select-trigger[aria-expanded="true"] {
+        @apply border-[#CEA042] ring-2 ring-[#CEA042]/25 bg-emas-50/40;
+    }
+
+    .custom-select-trigger:disabled {
+        @apply opacity-60 cursor-not-allowed bg-gray-50 hover:bg-gray-50 hover:border-gray-300;
+    }
+
+    .custom-select-chevron {
+        @apply w-4 h-4 text-gray-500 shrink-0 transition-transform duration-200;
+    }
+
+    .custom-select-trigger[aria-expanded="true"] .custom-select-chevron {
+        @apply rotate-180 text-emas-800;
+    }
+
+    .custom-select-menu {
+        position: fixed;
+        z-index: 95;
+        background-color: #ffffff;
+        border: 1px solid #DFCA92;
+        border-radius: 1rem;
+        box-shadow: 0 20px 25px -5px rgba(31, 20, 6, 0.12), 0 8px 10px -6px rgba(31, 20, 6, 0.08);
+        padding: 0.375rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .custom-select-option {
+        @apply w-full flex items-center justify-between gap-2.5 text-left px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-gray-700 transition duration-100 min-h-[40px];
+    }
+
+    .custom-select-option:hover:not(:disabled):not(.is-selected),
+    .custom-select-option.is-highlighted:not(:disabled):not(.is-selected) {
+        background-color: #FAF4E4;
+        color: #674620;
+    }
+
+    .custom-select-option.is-selected {
+        background-color: #CEA042;
+        color: #FAF4E4CC;
+        font-weight: 700;
+        box-shadow: 0 1px 2px 0 rgba(31, 20, 6, 0.08);
+    }
+
+    .custom-select-option.is-selected:hover:not(:disabled),
+    .custom-select-option.is-selected.is-highlighted:not(:disabled) {
+        background-color: #BA8832;
+        color: #FAF4E4CC;
+    }
+
+    .custom-select-option:disabled {
+        @apply opacity-45 cursor-not-allowed text-gray-400;
+    }
+
+    @media print {
+        .custom-select-menu {
+            display: none !important;
+        }
     }
 }

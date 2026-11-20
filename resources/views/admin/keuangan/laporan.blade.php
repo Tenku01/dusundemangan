@@ -79,7 +79,7 @@
                     Periode: {{ DateTime::createFromFormat('!m', $bulanMulai)->format('F') }} s/d {{ DateTime::createFromFormat('!m', $bulanSelesai)->format('F') }} {{ $tahun }}
                 </div>
                 <div class="text-xs text-gray-600 mt-0.5">
-                    Karang Taruna Dusun Demangan, Desa Bangunharjo
+                    Karang Taruna Dusun Demangan, Desa Candimulyo
                 </div>
             </div>
         </div>

@@ -176,7 +176,7 @@
                             <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.pengguna.*') ? 'text-emas-400' : 'text-slate-600' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                             <span>Kelola Akun Admin</span>
                         </span>
-                        <span class="text-[11px] px-2 py-0.5 rounded-full font-bold tabular-money {{ request()->routeIs('admin.pengguna.*') ? 'bg-emas-500 text-[#1F1406]' : 'bg-slate-200 text-slate-800' }}">
+                        <span class="text-[11px] px-2 py-0.5 rounded-full font-bold tabular-money {{ request()->routeIs('admin.pengguna.*') ? 'bg-emas-500 text-[#FAF4E4CC]' : 'bg-slate-200 text-slate-800' }}">
                             {{ \App\Models\User::count() }}
                         </span>
                     </a>
@@ -265,7 +265,7 @@
                             <span>Peminjaman Barang</span>
                         </span>
                         @if($drawerPendingPinjam > 0)
-                            <span class="text-[11px] bg-emas-500 text-[#1F1406] px-2 py-0.5 rounded-full font-bold tabular-money">
+                            <span class="text-[11px] bg-emas-500 text-[#FAF4E4CC] px-2 py-0.5 rounded-full font-bold tabular-money">
                                 {{ $drawerPendingPinjam }}
                             </span>
                         @endif
@@ -360,7 +360,7 @@
                             <span>Peminjaman</span>
                         </span>
                         @if($antreanPending > 0)
-                            <span class="text-xs bg-emas-500 text-[#1F1406] px-2 py-0.5 rounded-full font-bold tabular-money">
+                            <span class="text-xs bg-emas-500 text-[#FAF4E4CC] px-2 py-0.5 rounded-full font-bold tabular-money">
                                 {{ $antreanPending }}
                             </span>
                         @endif

@@ -122,7 +122,7 @@
                      class="w-14 h-14 object-contain rounded-full border border-emas-300 shrink-0">
                 <div>
                     <h2 class="text-xs font-bold tracking-wider uppercase text-emas-800">
-                        Karang Taruna Dusun Demangan, RW 01
+                        Karang Taruna Dusun Demangan, RW 01, Desa Candimulyo
                     </h2>
                     <h1 class="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight uppercase leading-snug">
                         Rekapitulasi Pembayaran Listrik Warga

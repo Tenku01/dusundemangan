@@ -25,7 +25,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <div class="flex items-center gap-2.5">
-                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#CEA042] text-[#1F1406] font-bold shrink-0 shadow-sm">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#CEA042] text-[#FAF4E4CC] font-bold shrink-0 shadow-sm">
                         <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                         </svg>
@@ -107,21 +107,21 @@
                                     $isAktif = ($periodeAktif === $p);
                                 @endphp
                                 <a href="{{ route('admin.rekap-listrik.index', ['periode' => $p, 'rt' => $rtAktif]) }}"
-                                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition group {{ $isAktif ? 'bg-[#CEA042] text-[#1F1406] shadow-sm' : 'text-gray-700 hover:bg-emas-50 hover:text-emas-900' }}">
+                                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition group {{ $isAktif ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm' : 'text-gray-700 hover:bg-emas-50 hover:text-emas-900' }}">
                                     <div class="flex items-center gap-2.5">
-                                        <svg class="w-4 h-4 {{ $isAktif ? 'text-[#1F1406]' : 'text-gray-400 group-hover:text-emas-700' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 {{ $isAktif ? 'text-[#FAF4E4CC]' : 'text-gray-400 group-hover:text-emas-700' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                         </svg>
                                         <span>{{ $p }}</span>
                                     </div>
 
                                     @if($isAktif)
-                                        <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-[#1F1406]/15 text-[#1F1406] font-extrabold">
+                                        <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-[#FAF4E4]/20 text-[#FAF4E4CC] font-extrabold">
                                             <svg class="w-3 h-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                             Aktif
                                         </span>
                                     @elseif($idx === 0)
-                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emas-100 text-emas-900 font-bold group-hover:bg-[#CEA042] group-hover:text-[#1F1406] transition">
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emas-100 text-emas-900 font-bold group-hover:bg-[#CEA042] group-hover:text-[#FAF4E4CC] transition">
                                             Terbaru
                                         </span>
                                     @endif
@@ -168,25 +168,25 @@
     <!-- Tab Pilihan RT 1, 2, 3 -->
     <div class="grid grid-cols-3 gap-2 bg-gray-200/80 p-1.5 rounded-2xl">
         <a href="{{ route('admin.rekap-listrik.index', ['periode' => $periodeAktif, 'rt' => 1]) }}"
-           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 1 ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
+           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 1 ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
             <span>RT 01</span>
-            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 1 ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-gray-100 text-gray-700' }}">
+            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 1 ? 'bg-[#FAF4E4]/20 text-[#FAF4E4CC]' : 'bg-gray-100 text-gray-700' }}">
                 {{ $countRt1 }}
             </span>
         </a>
 
         <a href="{{ route('admin.rekap-listrik.index', ['periode' => $periodeAktif, 'rt' => 2]) }}"
-           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 2 ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
+           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 2 ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
             <span>RT 02</span>
-            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 2 ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-gray-100 text-gray-700' }}">
+            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 2 ? 'bg-[#FAF4E4]/20 text-[#FAF4E4CC]' : 'bg-gray-100 text-gray-700' }}">
                 {{ $countRt2 }}
             </span>
         </a>
 
         <a href="{{ route('admin.rekap-listrik.index', ['periode' => $periodeAktif, 'rt' => 3]) }}"
-           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 3 ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
+           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 3 ? 'bg-[#CEA042] text-[#FAF4E4CC] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
             <span>RT 03</span>
-            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 3 ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-gray-100 text-gray-700' }}">
+            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 3 ? 'bg-[#FAF4E4]/20 text-[#FAF4E4CC]' : 'bg-gray-100 text-gray-700' }}">
                 {{ $countRt3 }}
             </span>
         </a>
@@ -264,7 +264,7 @@
                                 <button type="button" @click="toggleSelect({{ $item->id }})"
                                         aria-label="Pilih tagihan {{ $item->nama_warga }}"
                                         class="mt-0.5 w-8 h-8 rounded-lg border-2 flex items-center justify-center transition shrink-0"
-                                        :class="selectedIds.includes({{ $item->id }}) ? 'bg-[#CEA042] border-[#CEA042] text-[#1F1406]' : 'border-gray-300 bg-white text-transparent hover:border-[#CEA042]'">
+                                        :class="selectedIds.includes({{ $item->id }}) ? 'bg-[#CEA042] border-[#CEA042] text-[#FAF4E4CC]' : 'border-gray-300 bg-white text-transparent hover:border-[#CEA042]'">
                                     <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                 </button>
                             @endif
@@ -449,7 +449,7 @@
                             <template x-for="item in selectedItems" :key="item.id">
                                 <button type="button" @click="namaPembayarGabungan = item.nama_warga"
                                         class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border min-h-[36px]"
-                                        :class="namaPembayarGabungan === item.nama_warga ? 'bg-[#CEA042] text-[#1F1406] border-[#BA8832]' : 'bg-gray-100 hover:bg-emas-50 text-gray-800 border-gray-200'">
+                                        :class="namaPembayarGabungan === item.nama_warga ? 'bg-[#CEA042] text-[#FAF4E4CC] border-[#BA8832]' : 'bg-gray-100 hover:bg-emas-50 text-gray-800 border-gray-200'">
                                     <span x-text="item.nama_warga"></span>
                                 </button>
                             </template>
@@ -540,7 +540,7 @@
                         </template>
                     </div>
 
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-[#CEA042] text-[#1F1406] font-mono font-extrabold text-xs sm:text-sm shadow-sm tabular-money shrink-0">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-[#CEA042] text-[#FAF4E4CC] font-mono font-extrabold text-xs sm:text-sm shadow-sm tabular-money shrink-0">
                         Struk [ #<span x-text="wargaAktif.nomor_struk || wargaAktif.nomor_meter || '-'"></span> ]
                     </span>
                 </div>
@@ -805,7 +805,7 @@
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="text-sm font-extrabold text-gray-900" x-text="item.nama"></span>
                                     <template x-if="item.nama === '{{ $periodeAktif }}'">
-                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#CEA042] text-[#1F1406]">
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#CEA042] text-[#FAF4E4CC]">
                                             Sedang Dibuka
                                         </span>
                                     </template>
