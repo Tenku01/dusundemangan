@@ -53,7 +53,7 @@ class User extends Authenticatable
         'kas' => [
             'key' => 'kas',
             'label' => 'Buku Kas & Laporan',
-            'deskripsi' => 'Pencatatan kas dusun & laporan keuangan',
+            'deskripsi' => 'Pencatatan kas & laporan keuangan',
             'icon' => 'book',
             'rute' => 'admin.keuangan.index',
         ],

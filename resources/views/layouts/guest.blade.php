@@ -47,7 +47,7 @@
                      fetchpriority="high"
                      class="w-14 h-14 rounded-full object-cover shadow-sm border-2 border-emas-300 group-hover:scale-105 transition bg-white shrink-0">
                 <div class="text-left">
-                    <div class="text-lg font-bold text-gray-900 leading-tight">Inventaris & Kas Dusun</div>
+                    <div class="text-lg font-bold text-gray-900 leading-tight">Inventaris &amp; Kas</div>
                     <div class="text-xs font-bold text-emas-800 uppercase tracking-wider">Karang Taruna Demangan</div>
                 </div>
             </a>

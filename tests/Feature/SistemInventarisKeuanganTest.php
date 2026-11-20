@@ -41,7 +41,7 @@ class SistemInventarisKeuanganTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Tenda Terop Besi 4x6 Meter');
-        $response->assertSee('Saldo Kas Dusun Saat Ini');
+        $response->assertSee('Saldo Kas Saat Ini');
     }
 
     public function test_warga_dapat_mengajukan_pinjaman_tanpa_harus_login(): void

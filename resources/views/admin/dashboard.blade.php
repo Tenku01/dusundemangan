@@ -32,7 +32,7 @@
     <!-- KPI Grid Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         <div class="card-surface p-5 border-t-2 border-t-emerald-500">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Saldo Kas Dusun</span>
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Saldo Kas</span>
             <div class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tracking-tight tabular-money">
                 Rp {{ number_format($saldoKasSaatIni, 0, ',', '.') }}
             </div>

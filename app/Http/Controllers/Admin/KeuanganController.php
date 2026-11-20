@@ -85,11 +85,7 @@ class KeuanganController extends Controller
         $kategoriList = Keuangan::select('kategori')->distinct()->pluck('kategori');
 
         // Daftar Kategori Kas Dinamis (Bisa di-inputkan sendiri oleh pengguna)
-        $kategoriKasExisting = Keuangan::select('kategori_kas')->distinct()->pluck('kategori_kas')->toArray();
-        $daftarKategoriKas = array_values(array_unique(array_filter(array_merge(
-            [Keuangan::KAS_KARANG_TARUNA, Keuangan::KAS_LISTRIK],
-            $kategoriKasExisting
-        ))));
+        $daftarKategoriKas = Keuangan::getDaftarKategoriKas();
 
         return view('admin.keuangan.index', compact(
             'daftarKas',

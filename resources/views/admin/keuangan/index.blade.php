@@ -12,7 +12,7 @@
                 Buku Kas Keuangan Dusun
             </h1>
             <p class="text-xs text-gray-600 mt-0.5">
-                Kelola Kas Karang Taruna, Kas Listrik warga yang ditahan, serta pos kas dusun lainnya.
+                Kelola Kas Karang Taruna, Kas Listrik warga yang ditahan, serta pos kas lainnya.
             </p>
         </div>
 
@@ -288,7 +288,7 @@
 
         <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
             <div>
-                <h3 id="modal-kas-title" class="text-base font-bold text-gray-900 leading-tight">Catat Transaksi Kas Dusun</h3>
+                <h3 id="modal-kas-title" class="text-base font-bold text-gray-900 leading-tight">Catat Transaksi Kas</h3>
                 <p class="text-xs text-gray-600 mt-0.5">Catat arus kas masuk atau pengeluaran dana warga.</p>
             </div>
             <button type="button" onclick="tutupModalKas()" aria-label="Tutup modal catat kas"

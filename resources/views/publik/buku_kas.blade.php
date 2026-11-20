@@ -28,13 +28,20 @@
     <!-- Tiga Kartu Ringkasan Akuntansi -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
         <div class="card-surface p-5 border-t-2 border-t-emerald-500">
-            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
-                Saldo Akhir Kas Dusun
+            <div class="flex items-center justify-between gap-2 mb-1">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    Saldo Akhir Kas
+                </div>
+                @if(!empty($kategoriKas))
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emas-100 text-emas-900 border border-emas-200">{{ $kategoriKas }}</span>
+                @endif
             </div>
             <div class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tracking-tight tabular-money">
                 Rp {{ number_format($saldoKasSaatIni, 0, ',', '.') }}
             </div>
-            <p class="text-xs text-gray-600 mt-1.5">Saldo riil di kas bendahara saat ini.</p>
+            <p class="text-xs text-gray-600 mt-1.5">
+                {{ !empty($kategoriKas) ? 'Saldo akhir untuk ' . $kategoriKas . '.' : 'Saldo riil gabungan seluruh kas saat ini.' }}
+            </p>
         </div>
 
         <div class="card-surface p-5 border-t-2 border-t-[#CEA042]">
@@ -44,7 +51,7 @@
             <div class="text-2xl sm:text-3xl font-extrabold text-emas-800 tracking-tight tabular-money">
                 Rp {{ number_format($totalMasuk, 0, ',', '.') }}
             </div>
-            <p class="text-xs text-gray-600 mt-1.5">Akumulasi iuran, sumbangan, dan donasi warga.</p>
+            <p class="text-xs text-gray-600 mt-1.5">Akumulasi pemasukan yang tercatat pada kas.</p>
         </div>
 
         <div class="card-surface p-5 border-t-2 border-t-rose-500">
@@ -54,13 +61,25 @@
             <div class="text-2xl sm:text-3xl font-extrabold text-rose-700 tracking-tight tabular-money">
                 Rp {{ number_format($totalKeluar, 0, ',', '.') }}
             </div>
-            <p class="text-xs text-gray-600 mt-1.5">Akumulasi belanja fasilitas dan kegiatan dusun.</p>
+            <p class="text-xs text-gray-600 mt-1.5">Akumulasi pengeluaran belanja fasilitas dan kegiatan.</p>
         </div>
     </div>
 
     <!-- Filter Bar -->
     <div class="card-surface p-4">
-        <form method="GET" action="{{ route('publik.buku-kas') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+        <form method="GET" action="{{ route('publik.buku-kas') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+            <div>
+                <label for="filter-kategori-kas" class="block text-xs font-semibold text-gray-700 mb-1">Pilih Kas</label>
+                <select id="filter-kategori-kas" name="kategori_kas" onchange="this.form.submit()" class="select-field">
+                    <option value="">Semua Kas</option>
+                    @foreach($daftarKategoriKas as $kKas)
+                        <option value="{{ $kKas }}" {{ ($kategoriKas ?? '') === $kKas ? 'selected' : '' }}>
+                            {{ $kKas }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <div>
                 <label for="filter-jenis" class="block text-xs font-semibold text-gray-700 mb-1">Arus Kas</label>
                 <select id="filter-jenis" name="jenis" onchange="this.form.submit()" class="select-field">
@@ -91,7 +110,7 @@
                 </select>
             </div>
 
-            @if($jenis || $bulan)
+            @if($jenis || $bulan || $kategoriKas)
                 <div>
                     <a href="{{ route('publik.buku-kas') }}" class="btn-danger-soft w-full text-xs">
                         Reset Filter
@@ -113,8 +132,13 @@
                         {{ $kas->jenis === 'masuk' ? 'Kas Masuk' : 'Kas Keluar' }}
                     </span>
                 </div>
-                <div class="flex items-baseline justify-between gap-2">
-                    <div class="text-xs font-bold text-gray-900">{{ $kas->kategori }}</div>
+                <div class="flex items-start justify-between gap-2">
+                    <div class="space-y-1 min-w-0">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold {{ $kas->badgeClassesKategoriKas() }}">
+                            {{ $kas->labelKategoriKas() }}
+                        </span>
+                        <div class="text-xs font-bold text-gray-900">{{ $kas->kategori }}</div>
+                    </div>
                     <div class="text-sm font-extrabold tabular-money shrink-0 {{ $kas->jenis === 'masuk' ? 'text-emerald-700' : 'text-rose-700' }}">
                         {{ $kas->jenis === 'masuk' ? '+' : '-' }} Rp {{ number_format($kas->nominal, 0, ',', '.') }}
                     </div>
@@ -138,6 +162,7 @@
                     <tr>
                         <th class="py-3.5 px-4">Tanggal</th>
                         <th class="py-3.5 px-4">Kode</th>
+                        <th class="py-3.5 px-4">Kas</th>
                         <th class="py-3.5 px-4">Kategori / Pos</th>
                         <th class="py-3.5 px-4">Uraian Transaksi</th>
                         <th class="py-3.5 px-4 text-right">Pemasukan</th>
@@ -152,6 +177,11 @@
                             </td>
                             <td class="py-3.5 px-4 whitespace-nowrap text-gray-500 font-mono text-[11px]">
                                 {{ $kas->kode_transaksi }}
+                            </td>
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold {{ $kas->badgeClassesKategoriKas() }}">
+                                    {{ $kas->labelKategoriKas() }}
+                                </span>
                             </td>
                             <td class="py-3.5 px-4 whitespace-nowrap">
                                 <span class="font-semibold text-gray-900">{{ $kas->kategori }}</span>
@@ -176,7 +206,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-12 text-center text-gray-500">
+                            <td colspan="7" class="py-12 text-center text-gray-500">
                                 Tidak ada catatan mutasi kas pada periode ini.
                             </td>
                         </tr>

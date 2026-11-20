@@ -192,15 +192,20 @@ class KatalogController extends Controller
     }
 
     /**
-     * Halaman transparansi penuh buku kas umum dusun untuk publik.
+     * Halaman transparansi penuh buku kas umum untuk publik.
      */
     public function bukuKas(Request $request): View
     {
+        $kategoriKas = $request->query('kategori_kas');
         $jenis = $request->query('jenis');
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun', date('Y'));
 
         $query = Keuangan::query();
+
+        if ($kategoriKas) {
+            $query->where('kategori_kas', $kategoriKas);
+        }
 
         if ($jenis && in_array($jenis, ['masuk', 'keluar'], true)) {
             $query->where('jenis', $jenis);
@@ -219,7 +224,12 @@ class KatalogController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $keuanganStats = Keuangan::selectRaw("
+        $statsQuery = Keuangan::query();
+        if ($kategoriKas) {
+            $statsQuery->where('kategori_kas', $kategoriKas);
+        }
+
+        $keuanganStats = $statsQuery->selectRaw("
             COALESCE(SUM(CASE WHEN jenis = 'masuk' THEN nominal ELSE 0 END), 0) as total_masuk,
             COALESCE(SUM(CASE WHEN jenis = 'keluar' THEN nominal ELSE 0 END), 0) as total_keluar
         ")->first();
@@ -228,11 +238,15 @@ class KatalogController extends Controller
         $totalKeluar = (int) ($keuanganStats->total_keluar ?? 0);
         $saldoKasSaatIni = $totalMasuk - $totalKeluar;
 
+        $daftarKategoriKas = Keuangan::getDaftarKategoriKas();
+
         return view('publik.buku_kas', compact(
             'transaksi',
             'totalMasuk',
             'totalKeluar',
             'saldoKasSaatIni',
+            'kategoriKas',
+            'daftarKategoriKas',
             'jenis',
             'bulan',
             'tahun'

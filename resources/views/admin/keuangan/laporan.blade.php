@@ -9,7 +9,7 @@
     <div class="card-surface p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-                Laporan Ringkas Keuangan Kas Dusun
+                Laporan Ringkas Keuangan Kas
             </h1>
             <p class="text-xs text-gray-600 mt-1">
                 Rekapitulasi penerimaan dan pengeluaran kas berdasarkan rentang bulan dan tahun.
