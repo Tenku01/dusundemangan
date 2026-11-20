@@ -2,6 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Barang;
+use App\Models\Keuangan;
+use App\Models\Peminjaman;
+use App\Models\TagihanListrik;
+use App\Models\User;
+use App\Models\Warga;
+use App\Observers\AuditModelObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\URL;
@@ -26,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
         Model::preventLazyLoading(! app()->isProduction());
 
         Paginator::defaultView('vendor.pagination.custom');
+
+        foreach ([Barang::class, Keuangan::class, Peminjaman::class, TagihanListrik::class, User::class, Warga::class] as $auditedModel) {
+            $auditedModel::observe(AuditModelObserver::class);
+        }
 
         $isHttps = config('app.env') === 'production'
             || isset($_SERVER['VERCEL'])

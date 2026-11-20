@@ -20,6 +20,11 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2 self-stretch sm:self-auto">
+            @if(auth()->user()->isSuperadmin())
+                <a href="{{ route('status.index') }}" class="btn-secondary flex-1 sm:flex-initial px-4 text-xs">
+                    Status &amp; Log
+                </a>
+            @endif
             <a href="{{ route('admin.barang.index') }}" class="btn-primary flex-1 sm:flex-initial px-4 text-xs">
                 + Tambah Barang
             </a>

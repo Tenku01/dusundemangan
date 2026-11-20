@@ -180,6 +180,18 @@
                             {{ \App\Models\User::count() }}
                         </span>
                     </a>
+
+                    <a href="{{ route('status.index') }}"
+                       onclick="closeMobileMenu()"
+                       class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition min-h-[44px] {{ request()->routeIs('status.*') ? 'bg-emas-500 text-[#1F1406] shadow-sm' : 'bg-slate-100 text-slate-800 border border-slate-200 hover:bg-slate-200/70' }}">
+                        <span class="flex items-center gap-3">
+                            <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('status.*') ? 'text-[#1F1406]' : 'text-slate-600' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Status &amp; Log Sistem</span>
+                        </span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {{ request()->routeIs('status.*') ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-slate-200 text-slate-700' }}">
+                            /status
+                        </span>
+                    </a>
                 </div>
             @endif
 
@@ -448,6 +460,14 @@
                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition {{ request()->routeIs('admin.pengguna.*') ? 'bg-slate-900 text-white font-semibold shadow-sm' : 'text-gray-700 hover:bg-slate-100 hover:text-gray-900 font-medium' }}">
                         <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('admin.pengguna.*') ? 'text-emas-400' : 'text-gray-400' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                         <span>Kelola Akun Admin</span>
+                    </a>
+
+                    <a href="{{ route('status.index') }}"
+                       class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition {{ request()->routeIs('status.*') ? 'bg-slate-900 text-white font-semibold shadow-sm' : 'text-gray-700 hover:bg-slate-100 hover:text-gray-900 font-medium' }}">
+                        <span class="flex items-center gap-3">
+                            <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('status.*') ? 'text-emas-400' : 'text-gray-400' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Status &amp; Log Sistem</span>
+                        </span>
                     </a>
                 @endif
             </nav>

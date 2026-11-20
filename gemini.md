@@ -147,6 +147,13 @@ Aplikasi berjalan sebagai serverless function di Vercel dengan integrasi CI/CD d
    - Mendesain ulang `admin/keuangan/laporan.blade.php` sebagai terbitan surat resmi A4 (`Times New Roman` / `Georgia`, Kop Surat resmi bergaris ganda, tabel identitas surat tanpa garis, paragraf pembuka & penutup formal, tabel akuntansi bergaya dokumen Word dengan header berulang di tiap halaman dan anti-potong baris `break-inside: avoid`), filter jenis kas + bulan berbahasa Indonesia, serta **satu blok tanda tangan Ketua Karang Taruna Dusun Demangan (`Anggun Fatchurrohman`)** tanpa tanda tangan superadmin.
 6. **Dokumentasi Repositori (`README.md`)**:
    - Mengganti `README.md` bawaan Laravel dengan ringkasan project, daftar fitur publik/pengurus/PWA, stack teknologi aktual, struktur berkas, panduan lokal, dan deployment Vercel.
+7. **Pusat Status Sistem `/status` (`StatusController`, `AuditModelObserver`, `MonitorMethodStatus`)**:
+   - Menambahkan dua tabel log non-destruktif via migrasi (`data_change_logs` & `method_status_logs`) dengan penjagaan `Schema::hasTable` agar aman sebelum migrasi.
+   - **Tab 1 (Prioritas) — Log Perubahan Data**: Mencatat otomatis operasi `created`/`updated`/`deleted` pada model `User`, `Warga`, `TagihanListrik`, `Keuangan`, `Barang`, dan `Peminjaman` beserta identitas pengubah, IP, dan diff nilai (dengan penyensoran `password`/`remember_token`), serta tombol **Bersihkan Log Perubahan**.
+   - **Tab 2 — Status Method & Memori**: Middleware `MonitorMethodStatus` mencatat performa & status HTTP tiap request beserta tombol **Bersihkan Log Method** dan **Bersihkan Memori & Cache** (`Cache::flush()`, `view:clear`, `gc_collect_cycles()`).
+   - **Tab 3 — Status Update Web**: Rilis aplikasi tersimpan permanen di `config/web_updates.php` (tanpa tombol maupun rute hapus).
+8. **Halaman Error Lengkap (`resources/views/errors/`)**:
+   - Membangun `errors/layout.blade.php` mandiri bertema emas Dusun Demangan (tanpa query DB agar tetap tampil saat gangguan database) untuk seluruh kode HTTP `3xx` (`300`, `301`, `302`, `304`, `307`, `308`, `3xx`), `4xx` (`400`, `401`, `402`, `403`, `404`, `405`, `408`, `419`, `422`, `429`, `4xx`), dan `5xx` (`500`, `502`, `503`, `504`, `5xx`).
 
 ---
 

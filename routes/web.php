@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\RekapListrikController;
 use App\Http\Controllers\Admin\WargaController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StatusController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -119,6 +120,14 @@ Route::get('/dashboard', function () {
 
     return redirect()->route('beranda');
 })->middleware('auth')->name('dashboard');
+
+// Pusat Status Sistem (/status): Log Perubahan Data, Status Method & Memori, Update Web
+Route::middleware(['auth', 'peran:superadmin'])->prefix('status')->name('status.')->group(function () {
+    Route::get('/', [StatusController::class, 'index'])->name('index');
+    Route::delete('/log-perubahan', [StatusController::class, 'clearDataLogs'])->name('clear-data-logs');
+    Route::delete('/status-method', [StatusController::class, 'clearMethodLogs'])->name('clear-method-logs');
+    Route::post('/bersihkan-memori', [StatusController::class, 'clearMemory'])->name('clear-memory');
+});
 
 // Profil Pengguna Breeze
 Route::middleware('auth')->group(function () {

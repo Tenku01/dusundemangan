@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckMenuAkses;
+use App\Http\Middleware\MonitorMethodStatus;
 use App\Http\Middleware\PeranMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'peran' => PeranMiddleware::class,
             'menu.akses' => CheckMenuAkses::class,
         ]);
+        $middleware->appendToGroup('web', MonitorMethodStatus::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
