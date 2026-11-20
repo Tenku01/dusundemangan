@@ -1,9 +1,10 @@
-const CACHE_NAME = 'demangan-pwa-v1';
+const CACHE_NAME = 'demangan-pwa-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.webmanifest',
   '/icon-192.png',
   '/icon-512.png',
+  '/icon-apple-touch.png',
   '/logo-kartar-dmg-circle.png',
   '/favicon.png'
 ];

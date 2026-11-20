@@ -16,70 +16,75 @@
     {!! json_encode($daftarPeriodeWithStats) !!}
 </script>
 
-<div class="space-y-4 sm:space-y-5" x-data="rekapListrik()">
+<div class="space-y-4 sm:space-y-5"
+     x-data="rekapListrik()"
+     @keydown.escape.window="if (modalTambah) tutupModalTambah(); modalDuplikasi = false; if (stepScan !== 'processing') modalScan = false; modalGabungkan = false; modalKelolaSiklus = false; modalRenameSiklus = false; modalHapusSiklus = false;">
 
     <!-- Top Sticky Bar / Header Mobile Friendly -->
-    <div class="bg-white rounded-2xl border border-gray-200/90 p-4 sm:p-5 shadow-xs">
+    <div class="card-surface p-4 sm:p-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <div class="flex items-center gap-2.5">
-                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#CEA042] text-white font-bold shrink-0 shadow-xs">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#CEA042] text-[#1F1406] font-bold shrink-0 shadow-sm">
+                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                         </svg>
                     </span>
                     <div>
                         <h1 class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">
                             Rekap Listrik Warga
                         </h1>
-                        <p class="text-xs text-gray-500">Pencatatan struk, kas karang taruna & saldo titipan antar bulan</p>
+                        <p class="text-xs text-gray-600">Pencatatan struk, kas karang taruna &amp; saldo titipan antar bulan</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Tombol CTA Utama (Konsisten Warna Brand #CEA042) -->
+            <!-- Tombol CTA Utama -->
             <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                 <a href="{{ route('admin.rekap-listrik.cetak', ['periode' => $periodeAktif, 'rt' => $rtAktif]) }}"
-                   class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-xl shadow-2xs transition min-h-[46px]">
-                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak & Ekspor A4</span>
+                   class="btn-secondary w-full sm:w-auto px-3.5 text-xs">
+                    <svg class="w-4 h-4 text-gray-600" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    <span>Cetak &amp; Ekspor A4</span>
                 </a>
 
                 <button type="button" @click="bukaModalTambah()"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] focus-visible:ring-2 focus-visible:ring-[#CEA042] rounded-xl shadow-xs transition min-h-[46px]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="btn-primary w-full sm:w-auto px-4 text-xs">
+                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                     </svg>
-                    Catat Tagihan Struk
+                    <span>Catat Tagihan Struk</span>
                 </button>
             </div>
         </div>
 
         <!-- Pemilih Siklus Periode (Bulan) & Tombol Buka Siklus Baru -->
         <div class="mt-4 pt-3.5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5 flex-1 min-w-[260px]" x-data="{ openDropdownPeriode: false }">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0">Siklus Periode:</span>
+            <div class="flex items-center gap-2.5 flex-1 min-w-[260px]" x-data="{ openDropdownPeriode: false }" @keydown.escape.window="openDropdownPeriode = false">
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider shrink-0">Siklus Periode:</span>
                 
                 <div class="relative flex-1 max-w-xs">
                     <!-- Dropdown Trigger Button -->
                     <button type="button"
                             @click="openDropdownPeriode = !openDropdownPeriode"
-                            class="w-full flex items-center justify-between gap-2 text-xs font-bold text-gray-900 bg-amber-50/70 hover:bg-amber-100/60 border border-amber-200/90 hover:border-[#CEA042] rounded-xl py-2.5 px-3.5 min-h-[44px] shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-[#CEA042]/30">
+                            aria-haspopup="true"
+                            :aria-expanded="openDropdownPeriode.toString()"
+                            class="w-full flex items-center justify-between gap-2 text-xs font-bold text-gray-900 bg-emas-50 hover:bg-emas-100/80 border border-emas-300 hover:border-[#CEA042] rounded-xl py-2.5 px-3.5 min-h-[44px] shadow-sm transition">
                         <div class="flex items-center gap-2 truncate">
-                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-amber-100 text-[#CEA042] shrink-0">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-emas-100 text-emas-800 border border-emas-200 shrink-0">
+                                <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                             </span>
                             <span class="truncate">{{ $periodeAktif }}</span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-500 transition-transform duration-200 shrink-0"
-                             :class="openDropdownPeriode ? 'rotate-180 text-[#CEA042]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-gray-600 transition-transform duration-200 shrink-0"
+                             aria-hidden="true"
+                             :class="openDropdownPeriode ? 'rotate-180 text-emas-800' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
 
-                    <!-- Elegant Floating Dropdown Menu Panel -->
+                    <!-- Floating Dropdown Menu Panel -->
                     <div x-show="openDropdownPeriode"
                          x-cloak
                          @click.away="openDropdownPeriode = false"
@@ -89,11 +94,11 @@
                          x-transition:leave="transition ease-in duration-100"
                          x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                          x-transition:leave-end="opacity-0 translate-y-1 scale-95"
-                         class="absolute left-0 mt-2 z-50 w-72 bg-white rounded-2xl border border-amber-200/90 shadow-2xl p-2 space-y-1">
+                         class="absolute left-0 mt-2 z-50 w-72 bg-white rounded-2xl border border-emas-200 shadow-2xl p-2 space-y-1">
                         
-                        <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 flex items-center justify-between">
+                        <div class="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-gray-100 flex items-center justify-between">
                             <span>Daftar Bulan Siklus</span>
-                            <span class="text-[#CEA042] font-semibold">{{ count($daftarPeriode) }} Periode</span>
+                            <span class="text-emas-800 font-bold tabular-money">{{ count($daftarPeriode) }} Periode</span>
                         </div>
 
                         <div class="max-h-60 overflow-y-auto space-y-1 py-1">
@@ -102,21 +107,21 @@
                                     $isAktif = ($periodeAktif === $p);
                                 @endphp
                                 <a href="{{ route('admin.rekap-listrik.index', ['periode' => $p, 'rt' => $rtAktif]) }}"
-                                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition group {{ $isAktif ? 'bg-[#CEA042] text-white shadow-xs' : 'text-gray-700 hover:bg-amber-50 hover:text-[#CEA042]' }}">
+                                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition group {{ $isAktif ? 'bg-[#CEA042] text-[#1F1406] shadow-sm' : 'text-gray-700 hover:bg-emas-50 hover:text-emas-900' }}">
                                     <div class="flex items-center gap-2.5">
-                                        <svg class="w-4 h-4 {{ $isAktif ? 'text-white' : 'text-gray-400 group-hover:text-[#CEA042]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 {{ $isAktif ? 'text-[#1F1406]' : 'text-gray-400 group-hover:text-emas-700' }}" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                         </svg>
                                         <span>{{ $p }}</span>
                                     </div>
 
                                     @if($isAktif)
-                                        <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/25 text-white font-black">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-[#1F1406]/15 text-[#1F1406] font-extrabold">
+                                            <svg class="w-3 h-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                             Aktif
                                         </span>
                                     @elseif($idx === 0)
-                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold group-hover:bg-[#CEA042] group-hover:text-white transition">
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emas-100 text-emas-900 font-bold group-hover:bg-[#CEA042] group-hover:text-[#1F1406] transition">
                                             Terbaru
                                         </span>
                                     @endif
@@ -126,158 +131,154 @@
 
                         <div class="pt-1.5 border-t border-gray-100 space-y-1">
                             <button type="button" @click="openDropdownPeriode = false; bukaModalKelolaSiklus()"
-                                    class="w-full flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-gray-700 hover:text-[#CEA042] hover:bg-amber-50 rounded-xl transition">
-                                <svg class="w-3.5 h-3.5 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                <span>⚙️ Kelola Siklus (Ubah / Hapus)</span>
+                                    class="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-gray-800 hover:text-emas-900 hover:bg-emas-50 rounded-xl transition min-h-[40px]">
+                                <svg class="w-4 h-4 text-emas-700" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <span>Kelola Siklus (Ubah / Hapus)</span>
                             </button>
                             <button type="button" @click="openDropdownPeriode = false; bukaModalDuplikasi()"
-                                    class="w-full flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-[#CEA042] hover:bg-amber-50 rounded-xl transition">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                                <span>+ Buka Siklus Bulan Baru</span>
+                                    class="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-emas-900 hover:bg-emas-50 rounded-xl transition min-h-[40px]">
+                                <svg class="w-4 h-4 text-emas-700" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                <span>Buka Siklus Bulan Baru</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tombol Aksi Siklus (Responsif & Konsisten Mobile/PC) -->
+            <!-- Tombol Aksi Siklus -->
             <div class="flex flex-wrap items-center gap-2">
-                <!-- Tombol Kelola Siklus (CRUD) -->
-                <button type="button" @click.stop="bukaModalKelolaSiklus()"
-                        class="px-3.5 py-2.5 text-xs font-bold text-gray-700 bg-amber-50/80 hover:bg-amber-100 hover:text-[#CEA042] border border-amber-200/90 rounded-xl transition min-h-[44px] flex items-center gap-1.5 shadow-2xs shrink-0">
-                    <svg class="w-4 h-4 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <button type="button" @click.stop="bukaModalKelolaSiklus()" class="btn-secondary px-3.5 text-xs shrink-0">
+                    <svg class="w-4 h-4 text-emas-700" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     <span>Kelola Siklus</span>
                 </button>
 
-                <!-- Tombol Scan / Impor Dokumen Pintar (Banyak Warga Sekaligus) -->
-                <button type="button" @click.stop="bukaModalScan()"
-                        class="px-3.5 py-2.5 text-xs font-bold text-[#CEA042] bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-xl transition min-h-[44px] flex items-center gap-1.5 shadow-xs shrink-0">
-                    <svg class="w-4 h-4 text-[#CEA042]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    <span>📸 Scan / Impor</span>
+                <button type="button" @click.stop="bukaModalScan()" class="btn-gold-soft px-3.5 text-xs shrink-0">
+                    <svg class="w-4 h-4 text-emas-800" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>Scan / Impor</span>
                 </button>
 
-                <!-- Tombol Buka Siklus Baru & Salin Titipan -->
-                <button type="button" @click.stop="bukaModalDuplikasi()"
-                        class="px-3.5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition min-h-[44px] flex items-center gap-1.5 shadow-xs shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <span>+ Buka Siklus Baru</span>
+                <button type="button" @click.stop="bukaModalDuplikasi()" class="btn-primary px-3.5 text-xs shrink-0">
+                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Buka Siklus Baru</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Tab Pilihan RT 1, 2, 3 (Pills Mewah dengan Aksen Brand #CEA042) -->
-    <div class="grid grid-cols-3 gap-2 bg-gray-200/70 p-1.5 rounded-2xl">
+    <!-- Tab Pilihan RT 1, 2, 3 -->
+    <div class="grid grid-cols-3 gap-2 bg-gray-200/80 p-1.5 rounded-2xl">
         <a href="{{ route('admin.rekap-listrik.index', ['periode' => $periodeAktif, 'rt' => 1]) }}"
-           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 1 ? 'bg-[#CEA042] text-white shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
+           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 1 ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
             <span>RT 01</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full {{ $rtAktif === 1 ? 'bg-white/25 text-white' : 'bg-gray-100 text-gray-600' }}">
+            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 1 ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-gray-100 text-gray-700' }}">
                 {{ $countRt1 }}
             </span>
         </a>
 
         <a href="{{ route('admin.rekap-listrik.index', ['periode' => $periodeAktif, 'rt' => 2]) }}"
-           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 2 ? 'bg-[#CEA042] text-white shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
+           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 2 ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
             <span>RT 02</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full {{ $rtAktif === 2 ? 'bg-white/25 text-white' : 'bg-gray-100 text-gray-600' }}">
+            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 2 ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-gray-100 text-gray-700' }}">
                 {{ $countRt2 }}
             </span>
         </a>
 
         <a href="{{ route('admin.rekap-listrik.index', ['periode' => $periodeAktif, 'rt' => 3]) }}"
-           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 3 ? 'bg-[#CEA042] text-white shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
+           class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition min-h-[46px] {{ $rtAktif === 3 ? 'bg-[#CEA042] text-[#1F1406] shadow-sm border border-[#BA8832]/40' : 'bg-white text-gray-700 hover:bg-emas-50' }}">
             <span>RT 03</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full {{ $rtAktif === 3 ? 'bg-white/25 text-white' : 'bg-gray-100 text-gray-600' }}">
+            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-money {{ $rtAktif === 3 ? 'bg-[#1F1406]/15 text-[#1F1406]' : 'bg-gray-100 text-gray-700' }}">
                 {{ $countRt3 }}
             </span>
         </a>
     </div>
 
-    <!-- Ringkasan Metrik Kompak (Tidak Sesak di Layar HP) -->
+    <!-- Ringkasan Metrik Kompak -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-        <div class="bg-white rounded-xl border border-gray-200/80 p-3 shadow-2xs">
-            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Terdata RT {{ $rtAktif }}</div>
-            <div class="text-base sm:text-lg font-black text-gray-900 mt-0.5">{{ $totalWargaTerdata }} Warga</div>
+        <div class="card-surface p-3.5">
+            <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Terdata RT {{ $rtAktif }}</div>
+            <div class="text-base sm:text-lg font-extrabold text-gray-900 mt-0.5 tabular-money">{{ $totalWargaTerdata }} Warga</div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200/80 p-3 shadow-2xs">
-            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Total PLN Awal</div>
-            <div class="text-base sm:text-lg font-black text-gray-900 mt-0.5">Rp {{ number_format($totalTagihanAwal, 0, ',', '.') }}</div>
+        <div class="card-surface p-3.5">
+            <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Total PLN Awal</div>
+            <div class="text-base sm:text-lg font-extrabold text-gray-900 mt-0.5 tabular-money">Rp {{ number_format($totalTagihanAwal, 0, ',', '.') }}</div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200/80 p-3 shadow-2xs">
-            <div class="text-[10px] font-bold text-[#CEA042] uppercase tracking-wide">Kas Karang Taruna</div>
-            <div class="text-base sm:text-lg font-black text-[#CEA042] mt-0.5">Rp {{ number_format($totalKasKartar, 0, ',', '.') }}</div>
+        <div class="card-surface p-3.5">
+            <div class="text-[11px] font-bold text-emas-800 uppercase tracking-wide">Kas Karang Taruna</div>
+            <div class="text-base sm:text-lg font-extrabold text-emas-800 mt-0.5 tabular-money">Rp {{ number_format($totalKasKartar, 0, ',', '.') }}</div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200/80 p-3 shadow-2xs">
-            <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Total Wajib Bayar</div>
-            <div class="text-base sm:text-lg font-black text-emerald-700 mt-0.5">Rp {{ number_format($grandTotalWajib, 0, ',', '.') }}</div>
+        <div class="card-surface p-3.5">
+            <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">Total Wajib Bayar</div>
+            <div class="text-base sm:text-lg font-extrabold text-emerald-700 mt-0.5 tabular-money">Rp {{ number_format($grandTotalWajib, 0, ',', '.') }}</div>
         </div>
     </div>
 
-    <!-- PENCARIAN REAL-TIME INSTAN (Tanpa Klik Tombol Cari) -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 p-3 shadow-2xs">
+    <!-- PENCARIAN REAL-TIME INSTAN -->
+    <div class="card-surface p-3">
         <div class="relative flex items-center">
-            <svg class="w-4 h-4 text-[#CEA042] absolute left-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-emas-700 absolute left-3.5 pointer-events-none" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
             <input type="text"
                    x-model="cari"
+                   aria-label="Cari nomor struk atau nama warga"
                    placeholder="Langsung ketik nomor struk [ # ] atau nama warga untuk memfilter..."
-                   class="w-full text-sm rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-2 focus:ring-[#CEA042]/20 py-2.5 pl-9 pr-8 shadow-2xs min-h-[46px]">
+                   class="input-field pl-10 pr-10 min-h-[46px]">
             <button type="button"
                     x-show="cari.length > 0"
                     @click="cari = ''"
-                    class="absolute right-2.5 p-1 text-gray-400 hover:text-gray-600 rounded-full">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    aria-label="Bersihkan pencarian"
+                    class="absolute right-2.5 p-1.5 text-gray-400 hover:text-gray-700 rounded-lg">
+                <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
-        <div class="flex items-center justify-between text-[11px] text-gray-400 mt-1 px-1" x-show="cari.length > 0">
-            <span>Menyaring otomatis: "<strong class="text-gray-700" x-text="cari"></strong>"</span>
-            <button type="button" @click="cari = ''" class="text-rose-600 hover:underline">Hapus filter</button>
+        <div class="flex items-center justify-between text-xs text-gray-500 mt-1.5 px-1" x-show="cari.length > 0">
+            <span>Menyaring otomatis: "<strong class="text-gray-800" x-text="cari"></strong>"</span>
+            <button type="button" @click="cari = ''" class="text-rose-700 font-semibold hover:underline">Hapus filter</button>
         </div>
     </div>
 
-    <!-- DAFTAR REKAP: KARTU MOBILE FRIENDLY (Tidak Padat & Lapang) -->
+    <!-- DAFTAR REKAP: KARTU MOBILE FRIENDLY -->
     @if($daftarRekap->isEmpty())
-        <div class="bg-white rounded-2xl border border-dashed border-gray-300 p-8 text-center space-y-3">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-50 text-[#CEA042]">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <div class="bg-white rounded-2xl border border-dashed border-gray-300 p-8 text-center space-y-3 shadow-sm">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emas-100 text-emas-800 border border-emas-200">
+                <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
-            <p class="text-sm font-semibold text-gray-700">Belum ada data rekap untuk RT {{ $rtAktif }} di periode {{ $periodeAktif }}</p>
-            <button type="button" @click="bukaModalTambah()"
-                    class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl min-h-[44px]">
+            <p class="text-sm font-semibold text-gray-800">Belum ada data rekap untuk RT {{ $rtAktif }} di periode {{ $periodeAktif }}</p>
+            <button type="button" @click="bukaModalTambah()" class="btn-primary px-4 text-xs">
                 + Mulai Catat Struk Pertama
             </button>
         </div>
     @else
-        <!-- Mode Kartu untuk Layar HP & Tablet (Nyaman diakses dengan jempol) -->
         <div class="space-y-3 pb-8">
             @foreach($daftarRekap as $item)
-                <div class="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs transition hover:border-[#CEA042] relative"
+                <div class="card-surface p-4 transition hover:border-[#CEA042] relative"
                      x-show="cocokSearch('{{ addslashes($item->nama_warga) }}', '{{ addslashes($item->nama_pelanggan) }}', '{{ addslashes($item->nomor_struk) }}', '{{ addslashes($item->kode_gabungan ?? '') }}', '{{ addslashes($item->nama_pembayar ?? '') }}')"
-                     :class="selectedIds.includes({{ $item->id }}) ? 'border-[#CEA042] ring-2 ring-[#CEA042]/20 bg-amber-50/20' : ''">
+                     :class="selectedIds.includes({{ $item->id }}) ? 'border-[#CEA042] ring-2 ring-[#CEA042]/25 bg-emas-50/40' : ''">
                     <div class="flex items-start justify-between gap-2.5">
                         <div class="flex items-start gap-2.5 min-w-0 flex-1">
                             @if(! $item->is_lunas)
                                 <!-- Checkbox Pilihan Tagihan Gabungan -->
                                 <button type="button" @click="toggleSelect({{ $item->id }})"
-                                        class="mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition shrink-0 min-h-[32px] min-w-[32px]"
-                                        :class="selectedIds.includes({{ $item->id }}) ? 'bg-[#CEA042] border-[#CEA042] text-white' : 'border-gray-300 bg-white text-transparent'">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                        aria-label="Pilih tagihan {{ $item->nama_warga }}"
+                                        class="mt-0.5 w-8 h-8 rounded-lg border-2 flex items-center justify-center transition shrink-0"
+                                        :class="selectedIds.includes({{ $item->id }}) ? 'bg-[#CEA042] border-[#CEA042] text-[#1F1406]' : 'border-gray-300 bg-white text-transparent hover:border-[#CEA042]'">
+                                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                 </button>
                             @endif
 
                             <!-- Nomor Struk & Info Warga -->
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                    <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 font-bold font-mono text-xs shrink-0 border border-amber-200">
+                                    <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-lg bg-emas-100 text-emas-950 font-bold font-mono text-xs shrink-0 border border-emas-200 tabular-money">
                                         [ {{ $item->nomor_struk }} ]
                                     </span>
                                     @if($item->kode_gabungan)
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 text-[10px] font-mono font-bold border border-purple-200">
-                                            <span>🔗 {{ $item->kode_gabungan }}</span>
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[11px] font-mono font-bold border border-slate-300">
+                                            <svg class="w-3 h-3 text-slate-600" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                                            <span>{{ $item->kode_gabungan }}</span>
                                             @if($item->nama_pembayar)
                                                 <span class="font-sans font-semibold">An. {{ $item->nama_pembayar }}</span>
                                             @endif
@@ -288,7 +289,7 @@
                                 <h2 class="text-sm font-bold text-gray-900 leading-snug truncate mt-1">
                                     {{ $item->nama_warga }}
                                 </h2>
-                                <p class="text-[11px] text-gray-500 font-mono mt-0.5 truncate">
+                                <p class="text-xs text-gray-600 font-mono mt-0.5 truncate">
                                     PLN: {{ $item->nama_pelanggan }}
                                 </p>
                             </div>
@@ -297,12 +298,12 @@
                         <!-- Status Bayar -->
                         <div class="shrink-0">
                             @if($item->is_lunas)
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-900">
+                                    <svg class="w-3 h-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                     Lunas
                                 </span>
                             @else
-                                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-gray-100 text-gray-600">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-gray-100 text-gray-700">
                                     Belum Bayar
                                 </span>
                             @endif
@@ -310,58 +311,56 @@
                     </div>
 
                     <!-- Breakdown Biaya & Potongan Saldo Titipan Bulan Lalu -->
-                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-end justify-between text-xs">
+                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-end justify-between gap-2 text-xs">
                         <div class="space-y-1">
-                            <div class="text-[11px] text-gray-500">
-                                Struk PLN: <span class="font-semibold text-gray-700">Rp {{ number_format($item->tagihan_awal, 0, ',', '.') }}</span> + Kartar: <span class="font-semibold text-[#CEA042]">Rp {{ number_format($item->kas_karang_taruna, 0, ',', '.') }}</span>
+                            <div class="text-xs text-gray-600 tabular-money">
+                                Struk PLN: <span class="font-semibold text-gray-900">Rp {{ number_format($item->tagihan_awal, 0, ',', '.') }}</span> + Kartar: <span class="font-semibold text-emas-800">Rp {{ number_format($item->kas_karang_taruna, 0, ',', '.') }}</span>
                             </div>
 
                             @if($item->saldo_periode_lalu > 0)
-                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200 tabular-money">
                                     Potongan Titipan Bulan Lalu: -Rp {{ number_format($item->saldo_periode_lalu, 0, ',', '.') }}
                                 </div>
                             @elseif($item->saldo_periode_lalu < 0)
-                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
+                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-800 text-[11px] font-bold border border-rose-200 tabular-money">
                                     Tunggakan Bulan Lalu: +Rp {{ number_format(abs($item->saldo_periode_lalu), 0, ',', '.') }}
                                 </div>
                             @endif
                         </div>
 
-                        <div class="text-right">
-                            <div class="text-[10px] text-gray-400 uppercase font-semibold">Total Wajib Bayar</div>
-                            <div class="text-base font-black text-gray-900">
+                        <div class="text-right shrink-0">
+                            <div class="text-[11px] text-gray-500 uppercase font-semibold">Total Wajib Bayar</div>
+                            <div class="text-base font-extrabold text-gray-900 tabular-money">
                                 Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Tombol Aksi HP (Tinggi minimal 44px, nyaman disentuh) -->
+                    <!-- Tombol Aksi HP -->
                     <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-end gap-2 flex-wrap">
                         @if($item->kode_gabungan && ! $item->is_lunas)
                             <form method="POST" action="{{ route('admin.rekap-listrik.pisahkan') }}"
-                                  onsubmit="return confirm('Pisahkan {{ $item->nama_warga }} dari tagihan gabungan {{ $item->kode_gabungan }}?')">
+                                  onsubmit="return confirm('Pisahkan {{ addslashes($item->nama_warga) }} dari tagihan gabungan {{ $item->kode_gabungan }}?')">
                                 @csrf
                                 <input type="hidden" name="tagihan_id" value="{{ $item->id }}">
                                 <button type="submit"
-                                        class="px-3 py-2 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl transition min-h-[44px] flex items-center gap-1">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                                    Pisahkan
+                                        class="px-3 py-2 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl transition min-h-[44px] flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                                    <span>Pisahkan</span>
                                 </button>
                             </form>
                         @endif
 
-                        <a href="{{ route('admin.rekap-listrik.edit', $item) }}"
-                           class="px-3.5 py-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition min-h-[44px] flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            Edit
+                        <a href="{{ route('admin.rekap-listrik.edit', $item) }}" class="btn-subtle px-3.5 text-xs">
+                            <svg class="w-3.5 h-3.5 text-gray-600" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <span>Edit</span>
                         </a>
 
                         <form method="POST" action="{{ route('admin.rekap-listrik.destroy', $item) }}"
-                              onsubmit="return confirm('Hapus baris rekap untuk {{ $item->nama_warga }} (Struk [{{ $item->nomor_struk }}])?')">
+                              onsubmit="return confirm('Hapus baris rekap untuk {{ addslashes($item->nama_warga) }} (Struk [{{ $item->nomor_struk }}])?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit"
-                                    class="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition min-h-[44px] flex items-center">
+                            <button type="submit" class="btn-danger-soft px-3 text-xs">
                                 Hapus
                             </button>
                         </form>
@@ -372,40 +371,45 @@
 
         <!-- FLOATING ACTION BAR: GABUNGKAN TAGIHAN DI REKAP -->
         <div x-show="selectedIds.length >= 2" x-cloak
-             class="fixed bottom-16 lg:bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-40 bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-3 border border-gray-800 animate-slide-up">
+             class="fixed bottom-16 lg:bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-40 bg-slate-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-3 border border-slate-700">
             <div>
-                <div class="text-[11px] text-gray-400 font-semibold" x-text="selectedIds.length + ' Tagihan Dipilih'">0 Tagihan Dipilih</div>
-                <div class="text-sm font-black text-white" x-text="'Total: Rp ' + formatRupiah(totalTerpilih)">Total: Rp 0</div>
+                <div class="text-xs text-slate-300 font-semibold tabular-money" x-text="selectedIds.length + ' Tagihan Dipilih'">0 Tagihan Dipilih</div>
+                <div class="text-sm font-extrabold text-emas-300 tabular-money" x-text="'Total: Rp ' + formatRupiah(totalTerpilih)">Total: Rp 0</div>
             </div>
-            <div class="flex items-center gap-1.5">
-                <button type="button" @click="selectedIds = []" class="px-2.5 py-2 text-xs text-gray-400 hover:text-white transition">
+            <div class="flex items-center gap-2">
+                <button type="button" @click="selectedIds = []" class="px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white rounded-xl min-h-[44px] transition">
                     Batal
                 </button>
-                <button type="button" @click="bukaModalGabungkan()"
-                        class="px-4 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition min-h-[46px] flex items-center gap-1.5 shrink-0 shadow-xs">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                    Gabungkan
+                <button type="button" @click="bukaModalGabungkan()" class="btn-primary px-4 text-xs shrink-0">
+                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    <span>Gabungkan</span>
                 </button>
             </div>
         </div>
 
-        <!-- MODAL GABUNGKAN TAGIHAN REKAP (Bottom Sheet di HP) -->
+        <!-- MODAL GABUNGKAN TAGIHAN REKAP -->
         <div x-show="modalGabungkan" x-cloak
              @click.self="modalGabungkan = false"
-             class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
-                
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="modal-gabung-rekap-title"
+             class="modal-backdrop">
+            <div class="modal-panel max-w-lg p-5 sm:p-6 space-y-4">
+                <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-1 sm:hidden"></div>
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <div class="flex items-center gap-2">
-                        <span class="w-8 h-8 rounded-lg bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold text-sm">
-                            🔗
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-9 h-9 rounded-xl bg-emas-100 text-emas-800 border border-emas-200 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                         </span>
                         <div>
-                            <h3 class="text-base font-bold text-gray-900 leading-tight">Gabungkan Tagihan Warga</h3>
-                            <p class="text-xs text-gray-500">Satu struk pembayaran untuk beberapa warga / meteran</p>
+                            <h3 id="modal-gabung-rekap-title" class="text-base font-bold text-gray-900 leading-tight">Gabungkan Tagihan Warga</h3>
+                            <p class="text-xs text-gray-600">Satu struk pembayaran untuk beberapa warga / meteran</p>
                         </div>
                     </div>
-                    <button type="button" @click="modalGabungkan = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+                    <button type="button" @click="modalGabungkan = false" aria-label="Tutup modal gabungkan tagihan"
+                            class="text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition">
+                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
 
                 <form method="POST" action="{{ route('admin.rekap-listrik.gabungkan') }}" class="space-y-4 text-xs">
@@ -414,76 +418,73 @@
                         <input type="hidden" name="tagihan_ids[]" :value="id">
                     </template>
 
-                    <!-- Daftar Tagihan Terpilih -->
-                    <div class="bg-gray-50 rounded-2xl p-3.5 border border-gray-200/80 space-y-2">
-                        <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                            Rincian Tagihan Yang Digabung (<span x-text="selectedItems.length"></span> Struk)
+                    <div class="bg-[#F8F7F4] rounded-2xl p-3.5 border border-gray-200 space-y-2">
+                        <div class="text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                            Rincian Tagihan Yang Digabung (<span class="tabular-money" x-text="selectedItems.length"></span> Struk)
                         </div>
                         <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                             <template x-for="item in selectedItems" :key="item.id">
-                                <div class="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-white border border-gray-100 shadow-2xs">
+                                <div class="flex items-center justify-between py-2 px-3 rounded-xl bg-white border border-gray-200/80 shadow-sm">
                                     <div class="flex items-center gap-2 min-w-0">
-                                        <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-mono font-bold text-[10px]" x-text="'[' + item.nomor_struk + ']'"></span>
+                                        <span class="px-1.5 py-0.5 rounded bg-emas-100 text-emas-950 font-mono font-bold text-[11px] tabular-money" x-text="'[' + item.nomor_struk + ']'"></span>
                                         <span class="font-bold text-gray-900 truncate" x-text="item.nama_warga"></span>
                                     </div>
-                                    <span class="font-mono font-bold text-gray-800 shrink-0" x-text="'Rp ' + formatRupiah(item.total_tagihan)"></span>
+                                    <span class="font-mono font-bold text-gray-900 shrink-0 tabular-money" x-text="'Rp ' + formatRupiah(item.total_tagihan)"></span>
                                 </div>
                             </template>
                         </div>
                         <div class="pt-2 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-gray-900">
                             <span>Total Gabungan:</span>
-                            <span class="text-base font-black text-[#CEA042]" x-text="'Rp ' + formatRupiah(totalTerpilih)"></span>
+                            <span class="text-base font-extrabold text-emas-800 tabular-money" x-text="'Rp ' + formatRupiah(totalTerpilih)"></span>
                         </div>
                     </div>
 
-                    <!-- Input Atas Nama Siapa -->
                     <div class="space-y-2">
-                        <label class="block font-bold text-gray-700 uppercase">
-                            Atas Nama Siapa? *
+                        <label for="rekap-nama-pembayar-gabungan" class="block text-xs font-bold text-gray-800">
+                            Atas Nama Siapa? <span class="text-rose-600">*</span>
                         </label>
-                        <p class="text-[11px] text-gray-500">Pilih salah satu nama warga di atas atau ketik nama penanggung jawab / keluarga:</p>
+                        <p class="text-[11px] text-gray-600">Pilih salah satu nama warga di atas atau ketik nama penanggung jawab / keluarga:</p>
                         
-                        <!-- Quick chips nama warga -->
                         <div class="flex flex-wrap gap-1.5">
                             <template x-for="item in selectedItems" :key="item.id">
                                 <button type="button" @click="namaPembayarGabungan = item.nama_warga"
-                                        class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition border"
-                                        :class="namaPembayarGabungan === item.nama_warga ? 'bg-[#CEA042] text-white border-[#CEA042]' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200'">
+                                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border min-h-[36px]"
+                                        :class="namaPembayarGabungan === item.nama_warga ? 'bg-[#CEA042] text-[#1F1406] border-[#BA8832]' : 'bg-gray-100 hover:bg-emas-50 text-gray-800 border-gray-200'">
                                     <span x-text="item.nama_warga"></span>
                                 </button>
                             </template>
                         </div>
 
                         <input type="text"
+                               id="rekap-nama-pembayar-gabungan"
                                name="nama_pembayar"
                                x-model="namaPembayarGabungan"
                                placeholder="Contoh: Keluarga Pak Budi / Budi"
                                required
-                               class="w-full text-base sm:text-xs rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-1 focus:ring-[#CEA042] py-2.5 px-3 min-h-[46px]">
+                               class="input-field">
                     </div>
 
-                    <!-- Kode Gabungan (Opsional) -->
                     <div>
-                        <label class="block font-bold text-gray-700 uppercase mb-1">
-                            Kode Gabungan <span class="text-gray-400 font-normal lowercase">(opsional)</span>
+                        <label for="rekap-kode-gabungan" class="block text-xs font-bold text-gray-800 mb-1">
+                            Kode Gabungan <span class="text-gray-500 font-normal">(opsional)</span>
                         </label>
                         <input type="text"
+                               id="rekap-kode-gabungan"
                                name="kode_gabungan"
                                x-model="kodeGabunganInput"
                                placeholder="Otomatis digenerate sistem jika kosong"
-                               class="w-full font-mono text-base sm:text-xs rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-1 focus:ring-[#CEA042] py-2.5 px-3 min-h-[46px] bg-gray-50">
+                               class="input-field font-mono bg-[#F8F7F4]">
                     </div>
 
                     <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
-                        <button type="button" @click="modalGabungkan = false"
-                                class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[46px]">
+                        <button type="button" @click="modalGabungkan = false" class="btn-subtle px-4 text-xs">
                             Batal
                         </button>
                         <button type="submit"
                                 :disabled="!namaPembayarGabungan || selectedIds.length < 2"
-                                class="flex-1 px-4 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] disabled:opacity-50 rounded-xl shadow-xs min-h-[48px] flex items-center justify-center gap-2 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            Simpan Penggabungan
+                                class="btn-primary flex-1 px-4 text-xs">
+                            <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            <span>Simpan Penggabungan</span>
                         </button>
                     </div>
                 </form>
@@ -491,79 +492,84 @@
         </div>
     @endif
 
-    <!-- MODAL CATAT REKAP STRUK TERARAH (Otomatis Warga & Nomor Struk, Cukup Tagihan Awal) -->
+    <!-- MODAL CATAT REKAP STRUK TERARAH -->
     <div x-show="modalTambah" x-cloak
          @click.self="tutupModalTambah()"
-         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
-            
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modal-tambah-rekap-title"
+         class="modal-backdrop">
+        <div class="modal-panel max-w-lg p-5 sm:p-6 space-y-4">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-1 sm:hidden"></div>
             <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-lg bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold text-sm">
-                        ⚡
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-emas-100 text-emas-800 border border-emas-200 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     </span>
                     <div>
-                        <h3 class="text-base font-bold text-gray-900 leading-tight">Input Rekap Tagihan Terarah</h3>
-                        <p class="text-xs text-gray-500">Periode: {{ $periodeAktif }} | RT {{ $rtAktif }}</p>
+                        <h3 id="modal-tambah-rekap-title" class="text-base font-bold text-gray-900 leading-tight">Input Rekap Tagihan Terarah</h3>
+                        <p class="text-xs text-gray-600">Periode: {{ $periodeAktif }} | RT {{ $rtAktif }}</p>
                     </div>
                 </div>
-                <button type="button" @click="tutupModalTambah()" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+                <button type="button" @click="tutupModalTambah()" aria-label="Tutup modal input rekap"
+                        class="text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition">
+                    <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
 
             <!-- Notifikasi Kilat Sukses Simpan -->
             <div x-show="notifSukses" x-cloak
                  x-transition
-                 class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                 role="status"
+                 class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 <span x-text="notifSukses"></span>
             </div>
 
-            <!-- Kartu Panduan Warga & Nomor Struk (Otomatis dari Sistem) -->
-            <div class="bg-gradient-to-br from-amber-50 to-orange-50/40 rounded-2xl p-4 sm:p-4.5 border border-amber-200/90 shadow-2xs space-y-2.5">
-                <div class="flex items-center justify-between">
+            <!-- Kartu Panduan Warga & Nomor Struk -->
+            <div class="bg-gradient-to-br from-emas-50 to-white rounded-2xl p-4 border border-emas-300 shadow-sm space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-900"
+                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emas-200 text-emas-950 tabular-money"
                               x-text="'Warga ' + (wargaIndexAktif + 1) + ' dari ' + masterWarga.length"></span>
                         <template x-if="wargaAktif.is_tercatat">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
-                                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-900 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-emerald-700" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 Sudah Tercatat
                             </span>
                         </template>
                     </div>
 
-                    <!-- Nomor Struk Otomatis (Tidak perlu diketik!) -->
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-[#CEA042] text-white font-mono font-black text-xs sm:text-sm shadow-xs">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-[#CEA042] text-[#1F1406] font-mono font-extrabold text-xs sm:text-sm shadow-sm tabular-money shrink-0">
                         Struk [ #<span x-text="wargaAktif.nomor_struk || wargaAktif.nomor_meter || '-'"></span> ]
                     </span>
                 </div>
 
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800/80 block">Nama Warga:</span>
-                    <h4 class="text-lg font-black text-gray-900 leading-tight mt-0.5" x-text="wargaAktif.nama"></h4>
-                    <p class="text-[11px] text-gray-500 font-mono mt-0.5" x-show="wargaAktif.nama_pelanggan_pln && wargaAktif.nama_pelanggan_pln !== wargaAktif.nama">
-                        Atas nama PLN: <span class="font-semibold text-gray-700" x-text="wargaAktif.nama_pelanggan_pln"></span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-emas-800 block">Nama Warga:</span>
+                    <h4 class="text-lg font-extrabold text-gray-900 leading-tight mt-0.5" x-text="wargaAktif.nama"></h4>
+                    <p class="text-xs text-gray-600 font-mono mt-0.5" x-show="wargaAktif.nama_pelanggan_pln && wargaAktif.nama_pelanggan_pln !== wargaAktif.nama">
+                        Atas nama PLN: <span class="font-semibold text-gray-800" x-text="wargaAktif.nama_pelanggan_pln"></span>
                     </p>
                 </div>
 
-                <!-- Notifikasi Saldo Titipan / Tunggakan Bulan Lalu Otomatis -->
                 <template x-if="wargaAktif.saldo_lalu !== 0">
-                    <div class="pt-2 border-t border-amber-200/70 flex items-center justify-between text-xs font-bold"
-                         :class="wargaAktif.saldo_lalu > 0 ? 'text-emerald-700' : 'text-rose-700'">
+                    <div class="pt-2 border-t border-emas-200 flex items-center justify-between text-xs font-bold tabular-money"
+                         :class="wargaAktif.saldo_lalu > 0 ? 'text-emerald-800' : 'text-rose-800'">
                         <span x-text="wargaAktif.saldo_lalu > 0 ? 'Potongan Titipan Bulan Lalu:' : 'Tunggakan Bulan Lalu:'"></span>
                         <span x-text="(wargaAktif.saldo_lalu > 0 ? '-Rp ' : '+Rp ') + formatRupiah(Math.abs(wargaAktif.saldo_lalu))"></span>
                     </div>
                 </template>
             </div>
 
-            <!-- Form Tagihan Awal (Satu-satunya yang perlu diinput user!) -->
+            <!-- Form Tagihan Awal -->
             <form @submit.prevent="simpanDanLanjut()" class="space-y-4 text-xs">
                 <div>
-                    <label class="block font-bold text-gray-800 text-sm mb-1.5">
-                        Tagihan Awal PLN (Rp) <span class="text-rose-500">*</span>
+                    <label for="input-tagihan-awal-modal" class="block font-bold text-gray-800 text-sm mb-1.5">
+                        Tagihan Awal PLN (Rp) <span class="text-rose-600">*</span>
                     </label>
-                    <div class="flex items-stretch rounded-2xl border border-gray-300 bg-white shadow-xs focus-within:border-[#CEA042] focus-within:ring-2 focus-within:ring-[#CEA042]/25 overflow-hidden transition-all min-h-[54px]">
-                        <span class="flex items-center justify-center bg-gray-100/90 px-4 text-gray-500 font-black text-lg sm:text-xl border-r border-gray-200 select-none shrink-0">
+                    <div class="input-addon-group rounded-2xl min-h-[54px]">
+                        <span class="flex items-center justify-center bg-gray-100 px-4 text-gray-600 font-bold text-lg sm:text-xl border-r border-gray-200 select-none shrink-0">
                             Rp
                         </span>
                         <input type="text"
@@ -574,39 +580,39 @@
                                placeholder="0"
                                required
                                autocomplete="off"
-                               class="w-full text-xl sm:text-2xl font-black text-gray-900 px-4 py-3 border-0 focus:ring-0 focus:outline-none placeholder:text-gray-300 bg-transparent">
+                               class="w-full text-xl sm:text-2xl font-extrabold text-gray-900 px-4 py-3 border-0 focus:ring-0 focus:outline-none placeholder:text-gray-300 bg-transparent tabular-money">
                     </div>
-                    <div class="flex items-center justify-between text-[11px] text-gray-500 mt-1">
+                    <div class="flex items-center justify-between text-[11px] text-gray-600 mt-1">
                         <span>Hanya masukkan angka struk PLN</span>
-                        <span class="font-bold text-[#CEA042]" x-show="tagihanAwal > 0" x-text="'Terbaca: Rp ' + formatRupiah(tagihanAwal)"></span>
+                        <span class="font-bold text-emas-800 tabular-money" x-show="tagihanAwal > 0" x-text="'Terbaca: Rp ' + formatRupiah(tagihanAwal)"></span>
                     </div>
                 </div>
 
-                <!-- Kartu Rincian Kalkulasi Bersih Termasuk Potongan Saldo Titipan -->
-                <div class="bg-amber-50/70 rounded-xl p-3 border border-amber-200/80 space-y-1.5">
+                <!-- Kartu Rincian Kalkulasi -->
+                <div class="bg-emas-50 rounded-xl p-3.5 border border-emas-200 space-y-1.5">
                     <div class="flex items-center justify-between text-xs">
-                        <span class="text-gray-600">Alokasi Kas Karang Taruna:</span>
-                        <span class="font-bold text-[#CEA042]">+Rp 3.000</span>
+                        <span class="text-gray-700">Alokasi Kas Karang Taruna:</span>
+                        <span class="font-bold text-emas-800 tabular-money">+Rp 3.000</span>
                     </div>
-                    <div class="flex items-center justify-between text-xs" x-show="saldoLalu !== 0">
-                        <span class="text-gray-600" x-text="saldoLalu > 0 ? 'Potongan Titipan Bulan Lalu:' : 'Penambahan Tunggakan Lalu:'"></span>
-                        <span class="font-bold" :class="saldoLalu > 0 ? 'text-emerald-700' : 'text-rose-700'"
+                    <div class="flex items-center justify-between text-xs tabular-money" x-show="saldoLalu !== 0">
+                        <span class="text-gray-700" x-text="saldoLalu > 0 ? 'Potongan Titipan Bulan Lalu:' : 'Penambahan Tunggakan Lalu:'"></span>
+                        <span class="font-bold" :class="saldoLalu > 0 ? 'text-emerald-800' : 'text-rose-800'"
                               x-text="(saldoLalu > 0 ? '-Rp ' : '+Rp ') + formatRupiah(Math.abs(saldoLalu))"></span>
                     </div>
-                    <div class="pt-1.5 border-t border-amber-200/60 flex items-center justify-between text-xs font-bold">
-                        <span class="text-amber-950">Total Tagihan Bersih:</span>
-                        <span class="text-emerald-700 text-base font-black" x-text="'Rp ' + formatRupiah(totalTagihan)">Rp 0</span>
+                    <div class="pt-1.5 border-t border-emas-200 flex items-center justify-between text-xs font-bold">
+                        <span class="text-emas-950">Total Tagihan Bersih:</span>
+                        <span class="text-emerald-700 text-base font-extrabold tabular-money" x-text="'Rp ' + formatRupiah(totalTagihan)">Rp 0</span>
                     </div>
                 </div>
 
-                <!-- Dropdown Lompat Warga jika ada struk acak -->
-                <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                    <span class="font-medium text-[11px]">Lompat ke warga lain:</span>
-                    <select @change="pilihWargaIndex($event.target.value)"
-                            class="text-xs font-bold rounded-lg border-gray-200 text-gray-700 py-1.5 px-2 bg-gray-50 focus:border-[#CEA042] focus:ring-[#CEA042] max-w-[210px] truncate min-h-[38px]">
+                <!-- Dropdown Lompat Warga -->
+                <div class="pt-2 border-t border-gray-100 flex items-center justify-between gap-2 text-xs text-gray-600">
+                    <label for="rekap-lompat-warga" class="font-medium shrink-0">Lompat ke warga lain:</label>
+                    <select id="rekap-lompat-warga" @change="pilihWargaIndex($event.target.value)"
+                            class="select-field py-1.5 px-3 text-xs font-bold max-w-[220px] truncate min-h-[40px]">
                         <template x-for="(w, idx) in masterWarga" :key="w.id">
                             <option :value="idx" :selected="idx === wargaIndexAktif"
-                                    x-text="'[#' + (w.nomor_struk || w.nomor_meter || '-') + '] ' + w.nama + (w.is_tercatat ? ' (✓)' : '')">
+                                    x-text="'[#' + (w.nomor_struk || w.nomor_meter || '-') + '] ' + w.nama + (w.is_tercatat ? ' (Sudah)' : '')">
                             </option>
                         </template>
                     </select>
@@ -617,17 +623,16 @@
                     <button type="button"
                             @click="navigasiWarga(-1)"
                             :disabled="wargaIndexAktif <= 0"
-                            class="px-3.5 py-3 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:pointer-events-none rounded-xl min-h-[48px] transition">
-                        ← Sebelumnya
+                            class="btn-subtle px-3.5 text-xs min-h-[48px]">
+                        &larr; Sebelumnya
                     </button>
                     <button type="submit"
                             :disabled="saving"
-                            class="flex-1 px-4 py-3 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] disabled:opacity-60 rounded-xl shadow-xs min-h-[48px] transition flex items-center justify-center gap-1.5">
-                        <span x-show="!saving">Simpan & Lanjut ke Berikutnya →</span>
+                            class="btn-primary flex-1 px-4 text-xs min-h-[48px]">
+                        <span x-show="!saving">Simpan &amp; Lanjut &rarr;</span>
                         <span x-show="saving" x-cloak>Menyimpan...</span>
                     </button>
-                    <button type="button" @click="tutupModalTambah()"
-                            class="px-3.5 py-3 text-xs font-bold text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl min-h-[48px] transition">
+                    <button type="button" @click="tutupModalTambah()" class="btn-secondary px-3.5 text-xs min-h-[48px]">
                         Selesai
                     </button>
                 </div>
@@ -635,22 +640,29 @@
         </div>
     </div>
 
-    <!-- MODAL DUPLIKASI / BUKA SIKLUS BARU (Salin Warga & Bawa Titipan Bulan Lalu) -->
+    <!-- MODAL DUPLIKASI / BUKA SIKLUS BARU -->
     <div x-show="modalDuplikasi" x-cloak
          @click.self="modalDuplikasi = false"
-         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-xl border border-gray-200 space-y-4 max-h-[92vh] overflow-y-auto">
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modal-duplikasi-title"
+         class="modal-backdrop">
+        <div class="modal-panel max-w-md p-5 sm:p-6 space-y-4">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-1 sm:hidden"></div>
             <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-lg bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold text-sm">
-                        📅
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-emas-100 text-emas-800 border border-emas-200 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     </span>
                     <div>
-                        <h3 class="text-sm sm:text-base font-bold text-gray-900">Buka Siklus Periode Baru</h3>
-                        <p class="text-xs text-gray-500">Mempersiapkan data rekap untuk bulan berikutnya</p>
+                        <h3 id="modal-duplikasi-title" class="text-sm sm:text-base font-bold text-gray-900">Buka Siklus Periode Baru</h3>
+                        <p class="text-xs text-gray-600">Mempersiapkan data rekap untuk bulan berikutnya</p>
                     </div>
                 </div>
-                <button type="button" @click="modalDuplikasi = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+                <button type="button" @click="modalDuplikasi = false" aria-label="Tutup modal buka siklus baru"
+                        class="text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition">
+                    <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
             
             <form method="POST" action="{{ route('admin.rekap-listrik.duplikasi-siklus') }}"
@@ -665,44 +677,41 @@
                   class="space-y-3.5 text-xs">
                 @csrf
 
-                <!-- Pilihan Mode Siklus -->
                 <div class="space-y-1.5">
-                    <label class="block font-bold text-gray-700 uppercase">Metode Pembuatan Siklus:</label>
+                    <span class="block font-bold text-gray-800">Metode Pembuatan Siklus:</span>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <label class="flex items-start gap-2 p-2.5 rounded-xl border cursor-pointer transition"
-                               :class="modeSiklus === 'salin_saldo' ? 'bg-amber-50/80 border-[#CEA042] text-amber-950 font-bold' : 'border-gray-200 text-gray-600'">
+                        <label class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition"
+                               :class="modeSiklus === 'salin_saldo' ? 'bg-emas-50 border-[#CEA042] text-emas-950 font-bold' : 'border-gray-200 text-gray-700 hover:bg-gray-50'">
                             <input type="radio" name="mode" value="salin_saldo" x-model="modeSiklus" class="mt-0.5 text-[#CEA042] focus:ring-[#CEA042]">
                             <div>
                                 <span class="block leading-tight text-xs">Bawa Saldo Titipan</span>
-                                <span class="text-[10px] text-gray-500 font-normal">Kelebihan/kurang bulan lalu otomatis terpotong</span>
+                                <span class="text-[11px] text-gray-600 font-normal">Kelebihan/kurang bulan lalu otomatis terpotong</span>
                             </div>
                         </label>
 
-                        <label class="flex items-start gap-2 p-2.5 rounded-xl border cursor-pointer transition"
-                               :class="modeSiklus === 'kosong' ? 'bg-amber-50/80 border-[#CEA042] text-amber-950 font-bold' : 'border-gray-200 text-gray-600'">
+                        <label class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition"
+                               :class="modeSiklus === 'kosong' ? 'bg-emas-50 border-[#CEA042] text-emas-950 font-bold' : 'border-gray-200 text-gray-700 hover:bg-gray-50'">
                             <input type="radio" name="mode" value="kosong" x-model="modeSiklus" class="mt-0.5 text-[#CEA042] focus:ring-[#CEA042]">
                             <div>
                                 <span class="block leading-tight text-xs">Mulai Bersih</span>
-                                <span class="text-[10px] text-gray-500 font-normal">Ambil warga tanpa bawa saldo bulan lalu</span>
+                                <span class="text-[11px] text-gray-600 font-normal">Ambil warga tanpa bawa saldo bulan lalu</span>
                             </div>
                         </label>
                     </div>
                 </div>
 
                 <div x-show="modeSiklus === 'salin_saldo'">
-                    <label class="block font-bold text-gray-700 uppercase mb-1">Ambil Data & Saldo Dari Siklus:</label>
-                    <input type="text" name="periode_asal" value="{{ $periodeAktif }}" readonly
-                           class="w-full text-xs font-bold bg-gray-100 rounded-xl border-gray-300 py-2.5 px-3 min-h-[44px]">
+                    <label for="dup-periode-asal" class="block font-bold text-gray-800 mb-1">Ambil Data &amp; Saldo Dari Siklus:</label>
+                    <input type="text" id="dup-periode-asal" name="periode_asal" value="{{ $periodeAktif }}" readonly
+                           class="input-field font-bold bg-gray-100">
                 </div>
 
-                <!-- Pemilih Bulan dan Tahun Terstruktur Kalender -->
                 <div class="space-y-1.5">
-                    <label class="block font-bold text-gray-700 uppercase">Siklus Bulan & Tahun Baru <span class="text-rose-500">*</span></label>
+                    <span class="block font-bold text-gray-800">Siklus Bulan &amp; Tahun Baru <span class="text-rose-600">*</span></span>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[11px] text-gray-500 mb-0.5">Bulan:</label>
-                            <select x-model="bulanBaru" required
-                                    class="w-full text-xs font-bold rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-2.5 min-h-[46px]">
+                            <label for="dup-bulan-baru" class="block text-[11px] text-gray-600 mb-1">Bulan:</label>
+                            <select id="dup-bulan-baru" x-model="bulanBaru" required class="select-field font-bold">
                                 @foreach($daftarBulan as $num => $namaBulan)
                                     <option value="{{ $namaBulan }}" {{ $saranBulan === $namaBulan ? 'selected' : '' }}>
                                         Bulan {{ $namaBulan }}
@@ -711,25 +720,23 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] text-gray-500 mb-0.5">Tahun:</label>
-                            <input type="number" x-model.number="tahunBaru" required min="2020" max="2035"
-                                   class="w-full text-xs font-bold rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-2.5 min-h-[46px]">
+                            <label for="dup-tahun-baru" class="block text-[11px] text-gray-600 mb-1">Tahun:</label>
+                            <input type="number" id="dup-tahun-baru" x-model.number="tahunBaru" required min="2020" max="2035"
+                                   class="input-field font-bold tabular-money">
                         </div>
                     </div>
 
-                    <!-- Hidden input nama periode gabungan -->
                     <input type="hidden" name="periode_baru" :value="periodeBaru">
 
-                    <!-- Visual Preview Pill -->
-                    <div class="flex items-center justify-between p-2.5 bg-amber-50/80 rounded-xl border border-amber-200">
-                        <span class="text-gray-600 text-[11px]">Siklus yang akan dibuka:</span>
-                        <span class="font-black text-[#CEA042] text-xs font-mono" x-text="periodeBaru"></span>
+                    <div class="flex items-center justify-between p-2.5 bg-emas-50 rounded-xl border border-emas-200">
+                        <span class="text-gray-700 text-xs">Siklus yang akan dibuka:</span>
+                        <span class="font-extrabold text-emas-900 text-xs font-mono" x-text="periodeBaru"></span>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block font-bold text-gray-700 uppercase mb-1">Wilayah RT Yang Disalin:</label>
-                    <select name="rt" class="w-full text-xs font-bold rounded-xl border-gray-300 focus:border-[#CEA042] py-2.5 min-h-[44px]">
+                    <label for="dup-rt" class="block font-bold text-gray-800 mb-1">Wilayah RT Yang Disalin:</label>
+                    <select id="dup-rt" name="rt" class="select-field font-bold">
                         <option value="semua">Semua RT (RT 01, RT 02, RT 03)</option>
                         <option value="1">Khusus RT 01</option>
                         <option value="2">Khusus RT 02</option>
@@ -737,13 +744,11 @@
                     </select>
                 </div>
 
-                <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
-                    <button type="button" @click="modalDuplikasi = false"
-                            class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px]">
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                    <button type="button" @click="modalDuplikasi = false" class="btn-subtle px-4 text-xs">
                         Batal
                     </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl shadow-xs min-h-[44px] transition">
+                    <button type="submit" class="btn-primary px-5 text-xs">
                         + Buka Siklus Sekarang
                     </button>
                 </div>
@@ -751,96 +756,99 @@
         </div>
     </div>
 
-    <!-- MODAL KELOLA SIKLUS PERIODE (CRUD: DAFTAR, UBAH NAMA, HAPUS, BUKA BARU) -->
+    <!-- MODAL KELOLA SIKLUS PERIODE -->
     <div x-show="modalKelolaSiklus" x-cloak
          @click.self="modalKelolaSiklus = false"
-         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] flex flex-col">
-            <!-- Header -->
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modal-kelola-siklus-title"
+         class="modal-backdrop">
+        <div class="modal-panel max-w-xl p-5 sm:p-6 space-y-4 flex flex-col">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto -mb-1 sm:hidden shrink-0"></div>
             <div class="flex items-center justify-between border-b border-gray-100 pb-3 shrink-0">
                 <div class="flex items-center gap-2.5">
-                    <span class="w-9 h-9 rounded-xl bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="w-9 h-9 rounded-xl bg-emas-100 text-emas-800 border border-emas-200 flex items-center justify-center font-bold shrink-0">
+                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                     </span>
                     <div>
-                        <h3 class="text-base font-bold text-gray-900 leading-tight">Kelola Siklus Periode</h3>
-                        <p class="text-xs text-gray-500">Daftar siklus, ubah nama (rename), atau hapus siklus</p>
+                        <h3 id="modal-kelola-siklus-title" class="text-base font-bold text-gray-900 leading-tight">Kelola Siklus Periode</h3>
+                        <p class="text-xs text-gray-600">Daftar siklus, ubah nama (rename), atau hapus siklus</p>
                     </div>
                 </div>
-                <button type="button" @click="modalKelolaSiklus = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
-            </div>
-
-            <!-- Tombol Buka Siklus Baru Cepat di Header Modal -->
-            <div class="flex items-center justify-between bg-amber-50/70 p-3 rounded-xl border border-amber-200/80 shrink-0">
-                <div>
-                    <span class="text-xs font-bold text-amber-950 block">Ingin menambah bulan baru?</span>
-                    <span class="text-[11px] text-amber-800">Otomatis salin data warga & bawa saldo titipan</span>
-                </div>
-                <button type="button" @click="modalKelolaSiklus = false; bukaModalDuplikasi()"
-                        class="px-3 py-2 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl transition shadow-xs min-h-[40px] flex items-center gap-1.5 shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                    <span>+ Siklus Baru</span>
+                <button type="button" @click="modalKelolaSiklus = false" aria-label="Tutup modal kelola siklus"
+                        class="text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition">
+                    <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
-            <!-- Daftar Siklus (Scrollable List) -->
+            <div class="flex items-center justify-between gap-2 bg-emas-50 p-3.5 rounded-xl border border-emas-200 shrink-0">
+                <div>
+                    <span class="text-xs font-bold text-emas-950 block">Ingin menambah bulan baru?</span>
+                    <span class="text-[11px] text-emas-800">Otomatis salin data warga &amp; bawa saldo titipan</span>
+                </div>
+                <button type="button" @click="modalKelolaSiklus = false; bukaModalDuplikasi()"
+                        class="btn-primary px-3.5 py-2 text-xs min-h-[40px] shrink-0">
+                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    <span>Siklus Baru</span>
+                </button>
+            </div>
+
             <div class="overflow-y-auto space-y-2.5 pr-0.5 flex-1 max-h-[50vh]">
                 <template x-for="item in siklusStats" :key="item.nama">
                     <div class="p-3.5 rounded-xl border transition"
-                         :class="item.nama === '{{ $periodeAktif }}' ? 'bg-amber-50/40 border-[#CEA042] shadow-2xs' : 'bg-white border-gray-200 hover:border-gray-300'">
+                         :class="item.nama === '{{ $periodeAktif }}' ? 'bg-emas-50/70 border-[#CEA042] shadow-sm' : 'bg-white border-gray-200 hover:border-gray-300'">
                         <div class="flex items-start justify-between gap-2">
                             <div>
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-sm font-black text-gray-900" x-text="item.nama"></span>
+                                    <span class="text-sm font-extrabold text-gray-900" x-text="item.nama"></span>
                                     <template x-if="item.nama === '{{ $periodeAktif }}'">
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#CEA042] text-white">
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#CEA042] text-[#1F1406]">
                                             Sedang Dibuka
                                         </span>
                                     </template>
                                 </div>
-                                <div class="flex items-center gap-2 mt-1 text-[11px] text-gray-500 flex-wrap">
-                                    <span><strong class="text-gray-800" x-text="item.total_tagihan"></strong> Warga</span>
-                                    <span>•</span>
+                                <div class="flex items-center gap-2 mt-1 text-xs text-gray-600 flex-wrap tabular-money">
+                                    <span><strong class="text-gray-900" x-text="item.total_tagihan"></strong> Warga</span>
+                                    <span>&bull;</span>
                                     <span class="text-emerald-700 font-semibold"><strong x-text="item.total_lunas"></strong> Lunas</span>
-                                    <span>•</span>
+                                    <span>&bull;</span>
                                     <span class="text-amber-800 font-semibold"><strong x-text="item.total_belum_lunas"></strong> Belum</span>
-                                    <span>•</span>
-                                    <span class="font-bold text-[#CEA042]" x-text="'Rp ' + formatRupiah(item.total_nominal)"></span>
+                                    <span>&bull;</span>
+                                    <span class="font-bold text-emas-800" x-text="'Rp ' + formatRupiah(item.total_nominal)"></span>
                                 </div>
                             </div>
 
-                            <!-- Action Buttons -->
                             <div class="flex items-center gap-1.5 shrink-0">
-                                <!-- Buka Siklus Ini (jika bukan yang aktif) -->
                                 <a :href="'{{ route('admin.rekap-listrik.index') }}?periode=' + encodeURIComponent(item.nama) + '&rt={{ $rtAktif }}'"
                                    x-show="item.nama !== '{{ $periodeAktif }}'"
                                    title="Buka Rekap Periode Ini"
-                                   class="p-2 text-xs font-bold text-[#CEA042] hover:bg-amber-50 rounded-lg border border-amber-200 transition min-h-[38px] min-w-[38px] flex items-center justify-center">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   aria-label="Buka rekap periode ini"
+                                   class="p-2 text-xs font-bold text-emas-800 hover:bg-emas-50 rounded-lg border border-emas-200 transition min-h-[40px] min-w-[40px] flex items-center justify-center">
+                                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                 </a>
 
-                                <!-- Ubah Nama (Rename) -->
                                 <button type="button"
                                         @click="bukaModalRenameSiklus(item.nama)"
                                         title="Ubah Nama Siklus"
-                                        class="p-2 text-xs font-bold text-gray-700 hover:text-[#CEA042] hover:bg-amber-50 rounded-lg border border-gray-200 transition min-h-[38px] min-w-[38px] flex items-center justify-center">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        aria-label="Ubah nama siklus"
+                                        class="p-2 text-xs font-bold text-gray-700 hover:text-emas-800 hover:bg-emas-50 rounded-lg border border-gray-200 transition min-h-[40px] min-w-[40px] flex items-center justify-center">
+                                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                     </svg>
                                 </button>
 
-                                <!-- Hapus Siklus -->
                                 <button type="button"
                                         @click="bukaModalHapusSiklus(item.nama, item.total_tagihan, item.total_lunas)"
                                         title="Hapus Siklus Ini"
-                                        class="p-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200 transition min-h-[38px] min-w-[38px] flex items-center justify-center">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        aria-label="Hapus siklus ini"
+                                        class="p-2 text-xs font-bold text-rose-700 hover:bg-rose-50 rounded-lg border border-rose-200 transition min-h-[40px] min-w-[40px] flex items-center justify-center">
+                                    <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                 </button>
@@ -850,10 +858,8 @@
                 </template>
             </div>
 
-            <!-- Footer -->
             <div class="pt-3 border-t border-gray-100 flex items-center justify-end shrink-0">
-                <button type="button" @click="modalKelolaSiklus = false"
-                        class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px] transition">
+                <button type="button" @click="modalKelolaSiklus = false" class="btn-subtle px-4 text-xs">
                     Tutup
                 </button>
             </div>
@@ -863,58 +869,62 @@
     <!-- MODAL RENAME / UBAH NAMA SIKLUS -->
     <div x-show="modalRenameSiklus" x-cloak
          @click.self="modalRenameSiklus = false"
-         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4">
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modal-rename-siklus-title"
+         class="modal-backdrop">
+        <div class="modal-panel max-w-md p-5 sm:p-6 space-y-4">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-1 sm:hidden"></div>
             <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                 <div>
-                    <h3 class="text-base font-bold text-gray-900">Ubah Nama Siklus</h3>
-                    <p class="text-xs text-gray-500">Sesuaikan nama bulan atau tahun siklus tagihan</p>
+                    <h3 id="modal-rename-siklus-title" class="text-base font-bold text-gray-900">Ubah Nama Siklus</h3>
+                    <p class="text-xs text-gray-600">Sesuaikan nama bulan atau tahun siklus tagihan</p>
                 </div>
-                <button type="button" @click="modalRenameSiklus = false" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+                <button type="button" @click="modalRenameSiklus = false" aria-label="Tutup modal ubah nama siklus"
+                        class="text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition">
+                    <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
 
             <form method="POST" action="{{ route('admin.rekap-listrik.siklus.rename') }}" class="space-y-4 text-xs">
                 @csrf
                 <div>
-                    <label class="block font-bold text-gray-600 uppercase mb-1">Nama Siklus Saat Ini:</label>
-                    <input type="text" name="periode_lama" x-model="siklusTerpilih" readonly
-                           class="w-full text-xs font-bold bg-gray-100 rounded-xl border-gray-300 py-2.5 px-3 min-h-[44px]">
+                    <label for="rename-periode-lama" class="block font-bold text-gray-700 mb-1">Nama Siklus Saat Ini:</label>
+                    <input type="text" id="rename-periode-lama" name="periode_lama" x-model="siklusTerpilih" readonly
+                           class="input-field font-bold bg-gray-100">
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="block font-bold text-gray-800 uppercase">Ubah Menjadi Bulan & Tahun Baru <span class="text-rose-500">*</span></label>
+                    <span class="block font-bold text-gray-800">Ubah Menjadi Bulan &amp; Tahun Baru <span class="text-rose-600">*</span></span>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[11px] text-gray-500 mb-0.5">Bulan:</label>
-                            <select x-model="bulanRename" required
-                                    class="w-full text-xs font-bold rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-2.5 min-h-[46px]">
+                            <label for="rename-bulan" class="block text-[11px] text-gray-600 mb-1">Bulan:</label>
+                            <select id="rename-bulan" x-model="bulanRename" required class="select-field font-bold">
                                 @foreach($daftarBulan as $num => $namaBulan)
                                     <option value="{{ $namaBulan }}">{{ $namaBulan }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] text-gray-500 mb-0.5">Tahun:</label>
-                            <input type="number" x-model.number="tahunRename" required min="2020" max="2035"
-                                   class="w-full text-xs font-bold rounded-xl border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-2.5 min-h-[46px]">
+                            <label for="rename-tahun" class="block text-[11px] text-gray-600 mb-1">Tahun:</label>
+                            <input type="number" id="rename-tahun" x-model.number="tahunRename" required min="2020" max="2035"
+                                   class="input-field font-bold tabular-money">
                         </div>
                     </div>
 
                     <input type="hidden" name="periode_baru" :value="(bulanRename + ' ' + tahunRename).trim()">
 
-                    <div class="flex items-center justify-between p-2.5 bg-amber-50/80 rounded-xl border border-amber-200 mt-2">
-                        <span class="text-gray-600 text-[11px]">Nama Baru:</span>
-                        <span class="font-black text-[#CEA042] text-xs font-mono" x-text="bulanRename + ' ' + tahunRename"></span>
+                    <div class="flex items-center justify-between p-2.5 bg-emas-50 rounded-xl border border-emas-200 mt-2">
+                        <span class="text-gray-700 text-xs">Nama Baru:</span>
+                        <span class="font-extrabold text-emas-900 text-xs font-mono" x-text="bulanRename + ' ' + tahunRename"></span>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
-                    <button type="button" @click="modalRenameSiklus = false"
-                            class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px]">
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                    <button type="button" @click="modalRenameSiklus = false" class="btn-subtle px-4 text-xs">
                         Batal
                     </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl shadow-xs min-h-[44px] transition">
+                    <button type="submit" class="btn-primary px-5 text-xs">
                         Simpan Perubahan
                     </button>
                 </div>
@@ -925,28 +935,33 @@
     <!-- MODAL HAPUS SIKLUS -->
     <div x-show="modalHapusSiklus" x-cloak
          @click.self="modalHapusSiklus = false"
-         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-200 space-y-4">
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modal-hapus-siklus-title"
+         class="modal-backdrop">
+        <div class="modal-panel max-w-md p-5 sm:p-6 space-y-4">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-1 sm:hidden"></div>
             <div class="flex items-center gap-2.5 border-b border-gray-100 pb-3">
-                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold shrink-0">
+                    <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-gray-900">Hapus Siklus Periode</h3>
-                    <p class="text-xs text-gray-500">Tindakan ini tidak dapat dibatalkan</p>
+                    <h3 id="modal-hapus-siklus-title" class="text-base font-bold text-gray-900">Hapus Siklus Periode</h3>
+                    <p class="text-xs text-gray-600">Tindakan ini tidak dapat dibatalkan</p>
                 </div>
             </div>
 
-            <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-950 text-xs space-y-1.5">
+            <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-950 text-xs space-y-2">
                 <p>
-                    Apakah Anda yakin ingin menghapus siklus <strong class="text-rose-900 font-black" x-text="siklusTerpilih"></strong>?
+                    Apakah Anda yakin ingin menghapus siklus <strong class="text-rose-900 font-extrabold" x-text="siklusTerpilih"></strong>?
                 </p>
-                <p class="text-[11px] text-rose-800">
-                    Semua data tagihan warga (<strong x-text="siklusHapusTotalData"></strong> data) di dalam siklus ini akan dihapus permanen.
+                <p class="text-xs text-rose-800">
+                    Semua data tagihan warga (<strong class="tabular-money" x-text="siklusHapusTotalData"></strong> data) di dalam siklus ini akan dihapus permanen.
                 </p>
                 <template x-if="siklusHapusTotalLunas > 0">
-                    <p class="text-[11px] font-bold text-amber-900 bg-amber-100/80 p-2 rounded-lg border border-amber-300">
-                        ⚠️ Peringatan: Ada <span x-text="siklusHapusTotalLunas"></span> tagihan yang sudah tercatat LUNAS pada siklus ini.
+                    <p class="text-xs font-bold text-amber-950 bg-amber-100 p-2.5 rounded-lg border border-amber-300 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-700 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>Peringatan: Ada <span class="tabular-money" x-text="siklusHapusTotalLunas"></span> tagihan yang sudah tercatat LUNAS pada siklus ini.</span>
                     </p>
                 </template>
             </div>
@@ -955,13 +970,11 @@
                 @csrf
                 <input type="hidden" name="periode" :value="siklusTerpilih">
 
-                <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
-                    <button type="button" @click="modalHapusSiklus = false"
-                            class="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px]">
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                    <button type="button" @click="modalHapusSiklus = false" class="btn-subtle px-4 text-xs">
                         Batal
                     </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs min-h-[44px] transition">
+                    <button type="submit" class="btn-danger px-5 text-xs">
                         Ya, Hapus Siklus Ini
                     </button>
                 </div>
@@ -969,70 +982,73 @@
         </div>
     </div>
 
-    <!-- MODAL SCAN & IMPOR DOKUMEN (BANYAK WARGA SEKALIGUS - MOBILE FRIENDLY) -->
+    <!-- MODAL SCAN & IMPOR DOKUMEN -->
     <div x-show="modalScan" x-cloak
          @click.self="if(stepScan !== 'processing') modalScan = false"
-         class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl border border-gray-200 space-y-4 max-h-[92vh] flex flex-col w-full">
-            
-            <!-- Header Modal -->
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modal-scan-title"
+         class="modal-backdrop">
+        <div class="modal-panel max-w-4xl p-4 sm:p-6 space-y-4 flex flex-col">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto -mb-1 sm:hidden shrink-0"></div>
             <div class="flex items-center justify-between border-b border-gray-100 pb-3 shrink-0">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-amber-100 text-[#CEA042] flex items-center justify-center font-bold shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <div class="w-9 h-9 rounded-xl bg-emas-100 text-emas-800 border border-emas-200 flex items-center justify-center font-bold shrink-0">
+                        <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </div>
                     <div>
-                        <h3 class="text-sm sm:text-base font-bold text-gray-900 leading-tight">Scan & Impor Struk (Banyak Warga)</h3>
-                        <p class="text-[11px] text-gray-500">Membaca lembaran foto/dokumen & cross-check sebelum simpan</p>
+                        <h3 id="modal-scan-title" class="text-sm sm:text-base font-bold text-gray-900 leading-tight">Scan &amp; Impor Struk (Banyak Warga)</h3>
+                        <p class="text-xs text-gray-600">Membaca lembaran foto/dokumen &amp; cross-check sebelum simpan</p>
                     </div>
                 </div>
-                <button type="button" @click="modalScan = false" x-show="stepScan !== 'processing'" class="text-gray-400 hover:text-gray-600 text-2xl p-1 leading-none">&times;</button>
+                <button type="button" @click="modalScan = false" x-show="stepScan !== 'processing'" aria-label="Tutup modal scan"
+                        class="text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition">
+                    <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
 
             <!-- TAHAP 1: UPLOAD / FOTO DOKUMEN -->
             <div x-show="stepScan === 'upload'" class="space-y-4 py-2 overflow-y-auto">
-                <div class="bg-amber-50 rounded-xl p-3 sm:p-3.5 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
-                    <svg class="w-5 h-5 text-[#CEA042] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <div class="leading-relaxed text-[11px] sm:text-xs">
-                        <strong>Cara Kerja Cepat:</strong> Foto 1 lembar kertas rekap/buku yang berisi banyak nama warga & tagihan, atau upload file Excel/PDF. Sistem akan <strong>mendeteksi semua warga & nominalnya sekaligus</strong>, lalu menampilkan <strong>layar cross-check</strong> agar Anda bisa memeriksa dan mengoreksi data sebelum disimpan.
+                <div class="bg-emas-50 rounded-xl p-3.5 border border-emas-200 text-xs text-emas-950 flex items-start gap-2.5">
+                    <svg class="w-5 h-5 text-emas-700 shrink-0 mt-0.5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div class="leading-relaxed text-xs">
+                        <strong>Cara Kerja Cepat:</strong> Foto 1 lembar kertas rekap/buku yang berisi banyak nama warga &amp; tagihan, atau upload file Excel/PDF. Sistem akan <strong>mendeteksi semua warga &amp; nominalnya sekaligus</strong>, lalu menampilkan <strong>layar cross-check</strong> agar Anda bisa memeriksa dan mengoreksi data sebelum disimpan.
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <!-- Opsi 1: Kamera HP Langsung -->
-                    <label class="flex flex-col items-center justify-center p-5 sm:p-6 border-2 border-dashed border-[#CEA042] bg-amber-50/50 hover:bg-amber-50 rounded-2xl cursor-pointer transition text-center group min-h-[140px] sm:min-h-[160px]">
+                    <label class="flex flex-col items-center justify-center p-5 sm:p-6 border-2 border-dashed border-[#CEA042] bg-emas-50/60 hover:bg-emas-50 rounded-2xl cursor-pointer transition text-center group min-h-[140px] sm:min-h-[160px]">
                         <input type="file" accept="image/*" capture="environment" @change="prosesFile($event)" class="hidden">
-                        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-xs border border-amber-200 flex items-center justify-center text-[#CEA042] mb-2 group-hover:scale-105 transition">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <div class="w-12 h-12 rounded-full bg-white shadow-sm border border-emas-200 flex items-center justify-center text-emas-800 mb-2.5 group-hover:scale-105 transition">
+                            <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
                         <span class="font-bold text-gray-900 text-xs sm:text-sm">Foto Lembaran via Kamera HP</span>
-                        <span class="text-[11px] text-gray-500 mt-0.5">Arahkan kamera ke lembaran rekap fisik</span>
+                        <span class="text-xs text-gray-600 mt-0.5">Arahkan kamera ke lembaran rekap fisik</span>
                     </label>
 
-                    <!-- Opsi 2: Upload File (Galeri, PDF, Excel / CSV) -->
-                    <label class="flex flex-col items-center justify-center p-5 sm:p-6 border-2 border-dashed border-gray-300 hover:border-[#CEA042] bg-gray-50/50 hover:bg-amber-50/30 rounded-2xl cursor-pointer transition text-center group min-h-[140px] sm:min-h-[160px]">
+                    <label class="flex flex-col items-center justify-center p-5 sm:p-6 border-2 border-dashed border-gray-300 hover:border-[#CEA042] bg-[#F8F7F4] hover:bg-emas-50/40 rounded-2xl cursor-pointer transition text-center group min-h-[140px] sm:min-h-[160px]">
                         <input type="file" accept="image/*,.pdf,.xlsx,.xls,.csv" @change="prosesFile($event)" class="hidden">
-                        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-xs border border-gray-200 flex items-center justify-center text-gray-600 mb-2 group-hover:scale-105 transition">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <div class="w-12 h-12 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-700 mb-2.5 group-hover:scale-105 transition">
+                            <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                         <span class="font-bold text-gray-900 text-xs sm:text-sm">Pilih Dokumen / Foto Galeri</span>
-                        <span class="text-[11px] text-gray-500 mt-0.5">Mendukung Foto JPG/PNG, File PDF, atau Excel (.xlsx/.csv)</span>
+                        <span class="text-xs text-gray-600 mt-0.5">Mendukung Foto JPG/PNG, File PDF, atau Excel (.xlsx/.csv)</span>
                     </label>
                 </div>
             </div>
 
-            <!-- TAHAP 2: PROSES PEMINDAIAN (SCANNING ANIMATION) -->
+            <!-- TAHAP 2: PROSES PEMINDAIAN -->
             <div x-show="stepScan === 'processing'" class="py-12 px-4 text-center space-y-4">
                 <div class="relative w-16 h-16 mx-auto">
-                    <div class="w-16 h-16 rounded-full border-4 border-amber-200 border-t-[#CEA042] animate-spin"></div>
-                    <div class="absolute inset-0 flex items-center justify-center text-[#CEA042]">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <div class="w-16 h-16 rounded-full border-4 border-emas-200 border-t-[#CEA042] animate-spin"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-emas-800">
+                        <svg class="w-6 h-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     </div>
                 </div>
 
                 <div>
                     <h4 class="text-sm font-bold text-gray-900" x-text="statusScanText">Sedang Membaca Dokumen...</h4>
-                    <p class="text-xs text-gray-500 mt-1">Mendeteksi baris nama warga & nominal tagihan...</p>
+                    <p class="text-xs text-gray-600 mt-1">Mendeteksi baris nama warga &amp; nominal tagihan...</p>
                 </div>
 
                 <div class="max-w-xs mx-auto w-full bg-gray-200 rounded-full h-2 overflow-hidden" x-show="progressScan > 0">
@@ -1040,43 +1056,40 @@
                 </div>
             </div>
 
-            <!-- TAHAP 3: LAYAR CROSS-CHECK MASSAL (VERIFIKASI OLEH USER SEBELUM DISIMPAN) -->
+            <!-- TAHAP 3: LAYAR CROSS-CHECK MASSAL -->
             <div x-show="stepScan === 'crosscheck'" class="flex-1 overflow-y-auto space-y-3">
-                <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-200 text-xs text-emerald-900 flex flex-wrap items-center justify-between gap-2">
+                <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-200 text-xs text-emerald-950 flex flex-wrap items-center justify-between gap-2">
                     <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        <span>Ditemukan <strong class="text-emerald-950 font-black" x-text="hasilScan.length"></strong> warga dari dokumen ini. Periksa kebenaran data di bawah:</span>
+                        <svg class="w-4 h-4 text-emerald-700 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <span>Ditemukan <strong class="font-extrabold tabular-money" x-text="hasilScan.length"></strong> warga dari dokumen ini. Periksa kebenaran data di bawah:</span>
                     </div>
-                    <button type="button" @click="tambahBarisScan()" class="text-xs font-bold text-[#CEA042] hover:underline flex items-center gap-1">
+                    <button type="button" @click="tambahBarisScan()" class="text-xs font-bold text-emas-800 hover:underline py-1">
                         + Tambah Baris Manual
                     </button>
                 </div>
 
-                <!-- Split Grid: Preview Dokumen Asli & Tabel Cross-check -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-                    <!-- Kolom Preview Gambar Dokumen Asli (Bisa Di-toggle / Di-zoom untuk Cross-check) -->
                     <div class="lg:col-span-4 bg-gray-100 rounded-xl p-2.5 border border-gray-200 space-y-2" x-show="previewFileUrl">
-                        <div class="flex items-center justify-between text-xs font-bold text-gray-700 px-1">
+                        <div class="flex items-center justify-between text-xs font-bold text-gray-800 px-1">
                             <span>Foto Dokumen Asli:</span>
-                            <button type="button" @click="tampilkanPreview = !tampilkanPreview" class="text-[#CEA042] hover:underline text-[11px] lg:hidden">
+                            <button type="button" @click="tampilkanPreview = !tampilkanPreview" class="text-emas-800 hover:underline text-xs lg:hidden">
                                 <span x-text="tampilkanPreview ? 'Sembunyikan' : 'Buka Foto'"></span>
                             </button>
                         </div>
                         <div x-show="tampilkanPreview || window.innerWidth >= 1024" class="max-h-56 sm:max-h-72 lg:max-h-96 overflow-auto rounded-lg bg-black/5 p-1 flex items-center justify-center">
-                            <img :src="previewFileUrl" alt="Preview Dokumen" class="max-w-full h-auto object-contain rounded shadow-xs">
+                            <img :src="previewFileUrl" alt="Preview Dokumen" class="max-w-full h-auto object-contain rounded shadow-sm">
                         </div>
                     </div>
 
-                    <!-- Kolom Tabel Form Review / Cross-check Data -->
                     <div :class="previewFileUrl ? 'lg:col-span-8' : 'lg:col-span-12'" class="space-y-3">
                         <form method="POST" action="{{ route('admin.rekap-listrik.batch-store') }}" id="form-batch-rekap" class="space-y-3">
                             @csrf
                             <input type="hidden" name="periode" value="{{ $periodeAktif }}">
                             <input type="hidden" name="rt" value="{{ $rtAktif }}">
 
-                            <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-2xs max-h-72 lg:max-h-96">
+                            <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm max-h-72 lg:max-h-96">
                                 <table class="w-full text-left text-xs min-w-[550px]">
-                                    <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-bold uppercase text-[10px] sticky top-0 z-10">
+                                    <thead class="bg-[#F8F7F4] border-b border-gray-200 text-gray-600 font-bold uppercase text-[11px] sticky top-0 z-10">
                                         <tr>
                                             <th class="py-2.5 px-2.5 w-16">Struk</th>
                                             <th class="py-2.5 px-2.5">Warga RT {{ $rtAktif }}</th>
@@ -1088,18 +1101,18 @@
                                     </thead>
                                     <tbody class="divide-y divide-gray-100 bg-white">
                                         <template x-for="(item, idx) in hasilScan" :key="idx">
-                                            <tr class="hover:bg-amber-50/40 transition">
-                                                <!-- Nomor Struk -->
+                                            <tr class="hover:bg-emas-50/40 transition">
                                                 <td class="py-2 px-2.5 align-middle">
                                                     <input type="text" :name="'items[' + idx + '][nomor_struk]'" x-model="item.nomor_struk" required
-                                                           class="w-full text-xs font-mono font-bold rounded-lg border-gray-300 focus:border-[#CEA042] py-1.5 px-2 min-h-[38px]">
+                                                           aria-label="Nomor struk"
+                                                           class="w-full text-xs font-mono font-bold rounded-lg border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-1.5 px-2 min-h-[38px] tabular-money">
                                                 </td>
 
-                                                <!-- Nama Warga & Dropdown Pilihan -->
                                                 <td class="py-2 px-2.5 align-middle">
                                                     <div class="space-y-1">
                                                         <select :name="'items[' + idx + '][warga_id]'" x-model="item.warga_id" @change="onPilihWargaRow(idx, $event)"
-                                                                class="w-full text-xs rounded-lg border-gray-300 focus:border-[#CEA042] py-1.5 px-2 min-h-[38px]">
+                                                                aria-label="Pilih warga"
+                                                                class="w-full text-xs rounded-lg border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-1.5 px-2 min-h-[38px]">
                                                             <option value="">-- Ketik Manual / Luar RT --</option>
                                                             @foreach($wargaRtAktif as $w)
                                                                 <option value="{{ $w->id }}"
@@ -1115,33 +1128,31 @@
                                                     </div>
                                                 </td>
 
-                                                <!-- Tagihan Awal PLN -->
                                                 <td class="py-2 px-2.5 align-middle">
                                                     <input type="text" inputmode="numeric"
                                                            :name="'items[' + idx + '][tagihan_awal]'"
                                                            x-model="item.tagihan_awal_display"
                                                            @input="onInputTagihanRow(idx, $event)"
                                                            placeholder="65.000"
+                                                           aria-label="Nominal tagihan awal"
                                                            required
-                                                           class="w-full text-xs font-bold text-gray-900 rounded-lg border-gray-300 focus:border-[#CEA042] py-1.5 px-2 min-h-[38px]">
+                                                           class="w-full text-xs font-bold text-gray-900 rounded-lg border-gray-300 focus:border-[#CEA042] focus:ring-[#CEA042] py-1.5 px-2 min-h-[38px] tabular-money">
                                                 </td>
 
-                                                <!-- Kas Kartar -->
-                                                <td class="py-2 px-2.5 text-right font-semibold text-[#CEA042] align-middle text-[11px]">
+                                                <td class="py-2 px-2.5 text-right font-semibold text-emas-800 align-middle text-[11px] tabular-money">
                                                     +Rp 3.000
                                                 </td>
 
-                                                <!-- Total Bersih -->
-                                                <td class="py-2 px-2.5 text-right font-black text-gray-900 align-middle text-xs">
+                                                <td class="py-2 px-2.5 text-right font-extrabold text-gray-900 align-middle text-xs tabular-money">
                                                     <span x-text="'Rp ' + formatRupiah(item.total_tagihan)"></span>
                                                     <template x-if="item.saldo_lalu > 0">
-                                                        <div class="text-[9px] text-emerald-700 font-bold" x-text="'-Rp ' + formatRupiah(item.saldo_lalu) + ' (Titip)'"></div>
+                                                        <div class="text-[10px] text-emerald-800 font-bold" x-text="'-Rp ' + formatRupiah(item.saldo_lalu) + ' (Titip)'"></div>
                                                     </template>
                                                 </td>
 
-                                                <!-- Tombol Hapus Baris -->
                                                 <td class="py-2 px-2 text-center align-middle">
-                                                    <button type="button" @click="hapusBarisScan(idx)" class="text-rose-500 hover:text-rose-700 p-1 font-bold text-sm min-h-[36px] min-w-[36px] flex items-center justify-center" title="Hapus baris ini">&times;</button>
+                                                    <button type="button" @click="hapusBarisScan(idx)" aria-label="Hapus baris ini"
+                                                            class="text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg p-1 font-bold text-sm min-h-[36px] min-w-[36px] flex items-center justify-center transition">&times;</button>
                                                 </td>
                                             </tr>
                                         </template>
@@ -1152,29 +1163,24 @@
                     </div>
                 </div>
 
-                <!-- Ringkasan Akumulasi Tagihan -->
-                <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div class="bg-[#F8F7F4] rounded-xl p-3 border border-gray-200 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div>
-                        <span class="text-gray-500">Total Warga Direkap:</span>
-                        <strong class="text-gray-900 ml-1" x-text="hasilScan.length + ' Warga'"></strong>
+                        <span class="text-gray-600">Total Warga Direkap:</span>
+                        <strong class="text-gray-900 ml-1 tabular-money" x-text="hasilScan.length + ' Warga'"></strong>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-gray-500">Estimasi Total Tagihan:</span>
-                        <strong class="text-sm font-black text-[#CEA042]" x-text="'Rp ' + formatRupiah(totalAkumulasiScan)"></strong>
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-600">Estimasi Total Tagihan:</span>
+                        <strong class="text-sm font-extrabold text-emas-800 tabular-money" x-text="'Rp ' + formatRupiah(totalAkumulasiScan)"></strong>
                     </div>
                 </div>
 
-                <!-- Footer Tombol Aksi -->
-                <div class="pt-2 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
-                    <button type="button" @click="resetScan()"
-                            class="px-3.5 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl min-h-[44px]">
+                <div class="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
+                    <button type="button" @click="resetScan()" class="btn-subtle px-3.5 text-xs">
                         Scan Dokumen Lain
                     </button>
 
-                    <!-- Tombol Konfirmasi CTA Emas -->
-                    <button type="button" @click="submitBatchForm()"
-                            class="px-5 py-2.5 text-xs font-bold text-white bg-[#CEA042] hover:bg-[#BA8832] rounded-xl shadow-xs min-h-[46px] transition flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    <button type="button" @click="submitBatchForm()" class="btn-primary px-5 text-xs">
+                        <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                         <span x-text="'Data Sudah Sesuai, Simpan Semua (' + hasilScan.length + ' Warga)'"></span>
                     </button>
                 </div>
